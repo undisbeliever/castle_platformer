@@ -1,0 +1,14 @@
+*.swp
+*~
+
+bin
+obj
+unit_tests/bin
+resources/*.2bpp
+resources/*.4bpp
+resources/*.map
+resources/*.mp7
+resources/*.pc7
+resources/*.clr
+tables/*.inc
+
