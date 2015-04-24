@@ -24,4 +24,5 @@ Build Requirements
  * python3
  * [Tiled](http://www.mapeditor.org/)
  * [python3-tmx](http://python-tmx.nongnu.org/)
+ * ImageMagick
 

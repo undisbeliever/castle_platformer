@@ -4,11 +4,15 @@
 bin
 obj
 unit_tests/bin
-resources/*.2bpp
-resources/*.4bpp
-resources/*.map
-resources/*.mp7
-resources/*.pc7
-resources/*.clr
 tables/*.inc
+
+*.2bpp
+*.4bpp
+*.map
+*.mp7
+*.pc7
+*.clr
+*.metamap1x16
+*.metatile1x16
+resources/metatilesets/*.png
 

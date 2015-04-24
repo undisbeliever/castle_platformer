@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="112" height="56" tilewidth="16" tileheight="16" nextobjectid="17">
+ <tileset firstgid="1" name="castle_platformer" tilewidth="16" tileheight="16">
+  <image source="../metatilesets/castle_platformer.png" trans="87ceeb" width="256" height="256"/>
+  <terraintypes>
+   <terrain name="Dirt" tile="65"/>
+   <terrain name="Brick" tile="161"/>
+   <terrain name="Platform" tile="5"/>
+   <terrain name="Platform2" tile="2"/>
+   <terrain name="Pedistal" tile="18"/>
+   <terrain name="Ice Platform" tile="244"/>
+   <terrain name="Ice Platform 2" tile="241"/>
+  </terraintypes>
+  <tile id="1" terrain=",3,,"/>
+  <tile id="2" terrain="3,3,,"/>
+  <tile id="3" terrain="3,,,"/>
+  <tile id="4" terrain=",2,,"/>
+  <tile id="5" terrain="2,2,,"/>
+  <tile id="6" terrain="2,,,"/>
+  <tile id="17" terrain=",,,4"/>
+  <tile id="18" terrain=",,4,4"/>
+  <tile id="19" terrain=",,4,"/>
+  <tile id="33" terrain=",4,,"/>
+  <tile id="34" terrain="4,4,,"/>
+  <tile id="35" terrain="4,,,"/>
+  <tile id="48" terrain=",,,0"/>
+  <tile id="49" terrain=",,0,0"/>
+  <tile id="50" terrain=",,0,"/>
+  <tile id="64" terrain=",0,,0"/>
+  <tile id="65" terrain="0,0,0,0"/>
+  <tile id="66" terrain="0,,0,"/>
+  <tile id="80" terrain=",0,,"/>
+  <tile id="81" terrain="0,0,,"/>
+  <tile id="82" terrain="0,,,"/>
+  <tile id="112" terrain="0,0,0,"/>
+  <tile id="113" terrain="0,0,,0"/>
+  <tile id="128" terrain="0,,0,0"/>
+  <tile id="129" terrain=",0,0,0"/>
+  <tile id="144" terrain=",,,1"/>
+  <tile id="145" terrain=",,1,1"/>
+  <tile id="146" terrain=",,1,"/>
+  <tile id="160" terrain=",1,,1"/>
+  <tile id="161" terrain="1,1,1,1"/>
+  <tile id="162" terrain="1,,1,"/>
+  <tile id="176" terrain=",1,,"/>
+  <tile id="177" terrain="1,1,,"/>
+  <tile id="178" terrain="1,,,"/>
+  <tile id="208" terrain="1,1,1,"/>
+  <tile id="209" terrain="1,1,,1"/>
+  <tile id="224" terrain="1,,1,1"/>
+  <tile id="225" terrain=",1,1,1"/>
+  <tile id="240" terrain=",6,,"/>
+  <tile id="241" terrain="6,6,,"/>
+  <tile id="242" terrain="6,,,"/>
+  <tile id="243" terrain=",5,,"/>
+  <tile id="244" terrain="5,5,,"/>
+  <tile id="245" terrain="5,,,"/>
+ </tileset>
+ <layer name="Tile Layer 1" width="112" height="56">
+  <data encoding="base64" compression="zlib">
+   eJztnMeLFEEUh3vXsOZ8MGDAHDAcRTAcxb9ABD2bPYvxJmJcFUSMqycx60mMVzF7E+Ougjnn7K/ZGWiaDlXV71XoqcMHy/a81/Xqo2Zqq99sXRAEdYZZpxCz3IJxq9AEDhJiuh5Vf+stGLf3p+5vlwXj9v7U/R22YNwqnAKnCTFdj6q/sxaMm7LurDmgrnUumGfY3xUL5l+XP8paF4MlYClYZtDfXQvmX5c/qlpXgJVgFVgN1oC1mv09A8/BC/DSAgec/lRq7Qq6ge6gR+zaBrARbAKbwRawVSJepI68+G/gO/gBfkqOv2j91PF5/vJqTWIgGAQGgyGxa7vBHrAX7AP7wQGJeJE6VOKL3t9UvOj7pwzjwQQwEUyKXTsCjoJj4Dg4AU5KxIvUoRJf9P6m4jn8TQXTwHQwI3btHDgPLoCL4BK4LBEvUodKfNH7m4rn8JfFVXANXAc3wE1wiyAv9djbgQYN81GUnSk/c3EP3AcPwEPwCDzW4K9nhUawLYHtAvdozHl96Lx9infKa2k1xOupxkZpSIiXmedX4DV4A96Cd+C9Jn/huJ8GyWeAhwTu0ST5ei6i40gja3zxeJl7/wK/wR/wF/wLWi+Ixu8AvUDvCn0qv8t778hyV613BBiZwqgS+8tby5SEDoaCYRWGgyeCcVn1NgvkaDHsrx60YfBXi5Rp/dUinP7qg9Z11taQv9sB7fMpGznD6M/0+gtj+yqOrcgz1Q6gI+gEOoMuhnJQrTOT/kYr1lT0OWM/0B8MMJyDE5v9FX3OOAaMBeMM54iius5c9EfxnHGKJTm4sNEf5TPVWQRzpJKDep255E/lOWMacwjmiCJHLfmjYgFYCBYlXEs7e5PJEaJrnZXZ32fwJYLImbzq2ZvIswnvj78mVUyeldnk7wP4WJBPCXlnen/s/jh7smZ7f+z+OHuyvD8+f+E+42vA25Pl3z/51x9nT5Zff/z+OPH+9Pjj2n96f/z+/P7TbX9+/+m2P+r9Z3Vf6/3p8ef3n27748T70+PP5f1nVm+2TuJ94Lr8ubz/bA709pjn0WLAH+f+cz6zPxdx6fwzhPp/2tjMHY3+quj8TqotfbxcOUTea1zafyaR14Mr8nlsaw5T/rj2n0nk9eCKfB7bmqMM6y96/pJGVg+u6OexjTnK4E/EZVYPrujnqY05yuYvzaUtfbzUOaj9xfe34XfjJhvyVyWvB9eGHKr9xCJ/K2V9PzEen3RGEPa86j5zCs+WRPp4bUG1n1iErJ7j+BwlrV+qcajMicj5RNnx3393G+/PbWT8/QeDY/sW
+  </data>
+ </layer>
+</map>

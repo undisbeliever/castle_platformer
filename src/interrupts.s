@@ -5,6 +5,10 @@
 .include "includes/synthetic.inc"
 .include "routines/block.h"
 .include "routines/screen.h"
+.include "routines/metatiles/metatiles-1x16.h"
+
+.include "controller.h"
+
 
 ;; Blank Handlers
 ROUTINE IrqHandler
@@ -32,6 +36,9 @@ ROUTINE VBlank
 	LDA	RDNMI
 
 	Screen_VBlank
+	MetaTiles1x16_VBlank
+
+	JSR	Controller__Update
 
 	; Load State
 	REP	#$30
@@ -40,6 +47,6 @@ ROUTINE VBlank
 	PLD
 	PLB
 	PLA
-	
+
 	RTI
 
