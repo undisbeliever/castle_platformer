@@ -1,6 +1,6 @@
 
 BINARY      = bin/Castle_Platformer_Demo.sfc
-API_MODULES = reset-snes block screen math resourceloader metatiles/metatiles-1x16
+API_MODULES = reset-snes block screen math resourceloader metasprite metatiles/metatiles-1x16
 API_DIR     = snesdev-common
 CONFIG      = LOROM_1MBit_copyright
 

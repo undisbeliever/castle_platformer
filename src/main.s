@@ -12,9 +12,11 @@
 
 .include "maploader.h"
 .include "controller.h"
+.include "player.h"
 
 .include "routines/block.h"
 .include "routines/metatiles/metatiles-1x16.h"
+.include "routines/metasprite.h"
 
 
 ;; Initialisation Routine
@@ -29,12 +31,16 @@ ROUTINE Main
 	LDA	#METATILES_SCREEN_MODE
 	STA	BGMODE
 
+	MetaSprite_Init
 	Screen_SetVramBaseAndSize METATILES
 
 	LDA	#0
 	JSR	MapLoader__LoadMap
 
-	LDA	#TM_BG1
+	; ::TODO dynamicaly load player::
+	JSR	Player__Init
+
+	LDA	#TM_BG1 | TM_OBJ
 	STA	TM
 
 	LDA	#NMITIMEN_VBLANK_FLAG | NMITIMEN_AUTOJOY_FLAG
@@ -46,31 +52,12 @@ ROUTINE Main
 	REPEAT
 		JSR	Screen__WaitFrame
 
-		LDA	Controller__current + 1
-		IF_NOT_ZERO
-			IF_BIT	#JOYH_UP
-				LDY	MetaTiles1x16__yPos
-				DEY
-				STY	MetaTiles1x16__yPos
-			ENDIF
-			IF_BIT	#JOYH_DOWN
-				LDY	MetaTiles1x16__yPos
-				INY
-				STY	MetaTiles1x16__yPos
-			ENDIF
-			IF_BIT	#JOYH_LEFT
-				LDX	MetaTiles1x16__xPos
-				DEX
-				STX	MetaTiles1x16__xPos
-			ENDIF
-			IF_BIT	#JOYH_RIGHT
-				LDX	MetaTiles1x16__xPos
-				INX
-				STX	MetaTiles1x16__xPos
-			ENDIF
+		JSR	Player__Update
+		JSR	MetaTiles1x16__Update
 
-			JSR	MetaTiles1x16__Update
-		ENDIF
+		JSR	MetaSprite__InitLoop
+		JSR	Player__Render
+		JSR	MetaSprite__FinalizeLoop
 	FOREVER
 
 

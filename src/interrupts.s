@@ -6,6 +6,7 @@
 .include "routines/block.h"
 .include "routines/screen.h"
 .include "routines/metatiles/metatiles-1x16.h"
+.include "routines/metasprite.h"
 
 .include "controller.h"
 
@@ -35,8 +36,9 @@ ROUTINE VBlank
 	; Reset NMI Flag.
 	LDA	RDNMI
 
-	Screen_VBlank
+	MetaSprite_VBlank
 	MetaTiles1x16_VBlank
+	Screen_VBlank
 
 	JSR	Controller__Update
 
