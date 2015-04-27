@@ -10,6 +10,8 @@ import sys
 import os
 import struct
 
+N_METATILES = 512
+
 def read_iter(fp, size):
     while True:
         out = fp.read(size)
@@ -23,7 +25,7 @@ def read_map(filename):
         mapData = list()
         last = 0
 
-        # ::ANNOY using python3.2 cannot struct.uter_unpack
+        # ::ANNOY using python3.2 cannot struct.iter_unpack
         i = 0
         for d in read_iter(fp, 2):
             t = struct.unpack("<H", d)[0]
@@ -32,25 +34,29 @@ def read_map(filename):
                 last = i
             i += 1
 
-    size = int((last - 1) / 64 + 1) * 64
+    # Append extra data
+    append = [0] * (N_METATILES * 4 - len(mapData))
 
-    return mapData[:size]
+    return mapData + append
+
+
+def write_tiles(fp, mapData, offset):
+    for y in range(int(len(mapData) / 64)):
+        for x in range(16):
+            pos = y * 64 + x * 2 + offset
+            fp.write(struct.pack("<H", mapData[pos]))
 
 
 def main(inName, outName):
     mapData = read_map(inName)
 
+    assert len(mapData) == N_METATILES * 4, "Map too big"
+
     with open(outName, "wb") as fp:
-        for y in range(int(len(mapData) / 64)):
-            for x in range(16):
-                pos = y * 64 + x * 2
-                fp.write(struct.pack("<H", mapData[pos]))
-                fp.write(struct.pack("<H", mapData[pos + 1]))
-                fp.write(struct.pack("<H", mapData[pos + 32]))
-                fp.write(struct.pack("<H", mapData[pos + 32 + 1]))
-
-
-
+        write_tiles(fp, mapData, 0)
+        write_tiles(fp, mapData, 1)
+        write_tiles(fp, mapData, 32)
+        write_tiles(fp, mapData, 32 + 1)
 
 
 if __name__ == '__main__':

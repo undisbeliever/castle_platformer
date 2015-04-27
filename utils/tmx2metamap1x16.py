@@ -12,7 +12,7 @@ DataPrefix:
 
 UncompressedData:
     uint16  size
-    .word   (tile * 8)
+    .word   (tile * 2)
 
 """
 
@@ -21,8 +21,8 @@ import sys
 import os
 import struct
 
-SIZEOF_METATILE_STRUCT = 8
-
+TILE_MULTIPLIER = 2
+N_METATILES = 512
 
 def main(inName, outName):
     map = tmx.TileMap.load(inName)
@@ -50,10 +50,11 @@ def main(inName, outName):
             assert t.vflip == False, "Doesn't support tile flipping"
             assert t.dflip == False, "Doesn't support tile flipping"
 
-            a = (t.gid - gidOffset) * SIZEOF_METATILE_STRUCT
+            a = (t.gid - gidOffset)
+            assert a < N_METATILES, "Tile number must be below N_METATILES"
             if a < 0:
                 a = 0
-            of.write(struct.pack('<H', a))
+            of.write(struct.pack('<H', a * TILE_MULTIPLIER))
 
 
 if __name__ == '__main__':
