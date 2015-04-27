@@ -25,12 +25,10 @@ ENTITY_YOFFSET = 16
 
 MODULE Physics
 
-.segment "SHADOW"
-	ADDR	topLeft
-	ADDR	topRight
-	ADDR	bottomLeft
-	ADDR	bottomRight
+.segment "WRAM7E"
+	ADDR	metaTilePropertyTable, N_METATILES
 
+	WORD	counter
 .code
 
 ; ZP = Entity
@@ -71,7 +69,7 @@ ROUTINE ProcessEntity
 		LSR
 		LSR
 		INC
-		TAY
+		STA	a:counter
 
 		PLA
 		LSR
@@ -79,10 +77,13 @@ ROUTINE ProcessEntity
 		LSR
 		AND	#$FFFE
 		ADD	f:MetaTiles1x16__mapRowAddressTable, X
-		TAX	
+		TAY
 
 		REPEAT
-			LDA	f:MetaTiles1x16__map, X
+			LDX	a:MetaTiles1x16__map, Y
+			LDA	a:metaTilePropertyTable, X
+			TAX
+			LDA	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::solid, X
 			IF_NOT_ZERO
 				STA	z:EntityStruct::standingTile
 
@@ -99,9 +100,10 @@ ROUTINE ProcessEntity
 
 				BRA	End_Y_CollisionTest
 			ENDIF
-			INX
-			INX
-			DEY
+			INY
+			INY
+
+			DEC	a:counter
 		UNTIL_ZERO
 
 		; not standing on anything, now falling
@@ -131,7 +133,7 @@ ROUTINE ProcessEntity
 		LSR
 		LSR
 		INC
-		TAY
+		STA	a:counter
 
 		PLA
 		LSR
@@ -139,10 +141,14 @@ ROUTINE ProcessEntity
 		LSR
 		AND	#$FFFE
 		ADD	f:MetaTiles1x16__mapRowAddressTable, X
-		TAX	
+		TAY
 
 		REPEAT
-			LDA	f:MetaTiles1x16__map, X
+			LDX	a:MetaTiles1x16__map, Y
+			LDA	a:metaTilePropertyTable, X
+			TAX
+			LDA	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::solid, X
+
 			IF_NOT_ZERO
 				; ::TODO head collide::
 				; ::TODO platform test::
@@ -160,9 +166,10 @@ ROUTINE ProcessEntity
 
 				BRA	End_Y_CollisionTest
 			ENDIF
-			INX
-			INX
-			DEY
+			INY
+			INY
+
+			DEC	a:counter
 		UNTIL_ZERO
 	ENDIF
 
@@ -197,7 +204,7 @@ End_Y_CollisionTest:
 			LSR
 			LSR
 			INC
-			TAY
+			STA	a:counter
 
 			PLA
 			LSR
@@ -217,8 +224,11 @@ End_Y_CollisionTest:
 			ADD	f:MetaTiles1x16__mapRowAddressTable, X
 
 			REPEAT
+				TAY
+				LDX	a:MetaTiles1x16__map, Y
+				LDA	a:metaTilePropertyTable, X
 				TAX
-				LDA	f:MetaTiles1x16__map, X
+				LDA	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::solid, X
 				IF_NOT_ZERO
 					LDA	z:EntityStruct::xVecl + 1
 					AND	#$00FF
@@ -231,11 +241,12 @@ End_Y_CollisionTest:
 
 					STZ	z:EntityStruct::xVecl
 
-					BRA	End_X_CollisionTest
+					JMP	End_X_CollisionTest
 				ENDIF
-				TXA
+				TYA
 				ADD	MetaTiles1x16__sizeOfMapRow
-				DEY
+
+				DEC	a:counter
 			UNTIL_ZERO
 		ELSE
 			; moving Left
@@ -264,7 +275,7 @@ End_Y_CollisionTest:
 			LSR
 			LSR
 			INC
-			TAY
+			STA	a:counter
 
 			PLA
 			LSR
@@ -284,8 +295,11 @@ End_Y_CollisionTest:
 			ADD	f:MetaTiles1x16__mapRowAddressTable, X
 
 			REPEAT
+				TAY
+				LDX	a:MetaTiles1x16__map, Y
+				LDA	a:metaTilePropertyTable, X
 				TAX
-				LDA	f:MetaTiles1x16__map, X
+				LDA	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::solid, X
 				IF_NOT_ZERO
 					LDA	z:EntityStruct::xVecl + 1
 					ORA	#$FF00
@@ -300,9 +314,10 @@ End_Y_CollisionTest:
 
 					BRA	End_X_CollisionTest
 				ENDIF
-				TXA
+				TYA
 				ADD	MetaTiles1x16__sizeOfMapRow
-				DEY
+
+				DEC	a:counter
 			UNTIL_ZERO
 		ENDIF
 	ENDIF

@@ -25,7 +25,7 @@
 
 
 .struct MapTableFormat
-	ptr		.faraddr
+	mapData		.faraddr
 	tileSetId	.byte
 	xPos		.word
 	yPos		.word
@@ -36,7 +36,8 @@
 
 
 .struct	MetaTilesTableFormat
-	metaTilesPtr		.faraddr
+	metaTilesData		.faraddr
+	metaTilePropertyData	.faraddr
 	paletteId		.byte
 	tilesId			.byte
 .endstruct

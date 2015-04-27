@@ -7,6 +7,7 @@
 .include "includes/structure.inc"
 
 .include "maploader.h"
+.include "metatileproperties.h"
 .include "routines/resourceloader.h"
 
 TILESET_CASTLE_PLATFORMER = 0
@@ -33,6 +34,7 @@ VramTable:
 
 MetaTilesTable:
 	.faraddr	CastlePlatformer_MetaTiles
+	.faraddr	CastlePlatformer_MetaTilePropertyTable
 	.word		PALETTE_CASTLE_PLATFORMER
 	.word		TILES_CASTLE_PLATFORMER
 
@@ -60,4 +62,6 @@ CastlePlatformer_MetaTiles:
 	.incbin	"resources/metatilesets/castle_platformer.metatile1x16"
 CastlePlatformer_MetaTiles_End:
 
+
+	.include "resources/metatilesets/castle_platformer.inc"
 

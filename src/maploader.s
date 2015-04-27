@@ -9,6 +9,7 @@
 .include "routines/resourceloader.h"
 .include "routines/metatiles/metatiles-1x16.h"
 
+.include "physics.h"
 
 .global METATILES_BG1_MAP:absolute
 
@@ -36,12 +37,12 @@ ROUTINE LoadMap
 	ASL
 	TAX
 
-	LDA	f:MapsTable + MapTableFormat::ptr, X
+	LDA	f:MapsTable + MapTableFormat::mapData, X
 	STA	dataPtr
 
 	SEP	#$20
 .A8
-	LDA	f:MapsTable + MapTableFormat::ptr + 2, X
+	LDA	f:MapsTable + MapTableFormat::mapData + 2, X
 	STA	dataPtr + 2
 
 	LDA	f:MapsTable + MapTableFormat::tileSetId, X
@@ -84,26 +85,38 @@ ROUTINE LoadMap
 ROUTINE LoadMetaTiles
 	REP	#$30
 .A16
-	.assert .sizeof(MetaTilesTableFormat) = 5, error, "MetaTilesTableFormat must be 5 bytes"
+	.assert .sizeof(MetaTilesTableFormat) = 8, error, "MetaTilesTableFormat must be 8 bytes"
 	AND	#$00FF
-	STA	dataPtr
 	ASL
 	ASL
-	ADC	dataPtr		; c always clear
+	ASL
 	TAX
 
-	LDA	f:MetaTilesTable + MetaTilesTableFormat::metaTilesPtr, X
-	STA	dataPtr
+	LDA	f:MetaTilesTable + MetaTilesTableFormat::metaTilesData, X
+	TAY
 
 	; Copy both palette and tile ids
 	LDA	f:MetaTilesTable + MetaTilesTableFormat::paletteId, X
 	PHA
 
+	LDA	f:MetaTilesTable + MetaTilesTableFormat::metaTilePropertyData, X
+	PHA
+
 	SEP	#$20
 .A8
-	LDA	f:MetaTilesTable + MetaTilesTableFormat::metaTilesPtr + 2, X
-	LDX	dataPtr
+	LDA	f:MetaTilesTable + MetaTilesTableFormat::metaTilePropertyData + 2, X
+	PHA
+
+
+	LDA	f:MetaTilesTable + MetaTilesTableFormat::metaTilesData + 2, X
+	TYX
 	LDY	#.loword(MetaTiles1x16__metaTiles)
+	JSR	ResourceLoader__LoadDataToWram7E
+
+
+	PLA
+	PLX
+	LDY	#.loword(Physics__metaTilePropertyTable)
 	JSR	ResourceLoader__LoadDataToWram7E
 
 	PLA

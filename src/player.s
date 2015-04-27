@@ -57,6 +57,11 @@ ROUTINE Init
 .I16
 ROUTINE Update
 	PHD
+	PHB
+
+	LDA	#$7E
+	PHA
+	PLB
 
 	REP	#$20
 .A16
@@ -146,6 +151,7 @@ ROUTINE Update
 	SEP	#$20
 .A8
 
+	PLB
 	PLD
 	RTS
 
@@ -187,11 +193,11 @@ ExampleMetaSpriteFrame:
 	.byte	2
 	.byte	.lobyte(-8)
 	.byte	.lobyte(-8)
-	.word	$0000
+	.word	3 << OAM_CHARATTR_ORDER_SHIFT
 	.byte	$FF
 	.byte	.lobyte(-4)
 	.byte	.lobyte(-16)
-	.word	$0000
+	.word	3 << OAM_CHARATTR_ORDER_SHIFT
 	.byte	$00
 
 

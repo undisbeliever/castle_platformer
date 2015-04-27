@@ -7,6 +7,13 @@
 .include "includes/import_export.inc"
 .include "includes/registers.inc"
 
+.struct MetaTilePropertyStruct
+	;; Non-Zero if the tile is solid.
+	solid		.word
+.endstruct
+
+.global MetaTilePropertyBank:zp
+
 
 ; ::DEBUG copied from asteroids::
 .struct EntitySizeStruct
@@ -44,8 +51,12 @@
 
 IMPORT_MODULE Physics
 
+	;; Table that points to the MetaTilePropertyStruct for each metatile.
+	.global	Physics__metaTilePropertyTable : far
+
+
 	;; Updates the entity's physics
-	;; REQUIRE: 16 bit A, 16 bit Index, DB access registers
+	;; REQUIRE: 16 bit A, 16 bit Index, DB = $7E
 	;; INPUT: DP - EntityStruct location
 	ROUTINE ProcessEntity
 ENDMODULE
