@@ -13,6 +13,8 @@
 
 .global METATILES_BG1_MAP:absolute
 
+DEFAULT_GRAVITY = 35		; Acceleration due to gravity in 1/256 pixels per frame per frame
+
 
 MODULE MapLoader
 
@@ -36,6 +38,10 @@ ROUTINE LoadMap
 	ASL
 	ASL
 	TAX
+
+	; set default gravity
+	LDA	#DEFAULT_GRAVITY
+	STA	Physics__gravity
 
 	LDA	f:MapsTable + MapTableFormat::mapData, X
 	STA	dataPtr

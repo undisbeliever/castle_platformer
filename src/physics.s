@@ -12,11 +12,13 @@
 .include "routines/metasprite.h"
 .include "routines/metatiles/metatiles-1x16.h"
 
-; ::TODO move somewhere else
-GRAVITY = 35		; Acceleration due to gravity in 1/256 pixels per frame per frame
-FRICTION = 20		; Friction slowing the entity when standing in 1/256 pixels per frame per frame
 
 METATILES_SIZE = 16
+
+;; Maximum Y velocity (prevents fall through walls)
+MAX_Y_VECLOCITY = 10 * 256
+
+; ::TODO move somewhere else
 
 ENTITY_WIDTH = 16
 ENTITY_HEIGHT = 24
@@ -27,9 +29,12 @@ MODULE Physics
 
 .segment "WRAM7E"
 	ADDR	metaTilePropertyTable, N_METATILES
+	WORD	gravity
+
 
 	WORD	counter
 .code
+
 
 ; ZP = Entity
 .A16
@@ -37,8 +42,20 @@ MODULE Physics
 ROUTINE ProcessEntity
 
 	LDA	z:EntityStruct::yVecl
-	ADD	#GRAVITY
+	ADD	gravity
+	IF_MINUS
+		CMP	#.loword(-MAX_Y_VECLOCITY)
+		IF_SLT
+			LDA	#.loword(-MAX_Y_VECLOCITY)
+		ENDIF
+	ELSE
+		CMP	#MAX_Y_VECLOCITY + 1
+		IF_SGE
+			LDA	#MAX_Y_VECLOCITY
+		ENDIF
+	ENDIF
 	STA	z:EntityStruct::yVecl
+
 
 	; Check Map Collisions
 	; ====================
@@ -76,16 +93,23 @@ ROUTINE ProcessEntity
 		LSR
 		LSR
 		AND	#$FFFE
-		ADD	f:MetaTiles1x16__mapRowAddressTable, X
+		ADD	MetaTiles1x16__mapRowAddressTable, X
 		TAY
+
+		LDX	a:MetaTiles1x16__map, Y
+		LDA	a:metaTilePropertyTable, X
+		STA	z:EntityStruct::currentTile
+		BRA	_SkipReleadTableYPlus		; speedup, saves 7 cycles
 
 		REPEAT
 			LDX	a:MetaTiles1x16__map, Y
 			LDA	a:metaTilePropertyTable, X
+_SkipReleadTableYPlus:
 			TAX
 			LDA	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::solid, X
 			IF_NOT_ZERO
-				STA	z:EntityStruct::standingTile
+				STX	z:EntityStruct::standingTile
+				STX	z:EntityStruct::currentTile
 
 				LDA	z:EntityStruct::yVecl + 1
 				AND	#$00FF
@@ -109,6 +133,7 @@ ROUTINE ProcessEntity
 		; not standing on anything, now falling
 		STZ	z:EntityStruct::standingTile
 	ELSE
+		; raising through the tiles.
 		STZ	z:EntityStruct::standingTile
 
 		LDA	z:EntityStruct::yVecl + 1
@@ -140,12 +165,19 @@ ROUTINE ProcessEntity
 		LSR
 		LSR
 		AND	#$FFFE
-		ADD	f:MetaTiles1x16__mapRowAddressTable, X
+		ADD	MetaTiles1x16__mapRowAddressTable, X
 		TAY
+
+		; Travelling upwards, current tile = start of head
+		LDX	a:MetaTiles1x16__map, Y
+		LDA	a:metaTilePropertyTable, X
+		STA	z:EntityStruct::currentTile
+		BRA	_SkipReleadTableYMinus		; speedup, saves 7 cycles
 
 		REPEAT
 			LDX	a:MetaTiles1x16__map, Y
 			LDA	a:metaTilePropertyTable, X
+_SkipReleadTableYMinus:
 			TAX
 			LDA	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::solid, X
 
@@ -176,22 +208,21 @@ ROUTINE ProcessEntity
 End_Y_CollisionTest:
 
 
+
 	LDA	z:EntityStruct::xVecl
 	IFL_NOT_ZERO
 		IF_PLUS
 			; moving Right
-			; handle friction if standing
-			LDX	z:EntityStruct::standingTile
-			IF_NOT_ZERO
-				SUB	#FRICTION
-				IF_MINUS
-					STZ	z:EntityStruct::xVecl
-					JMP	End_X_CollisionTest
-				ENDIF
-
-				STA	z:EntityStruct::xVecl
+			; handle friction
+			LDX	z:EntityStruct::currentTile
+			SUB	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::friction, X
+			IF_MINUS
+				STZ	z:EntityStruct::xVecl
+				JMP	End_X_CollisionTest
 			ENDIF
+			STA	z:EntityStruct::xVecl
 
+			; check collisions
 			LDA	z:EntityStruct::yPos + 1
 			SUB	#ENTITY_YOFFSET
 			PHA
@@ -221,7 +252,7 @@ End_Y_CollisionTest:
 			LSR
 			LSR
 			AND	#$FFFE
-			ADD	f:MetaTiles1x16__mapRowAddressTable, X
+			ADD	MetaTiles1x16__mapRowAddressTable, X
 
 			REPEAT
 				TAY
@@ -250,19 +281,16 @@ End_Y_CollisionTest:
 			UNTIL_ZERO
 		ELSE
 			; moving Left
-
-			; handle friction if standing
-			LDX	z:EntityStruct::standingTile
-			IF_NOT_ZERO
-				ADD	#FRICTION
-				IF_PLUS
-					STZ	z:EntityStruct::xVecl
-					BRA	End_X_CollisionTest
-				ENDIF
-
-				STA	z:EntityStruct::xVecl
+			; handle friction
+			LDX	z:EntityStruct::currentTile
+			ADD	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::friction, X
+			IF_PLUS
+				STZ	z:EntityStruct::xVecl
+				BRA	End_X_CollisionTest
 			ENDIF
+			STA	z:EntityStruct::xVecl
 
+			; check collisions
 			LDA	z:EntityStruct::yPos + 1
 			SUB	#ENTITY_YOFFSET
 			PHA
@@ -292,7 +320,7 @@ End_Y_CollisionTest:
 			LSR
 			LSR
 			AND	#$FFFE
-			ADD	f:MetaTiles1x16__mapRowAddressTable, X
+			ADD	MetaTiles1x16__mapRowAddressTable, X
 
 			REPEAT
 				TAY

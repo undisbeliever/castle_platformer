@@ -69,38 +69,47 @@ ROUTINE Update
 	LDA	#player
 	TCD
 
+
+	LDX	z:EntityStruct::currentTile
+
+	; ::SHOULDDO move into physics::
 	LDA	Controller__current
 	IF_BIT	#JOY_LEFT
 		LDA	z:EntityStruct::xVecl
-		SUB	#80
-		CMP	#.loword(-512 - 1)
+		SUB	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::walkAcceleration, X
+		CMP	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::minimumXVelocity, X
 		IF_SLT
-			LDA	#.loword(-512)
+			LDA	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::minimumXVelocity, X
 		ENDIF
 		STA	z:EntityStruct::xVecl
+
 	ELSE_BIT #JOY_RIGHT
 		LDA	z:EntityStruct::xVecl
-		ADD	#80
-		CMP	#512 + 1
+		ADD	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::walkAcceleration, X
+		CMP	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::maximumXVelocity, X
 		IF_SGE
-			LDA	#512
+			LDA	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::maximumXVelocity, X
 		ENDIF
 		STA	z:EntityStruct::xVecl
 	ENDIF
 
-	LDA	Controller__current
-	IF_BIT	#JOY_B
-		LDX	z:EntityStruct::standingTile
-		IF_NOT_ZERO
-			LDA	#.loword(-1024)
-			STA	z:EntityStruct::yVecl
+	; Jump if standing.
+	LDX	z:EntityStruct::standingTile
+	IF_NOT_ZERO
+		LDA	Controller__current
+		IF_BIT	#JOY_B
+			LDA	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::jumpingVelocity, X
+			IF_NOT_ZERO
+				STA	z:EntityStruct::yVecl
+			ENDIF
 		ENDIF
 	ENDIF
 
 	JSR	Physics__ProcessEntity
 
+
 	; Move screen with player
-	; ::MAYDO integrate with physics movements::
+	; ::MAYDO integrate with entity module::
 
 	LDA	z:EntityStruct::xPos + 1
 	SUB	MetaTiles1x16__xPos

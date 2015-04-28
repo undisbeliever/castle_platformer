@@ -9,7 +9,22 @@
 
 .struct MetaTilePropertyStruct
 	;; Non-Zero if the tile is solid.
-	solid		.word
+	solid			.word
+	;; Friction applied to the entity when standing on the tile
+	;; 1:7:8 signed fixed point
+	friction		.word
+	;; Walking acceleration when standing on the tile.
+	;; 1:7:8 signed fixed point
+	walkAcceleration	.word
+	;; Minimum (negative) velocity when walking left
+	;; 1:7:8 signed fixed point
+	minimumXVelocity	.word
+	;; Maximum (positive) velocity when walking right
+	;; 1:7:8 signed fixed point
+	maximumXVelocity	.word
+	;; Jumping velocity, if 0 then the player cannot jump.
+	;; 1:7:8 signed fixed point
+	jumpingVelocity		.word
 .endstruct
 
 .global MetaTilePropertyBank:zp
@@ -38,9 +53,14 @@
 	;; xVecl - 1:7:8 signed fixed point
 	yVecl			.res 2
 
-	;; The address of the tile the entity is standing on
+	;; The address of the tileproperty of the tile underneath the entity if it is standing on a tile.
 	;; 0 (NULL) if floating
 	standingTile		.addr
+
+	;; The address of the tileproperty that the entity is on.
+	;; If the entity is standing, it set to tile the entity is standing on.
+	;; If the entity is not standing, it is entity's top-left tile. 
+	currentTile		.addr
 
 	;; pointer to the MetaSpriteData within `MetaSpriteLayoutBank`
 	metaSpriteFrame		.addr
@@ -52,8 +72,12 @@
 IMPORT_MODULE Physics
 
 	;; Table that points to the MetaTilePropertyStruct for each metatile.
+	;; Must be set before calling.
 	.global	Physics__metaTilePropertyTable : far
 
+	;; The level's gravity.
+	;; Must be set before using this module.
+	.global Physics__gravity : far
 
 	;; Updates the entity's physics
 	;; REQUIRE: 16 bit A, 16 bit Index, DB = $7E
