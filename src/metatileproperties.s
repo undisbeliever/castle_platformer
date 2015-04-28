@@ -14,7 +14,7 @@ MODULE TileProperties
 
 	LABEL	EmptyTile
 	LABEL	Chain
-		.word	$0000		; solid
+		.word	$0000		; type
 		.word	0		; friction
 		.word	20		; walkAcceleration
 		.word	.loword(-512)	; minimumXVelocity
@@ -23,22 +23,29 @@ MODULE TileProperties
 
 	LABEL	SolidTile
 	LABEL	Spikes
-	LABEL	Platform
 	LABEL	Switch
-		.word	$FFFF		; solid
+		.word	$0001		; type
 		.word	20		; friction
 		.word	80		; walkAcceleration
 		.word	.loword(-512)	; minimumXVelocity
 		.word	512		; maximumXVelocity
-		.word	.loword(-896)	; jumpingVelocity
+		.word	.loword(-1024)	; jumpingVelocity
+
+	LABEL	Platform
+		.word	$FFFF		; type
+		.word	20		; friction
+		.word	80		; walkAcceleration
+		.word	.loword(-512)	; minimumXVelocity
+		.word	512		; maximumXVelocity
+		.word	.loword(-1024)	; jumpingVelocity
 
 	LABEL	IcePlatform
-		.word	$FFFF		; solid
+		.word	$FFFF		; type
 		.word	2		; friction
 		.word	60		; walkAcceleration
 		.word	.loword(-512)	; minimumXVelocity
 		.word	512		; maximumXVelocity
-		.word	.loword(-1024)	; jumpingVelocity
+		.word	.loword(-896)	; jumpingVelocity
 
 ENDMODULE
 

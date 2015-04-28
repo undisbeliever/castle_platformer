@@ -8,8 +8,12 @@
 .include "includes/registers.inc"
 
 .struct MetaTilePropertyStruct
+	;; Type of tile.
+	;;
 	;; Non-Zero if the tile is solid.
-	solid			.word
+	;; If 0 then the tile is not solid.
+	;; If MSB (bit 15) is set then the tile is a one way platform.
+	type			.word
 	;; Friction applied to the entity when standing on the tile
 	;; 1:7:8 signed fixed point
 	friction		.word

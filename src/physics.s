@@ -5,13 +5,12 @@
 .include "includes/registers.inc"
 .include "includes/structure.inc"
 
-.include "maploader.h"
+.include "metatileproperties.h"
 
 .include "routines/block.h"
 .include "routines/math.h"
 .include "routines/metasprite.h"
 .include "routines/metatiles/metatiles-1x16.h"
-
 
 METATILES_SIZE = 16
 
@@ -61,8 +60,10 @@ ROUTINE ProcessEntity
 	; ====================
 
 	LDA	z:EntityStruct::yVecl
-	IF_PLUS
-		; falling/standing. Check tiles underneath to see if still standing.
+	IFL_PLUS
+		; Entity is falling/Standing
+		; --------------------------
+		; Check tiles underneath to see if still standing.
 
 		LDA	z:EntityStruct::yVecl + 1
 		AND	#$00FF
@@ -106,10 +107,29 @@ ROUTINE ProcessEntity
 			LDA	a:metaTilePropertyTable, X
 _SkipReleadTableYPlus:
 			TAX
-			LDA	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::solid, X
+			LDA	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::type, X
 			IF_NOT_ZERO
+				IF_N_SET
+					; If the tile is a platform, test that the entity
+					; was fully above it before standing on it.
+
+					; Removed the INC, so it tests the current tile,
+					; not the one below the entity
+					LDA	z:EntityStruct::yVecl + 1
+					AND	#$00FF
+					ADD	z:EntityStruct::yPos + 1
+					ADD	#ENTITY_HEIGHT - ENTITY_YOFFSET
+					AND	#$FFF0
+					SUB	#ENTITY_HEIGHT - ENTITY_YOFFSET
+
+					CMP	z:EntityStruct::yPos + 1
+					BLT	FallingThroughPlatform
+				ENDIF
+
 				STX	z:EntityStruct::standingTile
 				STX	z:EntityStruct::currentTile
+
+				; Move entity to above solid tile.
 
 				LDA	z:EntityStruct::yVecl + 1
 				AND	#$00FF
@@ -118,22 +138,35 @@ _SkipReleadTableYPlus:
 				INC
 				AND	#$FFF0
 				SUB	#ENTITY_HEIGHT - ENTITY_YOFFSET
-				STA	z:EntityStruct::yPos + 1
 
+				STA	z:EntityStruct::yPos + 1
 				STZ	z:EntityStruct::yVecl
 
-				BRA	End_Y_CollisionTest
+				JMP	End_Y_CollisionTest	
 			ENDIF
-			INY
-			INY
 
+FallingThroughPlatform:
+			INY
+			INY
 			DEC	a:counter
 		UNTIL_ZERO
 
 		; not standing on anything, now falling
 		STZ	z:EntityStruct::standingTile
+
+		; ::HACK system may think currentTile is a platform, but its not, reflect this::
+		; ::MAYDO improve this (extra field for patforms maybe?)::
+		LDX	z:EntityStruct::currentTile
+		LDA	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::type, X
+		IF_N_SET
+			LDX	#.loword(TileProperties__EmptyTile)
+			STX	z:EntityStruct::currentTile
+		ENDIF
+
 	ELSE
-		; raising through the tiles.
+
+		; Entity is moving upwards
+		; ------------------------
 		STZ	z:EntityStruct::standingTile
 
 		LDA	z:EntityStruct::yVecl + 1
@@ -179,24 +212,26 @@ _SkipReleadTableYPlus:
 			LDA	a:metaTilePropertyTable, X
 _SkipReleadTableYMinus:
 			TAX
-			LDA	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::solid, X
+			LDA	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::type, X
 
 			IF_NOT_ZERO
-				; ::TODO head collide::
-				; ::TODO platform test::
+				; Ignore collision if a platform
+				IF_N_CLEAR
+					; ::TODO head collide::
 
-				LDA	z:EntityStruct::yVecl + 1
-				ORA	#$FF00
-				ADD	z:EntityStruct::yPos + 1
-				SUB	#ENTITY_YOFFSET
-				ADD	#METATILES_SIZE
-				AND	#$FFF0
-				ADD	#ENTITY_YOFFSET
-				STA	z:EntityStruct::yPos + 1
+					LDA	z:EntityStruct::yVecl + 1
+					ORA	#$FF00
+					ADD	z:EntityStruct::yPos + 1
+					SUB	#ENTITY_YOFFSET
+					ADD	#METATILES_SIZE
+					AND	#$FFF0
+					ADD	#ENTITY_YOFFSET
+					STA	z:EntityStruct::yPos + 1
 
-				STZ	z:EntityStruct::yVecl
+					STZ	z:EntityStruct::yVecl
 
-				BRA	End_Y_CollisionTest
+					BRA	End_Y_CollisionTest
+				ENDIF
 			ENDIF
 			INY
 			INY
@@ -212,7 +247,9 @@ End_Y_CollisionTest:
 	LDA	z:EntityStruct::xVecl
 	IFL_NOT_ZERO
 		IF_PLUS
-			; moving Right
+			; Entity is moving Right
+			; ----------------------
+
 			; handle friction
 			LDX	z:EntityStruct::currentTile
 			SUB	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::friction, X
@@ -259,20 +296,23 @@ End_Y_CollisionTest:
 				LDX	a:MetaTiles1x16__map, Y
 				LDA	a:metaTilePropertyTable, X
 				TAX
-				LDA	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::solid, X
+				LDA	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::type, X
 				IF_NOT_ZERO
-					LDA	z:EntityStruct::xVecl + 1
-					AND	#$00FF
-					ADD	z:EntityStruct::xPos + 1
-					ADD	#ENTITY_WIDTH - ENTITY_XOFFSET
-					INC
-					AND	#$FFF0
-					SUB	#ENTITY_WIDTH - ENTITY_XOFFSET
-					STA	z:EntityStruct::xPos + 1
+					; Ignore collision if a platform
+					IF_N_CLEAR
+						LDA	z:EntityStruct::xVecl + 1
+						AND	#$00FF
+						ADD	z:EntityStruct::xPos + 1
+						ADD	#ENTITY_WIDTH - ENTITY_XOFFSET
+						INC
+						AND	#$FFF0
+						SUB	#ENTITY_WIDTH - ENTITY_XOFFSET
+						STA	z:EntityStruct::xPos + 1
 
-					STZ	z:EntityStruct::xVecl
+						STZ	z:EntityStruct::xVecl
 
-					JMP	End_X_CollisionTest
+						JMP	End_X_CollisionTest
+					ENDIF
 				ENDIF
 				TYA
 				ADD	MetaTiles1x16__sizeOfMapRow
@@ -280,7 +320,9 @@ End_Y_CollisionTest:
 				DEC	a:counter
 			UNTIL_ZERO
 		ELSE
-			; moving Left
+			; Entity is moving Left
+			; ---------------------
+
 			; handle friction
 			LDX	z:EntityStruct::currentTile
 			ADD	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::friction, X
@@ -327,20 +369,23 @@ End_Y_CollisionTest:
 				LDX	a:MetaTiles1x16__map, Y
 				LDA	a:metaTilePropertyTable, X
 				TAX
-				LDA	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::solid, X
+				LDA	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::type, X
 				IF_NOT_ZERO
-					LDA	z:EntityStruct::xVecl + 1
-					ORA	#$FF00
-					ADD	z:EntityStruct::xPos + 1
-					SUB	#ENTITY_XOFFSET
-					ADD	#METATILES_SIZE
-					AND	#$FFF0
-					ADD	#ENTITY_XOFFSET
-					STA	z:EntityStruct::xPos + 1
+					; Ignore collision if a platform
+					IF_N_CLEAR
+						LDA	z:EntityStruct::xVecl + 1
+						ORA	#$FF00
+						ADD	z:EntityStruct::xPos + 1
+						SUB	#ENTITY_XOFFSET
+						ADD	#METATILES_SIZE
+						AND	#$FFF0
+						ADD	#ENTITY_XOFFSET
+						STA	z:EntityStruct::xPos + 1
 
-					STZ	z:EntityStruct::xVecl
+						STZ	z:EntityStruct::xVecl
 
-					BRA	End_X_CollisionTest
+						BRA	End_X_CollisionTest
+					ENDIF
 				ENDIF
 				TYA
 				ADD	MetaTiles1x16__sizeOfMapRow
@@ -353,7 +398,7 @@ End_Y_CollisionTest:
 End_X_CollisionTest:
 
 	; Add xVecl, yVecl to xPos/yPos
-	; -----------------------------
+	; =============================
 
 	; ::KUDOS Khaz::
 	; ::: http://forums.nesdev.com/viewtopic.php?f=12&t=12459&p=142645#p142674 ::
