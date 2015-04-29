@@ -29,7 +29,6 @@ def main(inName, outName):
 
     assert map.tilewidth == 16, "Tile width must be 16"
     assert map.tileheight == 16, "Tile height must be 16"
-    assert map.width * map.tilewidth % 256 == 0, "Map width must be a multiple of 256"
     assert map.renderorder == "right-down", "Map Render Order must be right-down."
     assert len(map.tilesets) == 1, "Only one tileset is accepted"
     assert len(map.layers) == 1, "Only one layer is accepted"
