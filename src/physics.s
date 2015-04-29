@@ -5,6 +5,7 @@
 .include "includes/registers.inc"
 .include "includes/structure.inc"
 
+.include "entities.h"
 .include "metatileproperties.h"
 
 .include "routines/block.h"
@@ -35,10 +36,54 @@ MODULE Physics
 .code
 
 
+; A = Joypad Controls.
+; DP = Entity
+.A16
+.I16
+ROUTINE MoveEntityWithController
+	PHA
+
+	LDX	z:EntityStruct::currentTile
+	IF_BIT	#JOY_LEFT
+		LDA	z:EntityStruct::xVecl
+		SUB	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::walkAcceleration, X
+		CMP	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::minimumXVelocity, X
+		IF_SLT
+			LDA	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::minimumXVelocity, X
+		ENDIF
+		STA	z:EntityStruct::xVecl
+
+	ELSE_BIT #JOY_RIGHT
+		LDA	z:EntityStruct::xVecl
+		ADD	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::walkAcceleration, X
+		CMP	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::maximumXVelocity, X
+		IF_SGE
+			LDA	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::maximumXVelocity, X
+		ENDIF
+		STA	z:EntityStruct::xVecl
+	ENDIF
+
+	PLA
+
+	; Jump only if standing.
+	LDX	z:EntityStruct::standingTile
+	IF_NOT_ZERO
+		IF_BIT	#JOY_B
+			LDA	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::jumpingVelocity, X
+			IF_NOT_ZERO
+				STA	z:EntityStruct::yVecl
+			ENDIF
+		ENDIF
+	ENDIF
+
+	RTS
+
+
+
 ; ZP = Entity
 .A16
 .I16
-ROUTINE ProcessEntity
+ROUTINE EntityPhysicsWithCollisions
 
 	LDA	z:EntityStruct::yVecl
 	ADD	gravity
@@ -55,6 +100,14 @@ ROUTINE ProcessEntity
 	ENDIF
 	STA	z:EntityStruct::yVecl
 
+	.assert * = EntityPhysicsWithCollisionsNoGravity, lderror, "Bad Flow"
+
+
+
+; ZP = Entity
+.A16
+.I16
+ROUTINE	EntityPhysicsWithCollisionsNoGravity
 
 	; Check Map Collisions
 	; ====================
@@ -243,7 +296,6 @@ _SkipReleadTableYMinus:
 End_Y_CollisionTest:
 
 
-
 	LDA	z:EntityStruct::xVecl
 	IFL_NOT_ZERO
 		IF_PLUS
@@ -397,6 +449,15 @@ End_Y_CollisionTest:
 
 End_X_CollisionTest:
 
+	.assert * = EntitySimplePhysics, lderror, "Bad Flow"
+
+
+
+; ZP = Entity
+.A16
+.I16
+ROUTINE EntitySimplePhysics
+
 	; Add xVecl, yVecl to xPos/yPos
 	; =============================
 
@@ -453,7 +514,6 @@ Process_End_YPos:
 	ENDIF
 
 	RTS
-
 
 
 ENDMODULE

@@ -46,18 +46,6 @@
 .global	MetaTilesTable
 
 
-
-METATILES_SCREEN_MODE	= BGMODE_MODE1
-METATILES_BG1_MAP 	= $0000
-METATILES_BG1_TILES	= $3000
-METATILES_BG1_SIZE	= BGXSC_SIZE_64X32
-; ::SHOULDDO move somewhere else::
-METATILES_OAM_TILES	= $6000
-
-METATILES_OAM_SIZE	= OBSEL_SIZE_8_16
-METATILES_OAM_NAME	= 0
-
-
 IMPORT_MODULE MapLoader
 	;; Loads a map into the MetaTile1x16 module.
 	;; REQUIRES: 8 bit A, 16 bit Index, DP = 0, Force Blank

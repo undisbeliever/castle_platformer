@@ -9,6 +9,7 @@
 .include "routines/resourceloader.h"
 .include "routines/metatiles/metatiles-1x16.h"
 
+.include "gameloop.h"
 .include "physics.h"
 
 .global METATILES_BG1_MAP:absolute

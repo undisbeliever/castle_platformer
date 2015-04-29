@@ -34,45 +34,6 @@
 .global MetaTilePropertyBank:zp
 
 
-; ::DEBUG copied from asteroids::
-.struct EntitySizeStruct
-	width			.word
-	height			.word
-
-	tileWidth		.byte
-	tileHeight		.byte
-.endstruct
-
-.global EntitySizeStructBank:zp
-
-; ::DEBUG copied from asteroids::
-.struct EntityStruct
-	;; xPos - 16:8 unsigned fixed point
-	xPos			.res 3
-	;; yPos - 16:8 unsigned fixed point
-	yPos			.res 3
-
-	;; xVecl - 1:7:8 signed fixed point
-	xVecl			.res 2
-	;; xVecl - 1:7:8 signed fixed point
-	yVecl			.res 2
-
-	;; The address of the tileproperty of the tile underneath the entity if it is standing on a tile.
-	;; 0 (NULL) if floating
-	standingTile		.addr
-
-	;; The address of the tileproperty that the entity is on.
-	;; If the entity is standing, it set to tile the entity is standing on.
-	;; If the entity is not standing, it is entity's top-left tile. 
-	currentTile		.addr
-
-	;; pointer to the MetaSpriteData within `MetaSpriteLayoutBank`
-	metaSpriteFrame		.addr
-	;; The CharAttr offset of the MetaSprite data.
-	metaSpriteCharAttr	.word
-.endstruct
-
-
 IMPORT_MODULE Physics
 
 	;; Table that points to the MetaTilePropertyStruct for each metatile.
@@ -83,10 +44,34 @@ IMPORT_MODULE Physics
 	;; Must be set before using this module.
 	.global Physics__gravity : far
 
-	;; Updates the entity's physics
+	;; Preforms physics and collisions for a given entity.
+	;;	* Adds Gravity
+	;;	* Checks collisisons
+	;;	* Sets `Entity::currentTile` to the MetaTilePropertyStruct of the tile the entity is in front of
+	;;	* Sets `Entity::standingTile` to NULL (0) if entity is floating
+	;;	* Sets `Entity::standingTile` to the MetaTilePropertyStruct of the tile the entity is standing on
+	;;
 	;; REQUIRE: 16 bit A, 16 bit Index, DB = $7E
 	;; INPUT: DP - EntityStruct location
-	ROUTINE ProcessEntity
+	ROUTINE EntityPhysicsWithCollisions
+
+	;; Preforms physics with collisions, but no gravity for the given entity
+	;; Does the same as `EntityPhysicsWithCollisions` but doesn't add gravity to `z:EntityStruct::yPos`
+	;; REQUIRE: 16 bit A, 16 bit Index, DB = $7E
+	;; INPUT: DP - EntityStruct Location
+	ROUTINE EntityPhysicsWithCollisionsNoGravity
+
+	;; Updates an entities position, from its velocity, there are no collisions.
+	;; REQUIRE: 16 bit A, 16 bit Index, DB = $7E
+	;; INPUT: DP - EntityStruct location
+	ROUTINE EntitySimplePhysics
+
+	;; Move the entity depending on joypad
+	;; REQUIRE: 16 bit A, 16 bit Index, DB = $7E
+	;; INPUT:
+	;;	DP - EntityStrcct location
+	;;	A - Joypad data. (16 bit)
+	ROUTINE MoveEntityWithController
 ENDMODULE
 
 .endif ; ::_PHYSICS_H_

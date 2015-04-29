@@ -5,9 +5,10 @@
 .include "includes/registers.inc"
 .include "includes/structure.inc"
 
-.include "maploader.h"
-.include "physics.h"
 .include "controller.h"
+.include "entities.h"
+.include "gameloop.h"
+.include "physics.h"
 
 .include "routines/block.h"
 .include "routines/metasprite.h"
@@ -22,101 +23,61 @@ SCREEN_UP_DOWN_SPACING = 65
 MODULE Player
 
 .segment "SHADOW"
-	STRUCT	player, EntityStruct
+	STRUCT	entity, EntityStruct
 .code
 
 .A8
 .I16
 ROUTINE Init
 	; ::TODO dynamic starting position::
-	STZ	player + EntityStruct::xPos
+	STZ	entity + EntityStruct::xPos
 	LDX	#80
-	STX	player + EntityStruct::xPos + 1
+	STX	entity + EntityStruct::xPos + 1
 
-	STZ	player + EntityStruct::yPos
+	STZ	entity + EntityStruct::yPos
 	LDY	#200
-	STY	player + EntityStruct::yPos + 1
+	STY	entity + EntityStruct::yPos + 1
 
 	LDX	#0
-	STX	player + EntityStruct::xVecl
-	STX	player + EntityStruct::yVecl
-	STX	player + EntityStruct::standingTile
+	STX	entity + EntityStruct::xVecl
+	STX	entity + EntityStruct::yVecl
+	STX	entity + EntityStruct::standingTile
 
 	LDX	#.loword(ExampleMetaSpriteFrame)
-	STX	player + EntityStruct::metaSpriteFrame
+	STX	entity + EntityStruct::metaSpriteFrame
 	LDX	#0
-	STX	player + EntityStruct::metaSpriteCharAttr
+	STX	entity + EntityStruct::metaSpriteCharAttr
 
 	; ::TODO dynamicaly load player tiles and palette::
-	TransferToVramLocation	ExampleObjectTiles,	METATILES_OAM_TILES
+	TransferToVramLocation	ExampleObjectTiles,	GAMELOOP_OAM_TILES
 	TransferToCgramLocation	ExampleObjectPalette,	128
 
 	RTS
 
 
-.A8
+; DP = entity
+.A16
 .I16
 ROUTINE Update
-	PHD
-	PHB
-
-	LDA	#$7E
-	PHA
-	PLB
-
-	REP	#$20
-.A16
-
-	LDA	#player
-	TCD
-
-
-	LDX	z:EntityStruct::currentTile
-
-	; ::SHOULDDO move into physics::
 	LDA	Controller__current
-	IF_BIT	#JOY_LEFT
-		LDA	z:EntityStruct::xVecl
-		SUB	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::walkAcceleration, X
-		CMP	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::minimumXVelocity, X
-		IF_SLT
-			LDA	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::minimumXVelocity, X
-		ENDIF
-		STA	z:EntityStruct::xVecl
+	JSR	Physics__MoveEntityWithController
 
-	ELSE_BIT #JOY_RIGHT
-		LDA	z:EntityStruct::xVecl
-		ADD	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::walkAcceleration, X
-		CMP	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::maximumXVelocity, X
-		IF_SGE
-			LDA	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::maximumXVelocity, X
-		ENDIF
-		STA	z:EntityStruct::xVecl
-	ENDIF
+	JSR	Physics__EntityPhysicsWithCollisions
 
-	; Jump if standing.
-	LDX	z:EntityStruct::standingTile
-	IF_NOT_ZERO
-		LDA	Controller__current
-		IF_BIT	#JOY_B
-			LDA	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::jumpingVelocity, X
-			IF_NOT_ZERO
-				STA	z:EntityStruct::yVecl
-			ENDIF
-		ENDIF
-	ENDIF
+	; ::TODO player tile functions (if any).
 
-	JSR	Physics__ProcessEntity
+	RTS
 
 
-	; Move screen with player
-	; ::MAYDO integrate with entity module::
 
-	LDA	z:EntityStruct::xPos + 1
+.A16
+.I16
+ROUTINE	SetScreenPosition
+	LDA	entity + EntityStruct::xPos + 1
 	SUB	MetaTiles1x16__xPos
 	CMP	#256 - SCREEN_LEFT_RIGHT_SPACING
 	IF_SGE
-		LDA	z:EntityStruct::xPos + 1
+		LDA	entity + EntityStruct::xPos + 1
 		SUB	#256 - SCREEN_LEFT_RIGHT_SPACING
 		CMP	MetaTiles1x16__maxXPos
 		IF_GE
@@ -126,7 +87,7 @@ ROUTINE Update
 	ELSE
 		CMP	#SCREEN_LEFT_RIGHT_SPACING
 		IF_SLT
-			LDA	z:EntityStruct::xPos + 1
+			LDA	entity + EntityStruct::xPos + 1
 			SUB	#SCREEN_LEFT_RIGHT_SPACING
 			IF_MINUS
 				LDA	#0
@@ -135,11 +96,11 @@ ROUTINE Update
 		ENDIF
 	ENDIF
 
-	LDA	z:EntityStruct::yPos + 1
+	LDA	entity + EntityStruct::yPos + 1
 	SUB	MetaTiles1x16__yPos
 	CMP	#224 - SCREEN_UP_DOWN_SPACING
 	IF_SGE
-		LDA	z:EntityStruct::yPos + 1
+		LDA	entity + EntityStruct::yPos + 1
 		SUB	#224 - SCREEN_UP_DOWN_SPACING
 		CMP	MetaTiles1x16__maxYPos
 		IF_GE
@@ -149,7 +110,7 @@ ROUTINE Update
 	ELSE
 		CMP	#SCREEN_UP_DOWN_SPACING
 		IF_SLT
-			LDA	z:EntityStruct::yPos + 1
+			LDA	entity + EntityStruct::yPos + 1
 			SUB	#SCREEN_UP_DOWN_SPACING
 			IF_MINUS
 				LDA	#0
@@ -158,38 +119,7 @@ ROUTINE Update
 		ENDIF
 	ENDIF
 
-	SEP	#$20
-.A8
-
-	PLB
-	PLD
 	RTS
-
-
-
-.A8
-.I16
-ROUTINE Render
-	REP	#$30
-.A16
-.I16
-
-	LDA	player + EntityStruct::xPos + 1
-	SUB	MetaTiles1x16__xPos
-	STA	MetaSprite__xPos
-
-	LDA	player + EntityStruct::yPos + 1
-	SUB	MetaTiles1x16__yPos
-	STA	MetaSprite__yPos
-
-	; ::SHOULDDO use DB = MetaSpriteLayoutBank, saves (n_entities + 4*obj - 7) cycles::
-	; ::: Will require MetaSpriteLayoutBank & $7F <= $3F::
-	LDX	player + EntityStruct::metaSpriteFrame
-	LDY	player + EntityStruct::metaSpriteCharAttr
-
-	SEP	#$20
-.A8
-	JMP	MetaSprite__ProcessMetaSprite_Y
 
 
 
