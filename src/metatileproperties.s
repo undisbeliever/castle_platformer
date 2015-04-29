@@ -45,7 +45,7 @@ MODULE TileProperties
 		.word	60		; walkAcceleration
 		.word	.loword(-512)	; minimumXVelocity
 		.word	512		; maximumXVelocity
-		.word	.loword(-896)	; jumpingVelocity
+		.word	.loword(-1000)	; jumpingVelocity
 
 ENDMODULE
 

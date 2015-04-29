@@ -16,8 +16,8 @@
 ; ::TODO move somewhere else
 GRAVITY = 41			; Acceleration due to gravity in 1/256 pixels per frame per frame
 
-SCREEN_LEFT_RIGHT_SPACING = 85
-SCREEN_UP_DOWN_SPACING = 56
+SCREEN_LEFT_RIGHT_SPACING = 95
+SCREEN_UP_DOWN_SPACING = 65
 
 MODULE Player
 
@@ -28,8 +28,9 @@ MODULE Player
 .A8
 .I16
 ROUTINE Init
+	; ::TODO dynamic starting position::
 	STZ	player + EntityStruct::xPos
-	LDX	#825
+	LDX	#80
 	STX	player + EntityStruct::xPos + 1
 
 	STZ	player + EntityStruct::yPos
