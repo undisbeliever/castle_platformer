@@ -297,6 +297,10 @@ _SkipReleadTableYMinus:
 					AND	#$FFF0
 					ADD	#ENTITY_YOFFSET
 					STA	z:EntityStruct::yPos + 1
+
+					STZ	z:EntityStruct::yVecl
+
+					BRA	End_Y_CollisionTest
 				ENDIF
 			ENDIF
 			INY
