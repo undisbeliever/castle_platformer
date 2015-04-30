@@ -64,8 +64,13 @@ ROUTINE Update
 
 	JSR	Physics__EntityPhysicsWithCollisions
 
-	; ::TODO player tile functions (if any)
 	; Player/tile interactions
+	LDX	Physics__entityTouchTileFunctionPtr
+	IF_NOT_ZERO
+		JSR	(MetaTileFunctionsTable::PlayerTouch, X)
+	ENDIF
+
+
 	LDY	z:EntityStruct::standingTile
 	IF_NOT_ZERO
 		LDX	z:EntityStruct::currentTileProperty

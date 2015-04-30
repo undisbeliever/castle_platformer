@@ -8,10 +8,8 @@
 
 .enum	GameState
 	PLAYING	= 0
-	PAUSED
+	NOT_PLAYING
 	DEAD
-	LOAD_MAP
-	STOPPED
 .endenum
 
 

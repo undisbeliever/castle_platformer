@@ -18,15 +18,16 @@
 MODULE	SwitchTile
 
 LABEL functionsTable
-	.addr	SwitchTile__PlayerStand
+	.addr	PlayerStand
+	.addr	PlayerTouch
 
-.code
 
 .segment "WRAM7E"
 	ADDR	currentChainPieceToRemove
 	WORD	chainTile
 	BYTE	frameDelay
-.rodata
+
+.code
 
 REMOVE_CHAIN_FRAME_DELAY = 6
 RATTLE_SCREEN_AMOUNT = 3
@@ -35,6 +36,7 @@ RATTLE_SCREEN_AMOUNT = 3
 ; ::: That way I don't have to space the tiles so far apart?::
 .global GameLoop__execOncePerFrame
 
+;; Player is standing on the tile
 ; DP = entity
 .A16
 .I16
@@ -47,8 +49,10 @@ ROUTINE PlayerStand
 	; ::TODO use RAM loaded table?::
 	; ::TODO make function dynamic::
 	LDX	#0
+	LDY	z:EntityStruct::standingTile
+
 	REPEAT
-		LDA	z:EntityStruct::standingTile
+		TYA
 
 		CMP	f:SwitchChainTable + SwitchChainStruct::minMapLocation, X
 		IF_GE
@@ -69,7 +73,17 @@ ROUTINE PlayerStand
 	RTS
 
 
+;; Player is touching the tile
+; DP = entity
+.A16
+.I16
+ROUTINE PlayerTouch
+	RTS
+
+
+
 ; IN: A - chainLocation
+; DP = entity
 .A16
 .I16
 ROUTINE RemoveChain

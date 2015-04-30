@@ -9,6 +9,7 @@
 .include "maploader.h"
 .include "controller.h"
 .include "player.h"
+.include "physics.h"
 
 .include "routines/block.h"
 .include "routines/metatiles/metatiles-1x16.h"
@@ -20,6 +21,8 @@ MODULE GameLoop
 	BYTE	level
 	BYTE	state
 
+	WORD	tmp
+
 	; ::TODO add more execution hooks::
 	;; Address of a function to execute once per frame.
 	;; If NULL (0), then no function is executed,
@@ -27,6 +30,16 @@ MODULE GameLoop
 	;; OUTPUT: c set if function continues next frame, c clear if this is the last frame.
 	ADDR	execOncePerFrame
 .code
+
+.rodata
+
+;; A Table of functions to execute for each game state.
+;; Must match `GameState` enum.
+LABEL	GameStateTable
+	.addr	PlayGame
+	.addr	NotPlaying
+	.addr	Dead
+
 
 .A8
 .I16
@@ -110,6 +123,88 @@ ROUTINE PlayGame
 		LDA	state
 	UNTIL_NOT_ZERO
 
+	LDA	#0
+	XBA
+	LDA	state
+	ASL
+	TAX
+
+	JMP	(.loword(GameStateTable), X)
+
+
+.A8
+.I16
+ROUTINE NotPlaying
+	RTS
+
+
+DEATH_GRAVITY = 40
+DEATH_JUMP = 1024
+
+;; Player is dead
+;; Do the 'death' animation, wait for buttonpress, exit gameloop.
+.A8
+.I16
+ROUTINE Dead
+	PHB
+	LDA	#$7E
+	PHA
+	PLB
+
+	; ::SHOULDDO set player animation to death::
+
+	; Player 'jumps to bottom of screen'
+
+	REP	#$30
+.A16
+	LDA	#Player__entity
+	TCD
+
+	STZ	z:EntityStruct::xVecl
+	LDA	#.loword(-DEATH_JUMP)
+	STA	z:EntityStruct::yVecl
+
+	LDA	MetaTiles1x16__yPos
+	ADD	#224 + 1
+	; ::SHOULDDO add player yoffset::
+	ADD	#16
+	STA	tmp
+
+	SEP	#$20
+.A8
+
+	REPEAT
+		JSR	Screen__WaitFrame
+
+		REP	#$30
+.A16
+		LDA	z:EntityStruct::yVecl
+		ADD	#DEATH_GRAVITY
+		STA	z:EntityStruct::yVecl
+
+		JSR	Physics__EntitySimplePhysics
+
+		SEP	#$20
+.A8
+		JSR	Entities__Render
+
+		LDY	a:Player__entity + EntityStruct::yPos + 1
+		CPY	tmp
+	UNTIL_GE
+
+	LDA	#0
+	XBA
+	LDA	#0
+	TCD
+
+	; Wait for buttonpress
+	REPEAT
+		JSR	Screen__WaitFrame
+
+		LDX	Controller__pressed
+	UNTIL_NOT_ZERO
+
+	PLB
 	RTS
 
 

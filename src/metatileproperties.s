@@ -4,6 +4,7 @@
 
 .include "physics.h"
 .include "interactive-metatiles/switchtile.h"
+.include "interactive-metatiles/spikedtile.h"
 
 .segment "BANK1"
 
@@ -24,7 +25,6 @@ MODULE TileProperties
 
 	LABEL	SolidTile
 	LABEL	Chain
-	LABEL	Spikes
 		.word	$0001				; type
 		.addr	0				; functionsTable
 		.word	20				; friction
@@ -32,6 +32,15 @@ MODULE TileProperties
 		.word	.loword(-512)			; minimumXVelocity
 		.word	512				; maximumXVelocity
 		.word	.loword(-1024)			; jumpingVelocity
+
+	LABEL	Spikes
+		.word	$0000				; type
+		.addr	SpikedTile__functionsTable	; functionsTable
+		.word	0				; friction
+		.word	0				; walkAcceleration
+		.word	0				; minimumXVelocity
+		.word	0				; maximumXVelocity
+		.word	0				; jumpingVelocity
 
 	LABEL	Platform
 		.word	$FFFF				; type

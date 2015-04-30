@@ -12,7 +12,13 @@
 	;; REGISTERS: 16 bit A, 16 bit Index, DB = $7E
 	;; INPUT: ZP - entity
 	PlayerStand		.addr
+
+	;; Called when the player is touching a tile
+	;; REGISTERS: 16 bit A, 16 bit Index, DB = $7E
+	;; INPUT: ZP - entity
+	PlayerTouch		.addr
 .endstruct
+
 
 .struct MetaTilePropertyStruct
 	;; Type of tile.
@@ -47,19 +53,31 @@
 IMPORT_MODULE Physics
 
 	;; Table that points to the MetaTilePropertyStruct for each metatile.
-	;; Must be set before calling.
+	;; Must be set before calling  `EntityPhysicsWithCollisions` or
+	;; `EntityPhysicsWithCollisionsNoGravity`
 	.global	Physics__metaTilePropertyTable : far
 
 	;; The level's gravity.
 	;; Must be set before using this module.
 	.global Physics__gravity : far
 
+	;; MetaTileFunctionsTable location of the tile that the entity touched.
+	;; Set by `EntityPhysicsWithCollisions` and `EntityPhysicsWithCollisionsNoGravity`
+	;; If 0 then all tiles it touched have no functions table.
+	;;
+	;; ACCESSED: DB = $7E
+	ADDR entityTouchTileFunctionPtr
+
 	;; Preforms physics and collisions for a given entity.
 	;;	* Adds Gravity
 	;;	* Checks collisisons
-	;;	* Sets `Entity::currentTile` to the MetaTilePropertyStruct of the tile the entity is in front of
+	;;	* Sets `Entity::currentTile` to the MetaTilePropertyStruct of
+	;;	  the tile the entity is in front of
 	;;	* Sets `Entity::standingTile` to NULL (0) if entity is floating
-	;;	* Sets `Entity::standingTile` to the MetaTilePropertyStruct of the tile the entity is standing on
+	;;	* Sets `Entity::standingTile` to the MetaTilePropertyStruct of
+	;;	  the tile the entity is standing on
+	;;	* Sets `Physics__entityTouchTileFunctionPtr` to the MetaTileFunctionsTable
+	;;	  location of last tile touched that has a functions table.
 	;;
 	;; REQUIRE: 16 bit A, 16 bit Index, DB = $7E
 	;; INPUT: DP - EntityStruct location
@@ -79,7 +97,7 @@ IMPORT_MODULE Physics
 	;; Move the entity depending on joypad
 	;; REQUIRE: 16 bit A, 16 bit Index, DB = $7E
 	;; INPUT:
-	;;	DP - EntityStrcct location
+	;;	DP - EntityStruct location
 	;;	A - Joypad data. (16 bit)
 	ROUTINE MoveEntityWithController
 ENDMODULE

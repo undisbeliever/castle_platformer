@@ -31,6 +31,7 @@ MODULE Physics
 	ADDR	metaTilePropertyTable, N_METATILES
 	WORD	gravity
 
+	ADDR	entityTouchTileFunctionPtr
 
 	WORD	counter
 .code
@@ -111,6 +112,8 @@ ROUTINE EntityPhysicsWithCollisions
 .I16
 ROUTINE	EntityPhysicsWithCollisionsNoGravity
 
+	STZ	entityTouchTileFunctionPtr
+
 	; Check Map Collisions
 	; ====================
 
@@ -162,6 +165,12 @@ ROUTINE	EntityPhysicsWithCollisionsNoGravity
 			LDA	a:metaTilePropertyTable, X
 _SkipReleadTableYPlus:
 			TAX
+
+			LDA	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::functionsTable, X
+			IF_NOT_ZERO
+				STA	entityTouchTileFunctionPtr
+			ENDIF
+
 			LDA	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::type, X
 			IF_NOT_ZERO
 				IF_N_SET
@@ -197,7 +206,7 @@ _SkipReleadTableYPlus:
 				STA	z:EntityStruct::yPos + 1
 				STZ	z:EntityStruct::yVecl
 
-				JMP	End_Y_CollisionTest	
+				JMP	End_Y_CollisionTest
 			ENDIF
 
 FallingThroughPlatform:
@@ -267,6 +276,12 @@ FallingThroughPlatform:
 			LDA	a:metaTilePropertyTable, X
 _SkipReleadTableYMinus:
 			TAX
+
+			LDA	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::functionsTable, X
+			IF_NOT_ZERO
+				STA	entityTouchTileFunctionPtr
+			ENDIF
+
 			LDA	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::type, X
 
 			IF_NOT_ZERO
@@ -282,10 +297,6 @@ _SkipReleadTableYMinus:
 					AND	#$FFF0
 					ADD	#ENTITY_YOFFSET
 					STA	z:EntityStruct::yPos + 1
-
-					STZ	z:EntityStruct::yVecl
-
-					BRA	End_Y_CollisionTest
 				ENDIF
 			ENDIF
 			INY
@@ -293,14 +304,13 @@ _SkipReleadTableYMinus:
 
 			DEC	a:counter
 		UNTIL_ZERO
-	ENDIF
-
 End_Y_CollisionTest:
+	ENDIF
 
 
 	LDA	z:EntityStruct::xVecl
 	IFL_NOT_ZERO
-		IF_PLUS
+		IFL_PLUS
 			; Entity is moving Right
 			; ----------------------
 
@@ -350,6 +360,12 @@ End_Y_CollisionTest:
 				LDX	a:MetaTiles1x16__map, Y
 				LDA	a:metaTilePropertyTable, X
 				TAX
+
+				LDA	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::functionsTable, X
+				IF_NOT_ZERO
+					STA	entityTouchTileFunctionPtr
+				ENDIF
+
 				LDA	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::type, X
 				IF_NOT_ZERO
 					; Ignore collision if a platform
@@ -365,7 +381,7 @@ End_Y_CollisionTest:
 
 						STZ	z:EntityStruct::xVecl
 
-						JMP	End_X_CollisionTest
+						BRL	End_X_CollisionTest
 					ENDIF
 				ENDIF
 				TYA
@@ -373,7 +389,7 @@ End_Y_CollisionTest:
 
 				DEC	a:counter
 			UNTIL_ZERO
-		ELSE
+		ELSEL
 			; Entity is moving Left
 			; ---------------------
 
@@ -423,6 +439,12 @@ End_Y_CollisionTest:
 				LDX	a:MetaTiles1x16__map, Y
 				LDA	a:metaTilePropertyTable, X
 				TAX
+
+				LDA	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::functionsTable, X
+				IF_NOT_ZERO
+					STA	entityTouchTileFunctionPtr
+				ENDIF
+
 				LDA	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::type, X
 				IF_NOT_ZERO
 					; Ignore collision if a platform
@@ -447,9 +469,9 @@ End_Y_CollisionTest:
 				DEC	a:counter
 			UNTIL_ZERO
 		ENDIF
+End_X_CollisionTest:
 	ENDIF
 
-End_X_CollisionTest:
 
 	.assert * = EntitySimplePhysics, lderror, "Bad Flow"
 
