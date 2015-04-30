@@ -7,6 +7,13 @@
 .include "includes/import_export.inc"
 .include "includes/registers.inc"
 
+.struct MetaTileFunctionsTable
+	;; Called when the player is standing on a tile
+	;; REGISTERS: 16 bit A, 16 bit Index, DB = $7E
+	;; INPUT: ZP - entity
+	PlayerStand		.addr
+.endstruct
+
 .struct MetaTilePropertyStruct
 	;; Type of tile.
 	;;
@@ -14,6 +21,9 @@
 	;; If 0 then the tile is not solid.
 	;; If MSB (bit 15) is set then the tile is a one way platform.
 	type			.word
+	;; Location of the `MetaTilePropertyStruct`
+	;; If NULL (0) then the tile has no functions.
+	functionsTable		.addr
 	;; Friction applied to the entity when standing on the tile
 	;; 1:7:8 signed fixed point
 	friction		.word

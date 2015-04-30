@@ -20,6 +20,12 @@ MODULE GameLoop
 	BYTE	level
 	BYTE	state
 
+	; ::TODO add more execution hooks::
+	;; Address of a function to execute once per frame.
+	;; If NULL (0), then no function is executed,
+	;; REGISTERS: 16 bit A, 16 bit Index, DB = $7E, DP = 0
+	;; OUTPUT: c set if function continues next frame, c clear if this is the last frame.
+	ADDR	execOncePerFrame
 .code
 
 .A8
@@ -32,6 +38,9 @@ ROUTINE Init
 
 	LDA	#GAMELOOP_SCREEN_MODE
 	STA	BGMODE
+
+	LDX	#0
+	STX	execOncePerFrame
 
 	MetaSprite_Init
 	Screen_SetVramBaseAndSize GAMELOOP
@@ -63,13 +72,12 @@ ROUTINE PlayGame
 	REPEAT
 		JSR	Screen__WaitFrame
 
-		PHD
 		PHB
 		LDA	#$7E
 		PHA
 		PLB
 
-			REP	#$30
+		REP	#$30
 .A16
 			LDA	#Player__entity
 			TCD
@@ -77,7 +85,21 @@ ROUTINE PlayGame
 			JSR	Player__Update
 			JSR	Player__SetScreenPosition
 
-			SEP	#$20
+		; reset DP
+		LDA	#0
+		TCD
+
+		LDX	execOncePerFrame
+		IF_NOT_ZERO
+			LDX	#0
+			JSR	(execOncePerFrame, X)
+
+			IF_C_CLEAR
+				STZ	execOncePerFrame
+			ENDIF
+		ENDIF
+
+		SEP	#$20
 .A8
 		PLB
 
@@ -85,9 +107,9 @@ ROUTINE PlayGame
 
 		JSR	Entities__Render
 
-		PLD
-
 		LDA	state
 	UNTIL_NOT_ZERO
 
 	RTS
+
+

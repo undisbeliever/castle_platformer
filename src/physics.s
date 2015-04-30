@@ -43,7 +43,8 @@ MODULE Physics
 ROUTINE MoveEntityWithController
 	PHA
 
-	LDX	z:EntityStruct::currentTile
+	LDX	z:EntityStruct::currentTileProperty
+
 	IF_BIT	#JOY_LEFT
 		LDA	z:EntityStruct::xVecl
 		SUB	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::walkAcceleration, X
@@ -66,9 +67,10 @@ ROUTINE MoveEntityWithController
 	PLA
 
 	; Jump only if standing.
-	LDX	z:EntityStruct::standingTile
+	LDY	z:EntityStruct::standingTile
 	IF_NOT_ZERO
 		IF_BIT	#JOY_B
+			LDX	z:EntityStruct::currentTileProperty
 			LDA	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::jumpingVelocity, X
 			IF_NOT_ZERO
 				STA	z:EntityStruct::yVecl
@@ -152,7 +154,7 @@ ROUTINE	EntityPhysicsWithCollisionsNoGravity
 
 		LDX	a:MetaTiles1x16__map, Y
 		LDA	a:metaTilePropertyTable, X
-		STA	z:EntityStruct::currentTile
+		STA	z:EntityStruct::currentTileProperty
 		BRA	_SkipReleadTableYPlus		; speedup, saves 7 cycles
 
 		REPEAT
@@ -179,8 +181,8 @@ _SkipReleadTableYPlus:
 					BLT	FallingThroughPlatform
 				ENDIF
 
-				STX	z:EntityStruct::standingTile
-				STX	z:EntityStruct::currentTile
+				STY	z:EntityStruct::standingTile
+				STX	z:EntityStruct::currentTileProperty
 
 				; Move entity to above solid tile.
 
@@ -207,13 +209,13 @@ FallingThroughPlatform:
 		; not standing on anything, now falling
 		STZ	z:EntityStruct::standingTile
 
-		; ::HACK system may think currentTile is a platform, but its not, reflect this::
+		; ::HACK system may think currentTileProperty is a platform, but its not, reflect this::
 		; ::MAYDO improve this (extra field for patforms maybe?)::
-		LDX	z:EntityStruct::currentTile
+		LDX	z:EntityStruct::currentTileProperty
 		LDA	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::type, X
 		IF_N_SET
 			LDX	#.loword(TileProperties__EmptyTile)
-			STX	z:EntityStruct::currentTile
+			STX	z:EntityStruct::currentTileProperty
 		ENDIF
 
 	ELSE
@@ -257,7 +259,7 @@ FallingThroughPlatform:
 		; Travelling upwards, current tile = start of head
 		LDX	a:MetaTiles1x16__map, Y
 		LDA	a:metaTilePropertyTable, X
-		STA	z:EntityStruct::currentTile
+		STA	z:EntityStruct::currentTileProperty
 		BRA	_SkipReleadTableYMinus		; speedup, saves 7 cycles
 
 		REPEAT
@@ -303,7 +305,7 @@ End_Y_CollisionTest:
 			; ----------------------
 
 			; handle friction
-			LDX	z:EntityStruct::currentTile
+			LDX	z:EntityStruct::currentTileProperty
 			SUB	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::friction, X
 			IF_MINUS
 				STZ	z:EntityStruct::xVecl
@@ -376,7 +378,7 @@ End_Y_CollisionTest:
 			; ---------------------
 
 			; handle friction
-			LDX	z:EntityStruct::currentTile
+			LDX	z:EntityStruct::currentTileProperty
 			ADD	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::friction, X
 			IF_PLUS
 				STZ	z:EntityStruct::xVecl

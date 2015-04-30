@@ -3,6 +3,7 @@
 .include "includes/import_export.inc"
 
 .include "physics.h"
+.include "interactive-metatiles/switchtile.h"
 
 .segment "BANK1"
 
@@ -13,39 +14,52 @@ MODULE TileProperties
 	.assert .loword(*) <> 0, lderror, "TileProperties addresses MUST NOT be 0"
 
 	LABEL	EmptyTile
-	LABEL	Chain
-		.word	$0000		; type
-		.word	0		; friction
-		.word	20		; walkAcceleration
-		.word	.loword(-512)	; minimumXVelocity
-		.word	512		; maximumXVelocity
-		.word	0		; jumpingVelocity
+		.word	$0000				; type
+		.addr	0				; functionsTable
+		.word	0				; friction
+		.word	20				; walkAcceleration
+		.word	.loword(-512)			; minimumXVelocity
+		.word	512				; maximumXVelocity
+		.word	0				; jumpingVelocity
 
 	LABEL	SolidTile
+	LABEL	Chain
 	LABEL	Spikes
-	LABEL	Switch
-		.word	$0001		; type
-		.word	20		; friction
-		.word	80		; walkAcceleration
-		.word	.loword(-512)	; minimumXVelocity
-		.word	512		; maximumXVelocity
-		.word	.loword(-1024)	; jumpingVelocity
+		.word	$0001				; type
+		.addr	0				; functionsTable
+		.word	20				; friction
+		.word	80				; walkAcceleration
+		.word	.loword(-512)			; minimumXVelocity
+		.word	512				; maximumXVelocity
+		.word	.loword(-1024)			; jumpingVelocity
 
 	LABEL	Platform
-		.word	$FFFF		; type
-		.word	20		; friction
-		.word	80		; walkAcceleration
-		.word	.loword(-512)	; minimumXVelocity
-		.word	512		; maximumXVelocity
-		.word	.loword(-1024)	; jumpingVelocity
+		.word	$FFFF				; type
+		.addr	0				; functionsTable
+		.word	20				; friction
+		.word	80				; walkAcceleration
+		.word	.loword(-512)			; minimumXVelocity
+		.word	512				; maximumXVelocity
+		.word	.loword(-1024)			; jumpingVelocity
+
+	LABEL	Switch
+		.word	$FFFF				; type
+		.addr	SwitchTile__functionsTable	; functionsTable
+		.word	20				; friction
+		.word	80				; walkAcceleration
+		.word	.loword(-512)			; minimumXVelocity
+		.word	512				; maximumXVelocity
+		.word	.loword(-1024)			; jumpingVelocity
 
 	LABEL	IcePlatform
-		.word	$FFFF		; type
-		.word	2		; friction
-		.word	60		; walkAcceleration
-		.word	.loword(-512)	; minimumXVelocity
-		.word	512		; maximumXVelocity
-		.word	.loword(-1000)	; jumpingVelocity
+		.word	$FFFF				; type
+		.addr	0				; functionsTable
+		.word	2				; friction
+		.word	60				; walkAcceleration
+		.word	.loword(-512)			; minimumXVelocity
+		.word	512				; maximumXVelocity
+		.word	.loword(-1000)			; jumpingVelocity
+
 
 ENDMODULE
 

@@ -30,14 +30,14 @@
 	;; xVecl - 1:7:8 signed fixed point
 	yVecl			.res 2
 
-	;; The address of the tileproperty of the tile underneath the entity if it is standing on a tile.
-	;; 0 (NULL) if floating
+	;; The address of the tile within the map that the entity is standin on.
+	;; 0 (NULL) if floating.
 	standingTile		.addr
 
 	;; The address of the tileproperty that the entity is on.
 	;; If the entity is standing, it set to tile the entity is standing on.
 	;; If the entity is not standing, it is entity's top-left tile. 
-	currentTile		.addr
+	currentTileProperty	.addr
 
 	;; pointer to the MetaSpriteData within `MetaSpriteLayoutBank`
 	metaSpriteFrame		.addr

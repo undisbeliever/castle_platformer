@@ -64,7 +64,19 @@ ROUTINE Update
 
 	JSR	Physics__EntityPhysicsWithCollisions
 
-	; ::TODO player tile functions (if any).
+	; ::TODO player tile functions (if any)
+	; Player/tile interactions
+	LDY	z:EntityStruct::standingTile
+	IF_NOT_ZERO
+		LDX	z:EntityStruct::currentTileProperty
+		LDA	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::functionsTable, X
+		IF_NOT_ZERO
+			TAX
+			JMP	(MetaTileFunctionsTable::PlayerStand, X)
+		ENDIF
+	ENDIF
+
+	; only here if there is no standing tile.
 
 	RTS
 

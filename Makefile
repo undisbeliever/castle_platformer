@@ -4,7 +4,7 @@ API_MODULES = reset-snes block screen math resourceloader metasprite metatiles/m
 API_DIR     = snesdev-common
 CONFIG      = LOROM_1MBit_copyright
 
-SOURCES     = $(wildcard src/*.s)
+SOURCES     = $(wildcard src/*.s) $(wildcard src/*/*.s)
 OBJECTS     = $(patsubst src/%.s,obj/%.o,$(SOURCES))
 HEADERS     = $(wildcard */*.inc */*.h)
 RESOURCES   = $(wildcard resources/*)
