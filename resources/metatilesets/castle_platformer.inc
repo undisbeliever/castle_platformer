@@ -18,7 +18,7 @@ CastlePlatformer_MetaTilePropertyTable:
 	; row 1
 	.addr	TileProperties__EmptyTile
 	.addr	TileProperties__SolidTile
-	.addr	TileProperties__Switch
+	.addr	TileProperties__StandingEventTile
 	.addr	TileProperties__SolidTile
 	.repeat 4
 		.addr	TileProperties__Spikes

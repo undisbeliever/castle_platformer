@@ -3,8 +3,8 @@
 .include "includes/import_export.inc"
 
 .include "physics.h"
-.include "interactive-metatiles/switchtile.h"
 .include "interactive-metatiles/spikedtile.h"
+.include "interactive-metatiles/standing-event-tile.h"
 
 .segment "BANK1"
 
@@ -51,9 +51,9 @@ MODULE TileProperties
 		.word	512				; maximumXVelocity
 		.word	.loword(-1024)			; jumpingVelocity
 
-	LABEL	Switch
+	LABEL	StandingEventTile
 		.word	$FFFF				; type
-		.addr	SwitchTile__functionsTable	; functionsTable
+		.addr	StandingEventTile__functionsTable	; functionsTable
 		.word	20				; friction
 		.word	80				; walkAcceleration
 		.word	.loword(-512)			; minimumXVelocity

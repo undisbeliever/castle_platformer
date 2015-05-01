@@ -1,88 +1,29 @@
 
-.include "switchtile.h"
+.include "removechain.h"
 .include "includes/import_export.inc"
 .include "includes/synthetic.inc"
 .include "includes/registers.inc"
 .include "includes/structure.inc"
 
-.include "../entities.h"
-
 .include "routines/metatiles/metatiles-1x16.h"
 
-.struct SwitchChainStruct
-	minMapLocation	.addr
-	maxMapLocation	.addr
-	chainLocation	.addr
-.endstruct
+REMOVE_CHAIN_FRAME_DELAY = 6
+RATTLE_SCREEN_AMOUNT = 3
 
-MODULE	SwitchTile
 
-LABEL functionsTable
-	.addr	PlayerStand
-	.addr	PlayerTouch
-
+MODULE	StandingEvents_RemoveChain
 
 .segment "WRAM7E"
 	ADDR	currentChainPieceToRemove
 	WORD	chainTile
 	BYTE	frameDelay
-
 .code
-
-REMOVE_CHAIN_FRAME_DELAY = 6
-RATTLE_SCREEN_AMOUNT = 3
 
 ; ::TODO redo, maybe I should allocate some DP space for the functions?::
 ; ::: That way I don't have to space the tiles so far apart?::
 .global GameLoop__execOncePerFrame
 
-;; Player is standing on the tile
-; DP = entity
-.A16
-.I16
-ROUTINE PlayerStand
-	; for x = 0 to .sizeof(SwitchChainTable) step .sizeof(SwitchChainStruct)
-	;	a = entity->standingTile
-	;	if a >= SwitchChainTable[x].maxMapLocation & a <= SwitchChainTable[x].minMapLocation
-	;		RemoveChain(SwitchChainTable[x].chainLocation
-
-	; ::TODO use RAM loaded table?::
-	; ::TODO make function dynamic::
-	LDX	#0
-	LDY	z:EntityStruct::standingTile
-
-	REPEAT
-		TYA
-
-		CMP	f:SwitchChainTable + SwitchChainStruct::minMapLocation, X
-		IF_GE
-			CMP	f:SwitchChainTable + SwitchChainStruct::maxMapLocation, X
-			IF_LE
-				LDA	f:SwitchChainTable + SwitchChainStruct::chainLocation, X
-				BRA	RemoveChain
-			ENDIF
-		ENDIF
-
-		TXA
-		ADD	#.sizeof(SwitchChainStruct)
-		TAX
-		; ::TODO dynamically determine size::	
-		CPX	#SwitchChainTable_End - SwitchChainTable
-	UNTIL_GE
-
-	RTS
-
-
-;; Player is touching the tile
-; DP = entity
-.A16
-.I16
-ROUTINE PlayerTouch
-	RTS
-
-
-
-; IN: A - chainLocation
+; IN: A - chain location on map
 ; DP = entity
 .A16
 .I16
@@ -204,18 +145,6 @@ ROUTINE RemoveChainTimer
 
 	SEC
 	RTS
-
-
-.segment "BANK1"
-	; ::TODO make this table dynamic per level::
-
-LABEL	SwitchChainTable
-	;	minMapLocation     , minMapLocation     , chainLocation
-	.word	(13 * 112 + 28) * 2, (13 * 112 + 31) * 2, (13 * 112 + 33) * 2
-	.word	(26 * 112 + 29) * 2, (26 * 112 + 32) * 2, (12 * 112 + 95) * 2
-	.word	(51 * 112 + 45) * 2, (51 * 112 + 48) * 2, (12 * 112 + 98) * 2
-SwitchChainTable_End:
-
 
 ENDMODULE
 

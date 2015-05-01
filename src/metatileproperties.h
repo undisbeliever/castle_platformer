@@ -15,7 +15,7 @@ IMPORT_MODULE TileProperties
 	LABEL	IcePlatform
 	LABEL	Platform
 	LABEL	Chain
-	LABEL	Switch
+	LABEL	StandingEventTile
 	LABEL	Spikes
 ENDMODULE
 

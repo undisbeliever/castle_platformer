@@ -19,17 +19,27 @@
 
 
 .struct MapDataPrefix
-	width		.word
-	height		.word
+	width			.word
+	height			.word
 .endstruct
 
 
 .struct MapTableFormat
-	mapData		.faraddr
-	tileSetId	.byte
-	xPos		.word
-	yPos		.word
+	mapData			.faraddr
+	tileSetId		.byte
+	xPos			.word
+	yPos			.word
+	interactiveTiles	.addr
 .endstruct
+
+.struct	InteractiveTilesStruct
+	; Address within `SwitchTileTableBank` of the switchtile of the level
+	standingEventsTablePtr	.addr
+	; Number of entries in the switchtile table.
+	standingEventsTableCount	.word
+.endstruct
+
+.global InteractiveTilesStructBank : zp
 
 ;; A table of `MapTableFormat`, one for each map
 .global	MapsTable

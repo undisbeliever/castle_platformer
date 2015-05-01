@@ -11,8 +11,13 @@
 
 .include "gameloop.h"
 .include "physics.h"
+.include "interactive-metatiles/standing-event-tile.h"
+
 
 .global METATILES_BG1_MAP:absolute
+
+METATILES_BG1_MAP   = GAMELOOP_BG1_MAP
+METATILES_BG1_TILES = GAMELOOP_BG1_TILES
 
 DEFAULT_GRAVITY = 35		; Acceleration due to gravity in 1/256 pixels per frame per frame
 
@@ -33,16 +38,23 @@ MODULE MapLoader
 ROUTINE LoadMap
 	REP	#$30
 .A16
-	.assert .sizeof(MapTableFormat) = 8, error, "MapTableFormat must be 8 bytes"
+	.assert .sizeof(MapTableFormat) = 10, error, "MapTableFormat must be 8 bytes"
 	AND	#$00FF
+	STA	dataPtr
 	ASL
 	ASL
+	ADC	dataPtr ; carry clear from ASL
 	ASL
 	TAX
 
 	; set default gravity
 	LDA	#DEFAULT_GRAVITY
 	STA	Physics__gravity
+
+	; set the interactive tile tables.
+	PHX
+	JSR	SetInteractiveTileTables
+	PLX
 
 	LDA	f:MapsTable + MapTableFormat::mapData, X
 	STA	dataPtr
@@ -85,6 +97,20 @@ ROUTINE LoadMap
 
 	JMP	MetaTiles1x16__MapInit
 
+
+; IN: X - MapTableFormat offset
+.A16
+.I16
+ROUTINE SetInteractiveTileTables
+	LDA	f:MapsTable + MapTableFormat::interactiveTiles, X
+	TAX
+
+	LDA	f:InteractiveTilesStructBank << 16 + InteractiveTilesStruct::standingEventsTablePtr, X
+	STA	f:StandingEventTile__standingEventsTablePtr
+	LDA	f:InteractiveTilesStructBank << 16 + InteractiveTilesStruct::standingEventsTableCount, X
+	STA	f:StandingEventTile__standingEventsTableCount
+
+	RTS
 
 
 .A8

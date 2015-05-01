@@ -8,6 +8,8 @@
 
 .include "maploader.h"
 .include "metatileproperties.h"
+.include "interactive-metatiles/standing-event-tile.h"
+
 .include "routines/resourceloader.h"
 
 TILESET_CASTLE_PLATFORMER = 0
@@ -20,7 +22,8 @@ MapsTable:
 	.faraddr	Level01
 	.byte		TILESET_CASTLE_PLATFORMER
 	.word		0
-	.word		64
+	.word		0
+	.addr		Level01_InteractiveTilesStruct
 
 
 PalettesTable:
@@ -37,6 +40,13 @@ MetaTilesTable:
 	.faraddr	CastlePlatformer_MetaTilePropertyTable
 	.word		PALETTE_CASTLE_PLATFORMER
 	.word		TILES_CASTLE_PLATFORMER
+
+
+; Interactive tile tables for the levels
+.segment "BANK1"
+InteractiveTilesStructBank = .bankbyte(*)
+StandingEventsTableBank = .bankbyte(*)
+	.include "resources/metatilemaps/level_01.inc"
 
 
 .segment "BANK2"
