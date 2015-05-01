@@ -39,6 +39,7 @@ LABEL	GameStateTable
 	.addr	PlayGame
 	.addr	NotPlaying
 	.addr	Dead
+	.addr	GameOver
 
 
 .A8
@@ -141,8 +142,9 @@ ROUTINE NotPlaying
 DEATH_GRAVITY = 40
 DEATH_JUMP = 1024
 
+
 ;; Player is dead
-;; Do the 'death' animation, wait for buttonpress, exit gameloop.
+;; Do the 'death' animation, wait for buttonpress, restart map.
 .A8
 .I16
 ROUTINE Dead
@@ -205,6 +207,18 @@ ROUTINE Dead
 	UNTIL_NOT_ZERO
 
 	PLB
+	JSR	Init
+	JMP	PlayGame
+
+
+
+;; Exit the game loop
+.A8
+.I16
+ROUTINE GameOver
 	RTS
 
+
+
+ENDMODULE
 

@@ -35,6 +35,9 @@
 	;; This command reconizes a bridge tile as the *first* tile removed.
 	;; It will stop when the it reaches a tile that is not a bridge tile.
 	REMOVE_BRIDGE = 2
+
+	;; Sets the game loop state to GAME_OVER
+	GAME_OVER = 4
 .endenum
 
 IMPORT_MODULE StandingEventTile

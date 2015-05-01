@@ -10,6 +10,7 @@
 	PLAYING	= 0
 	NOT_PLAYING
 	DEAD
+	GAME_OVER
 .endenum
 
 

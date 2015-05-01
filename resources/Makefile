@@ -1,6 +1,6 @@
 
-MAPS = 
-TILES = 
+MAPS = to_be_continued.map
+TILES = to_be_continued.4bpp 
 MODE7 = 
 MODE7TILES = $(patsubst %,%.pc7,$(MODE7))
 MODE7MAPS = $(patsubst %,%.mp7,$(MODE7))
