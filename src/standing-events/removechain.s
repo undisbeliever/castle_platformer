@@ -16,6 +16,8 @@ MODULE	StandingEvents_RemoveChain
 .segment "WRAM7E"
 	ADDR	currentChainPieceToRemove
 	WORD	chainTile
+	WORD	chainBottomTile
+
 	BYTE	frameDelay
 .code
 
@@ -31,6 +33,7 @@ ROUTINE RemoveChain
 	; x = chainLocation
 	; tile = MetaTiles1x16__map[x]
 	; if tile != 0
+	;	chainBottomTile = tile
 	;	frameDelay = 0
 	;	currentChainPieceToRemove = x
 	;	chainTile = x + MetaTiles1x16__sizeOfMapRow
@@ -42,6 +45,8 @@ ROUTINE RemoveChain
 	; Check if chain already removed, and setup callback.
 	LDA	.loword(MetaTiles1x16__map), X
 	IF_NOT_ZERO
+		STA	chainBottomTile
+
 		SEP	#$20
 .A8
 		; ensure chain is removed immediatly
@@ -74,6 +79,10 @@ ROUTINE RemoveChain
 ROUTINE RemoveChainTimer
 	; if frameDelay != 0
 	;	frameDelay--
+	;	if frameDelay & 1
+	;		MetaTiles1x16__yPos += RATTLE_SCREEN_AMOUNT
+	;	else
+	;		MetaTiles1x16__yPos -= RATTLE_SCREEN_AMOUNT
 	;	return true
 	; else
 	; 	frameDelay = REMOVE_CHAIN_FRAME_DELAY
@@ -86,9 +95,12 @@ ROUTINE RemoveChainTimer
 	;	if currentChainPieceToRemove < 0
 	;		return false
 	;
-	;	MetaTiles1x16__map[currentChainPieceToRemove] != chainTile
+	;	if MetaTiles1x16__map[currentChainPieceToRemove] != chainTile
 	;		return false
-	;	
+	;
+	;	MetaTiles1x16__map[currentChainPieceToRemove] = chainBottomTile
+	;
+	;	return true
 
 	SEP	#$20
 .A8
@@ -97,6 +109,9 @@ ROUTINE RemoveChainTimer
 		; rattle the screen - show something is happening
 		.assert REMOVE_CHAIN_FRAME_DELAY & 1 = 0, error, "REMOVE_CHAIN_FRAME_DELAY must be even to rattle screen properly"
 		LSR
+
+		REP	#$20
+.A16
 
 		LDA	MetaTiles1x16__yPos
 		IF_C_CLEAR
@@ -107,6 +122,9 @@ ROUTINE RemoveChainTimer
 			SBC	#RATTLE_SCREEN_AMOUNT
 		ENDIF
 		STA	MetaTiles1x16__yPos
+
+		SEP	#$20
+.A8
 
 		DEC	frameDelay
 		SEC
@@ -142,6 +160,9 @@ ROUTINE RemoveChainTimer
 		CLC
 		RTS
 	ENDIF
+
+	LDA	chainBottomTile
+	STA	.loword(MetaTiles1x16__map), X
 
 	SEC
 	RTS
