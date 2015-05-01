@@ -23,8 +23,8 @@ MODULE TileProperties
 		.word	512				; maximumXVelocity
 		.word	0				; jumpingVelocity
 
-	LABEL	SolidTile
 	LABEL	Chain
+	LABEL	SolidTile
 		.word	$0001				; type
 		.addr	0				; functionsTable
 		.word	20				; friction

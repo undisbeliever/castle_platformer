@@ -1,3 +1,6 @@
+# REQUIRES ImageMagick
+# If a tileset has a file labelled *.overlay.png than the tileset png
+# will contain both the .pcx and the .overlay.png images.
 
 FILES    = $(wildcard *.pcx)
 TILES    = $(patsubst %.pcx,%.4bpp,$(FILES))
@@ -7,7 +10,6 @@ PNGS	 = $(patsubst %.pcx,%.png,$(FILES))
 
 CONVERT_MAP_METATILE1X16_FILE = ../../utils/map2metatile1x16.py
 CONVERT_MAP_METATILE1X16 = python3 ../../utils/map2metatile1x16.py
-PCX2PNG = convert
 
 .PHONY: ALL
 
@@ -20,8 +22,12 @@ ALL: $(TILES) $(LAYOUTS) $(PALETTES) $(PNGS)
 	$(RM) $*.map
 	mv $*.pic $*.4bpp
 
+%.png: %.pcx %.overlay.png
+	composite $*.overlay.png $*.pcx $*.png
+
 %.png: %.pcx
-	$(PCX2PNG) $*.pcx $*.png
+	convert $*.pcx $*.png
+
 
 .PHONY: clean
 clean:

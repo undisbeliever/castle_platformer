@@ -16,7 +16,7 @@ CastlePlatformer_MetaTilePropertyTable:
 		.addr	TileProperties__EmptyTile
 	.endrepeat
 	; row 1
-	.addr	TileProperties__EmptyTile
+	.addr	TileProperties__SolidTile
 	.addr	TileProperties__SolidTile
 	.addr	TileProperties__StandingEventTile
 	.addr	TileProperties__SolidTile
@@ -27,7 +27,8 @@ CastlePlatformer_MetaTilePropertyTable:
 		.addr	TileProperties__EmptyTile
 	.endrepeat
 	; row 2
-	.repeat 4
+	.addr	TileProperties__StandingEventTile
+	.repeat 3
 		.addr	TileProperties__SolidTile
 	.endrepeat
 	.repeat 4
@@ -87,7 +88,8 @@ CastlePlatformer_MetaTilePropertyTable:
 	.repeat 4
 		.addr	TileProperties__SolidTile
 	.endrepeat
-	.repeat 12
+	.addr	TileProperties__StandingEventTile	; ::TODO change to TouchEventTile::
+	.repeat 11
 		.addr	TileProperties__EmptyTile
 	.endrepeat
 	; row 15	

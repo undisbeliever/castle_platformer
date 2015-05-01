@@ -7,6 +7,7 @@
 
 .include "../entities.h"
 .include "../standing-events/removechain.h"
+.include "../standing-events/removebridge.h"
 
 .include "routines/metatiles/metatiles-1x16.h"
 
@@ -16,6 +17,7 @@ MODULE	StandingEventTile
 .rodata
 LABEL StandingEventCommandsTable
 	.addr StandingEvents_RemoveChain__RemoveChain
+	.addr StandingEvents_RemoveBridge__RemoveBridge
 
 
 .code

@@ -28,6 +28,13 @@
 	;;
 	;; Thus a chain must be at least 2 tiles tall.
 	REMOVE_CHAIN = 0
+
+	;; Removes the chain incrementally (rightwards) while Rumbling the screen
+	;; parameter: the address of the leftmost tile of the bridge.
+	;;
+	;; This command reconizes a bridge tile as the *first* tile removed.
+	;; It will stop when the it reaches a tile that is not a bridge tile.
+	REMOVE_BRIDGE = 2
 .endenum
 
 IMPORT_MODULE StandingEventTile
