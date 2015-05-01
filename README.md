@@ -1,8 +1,19 @@
 Castle Platformer Demo
 ======================
 
-This repo contains a demo, showing off a moving character
-within a MetaTile1x16 map.
+This repo contains a demo, showing off a moving character within a
+MetaTile1x16 map.
+
+<img src="screenshot.png?raw=true" alt="Castle Platformer Demo Screenshot" width="512" height="448">
+
+The engine features:
+
+ * A dynamic (system editable) map
+ * Entity friction/movement speed adjustable for each tile type.
+ * Interactive tiles that are activated when the player stands on them.
+ * A Super Mario Bros-like 'death' animation.
+ * Static platforms.
+ * A *basic* background code system.
 
 
 Graphics
