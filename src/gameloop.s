@@ -12,6 +12,7 @@
 .include "physics.h"
 
 .include "routines/block.h"
+.include "routines/background-events.h"
 .include "routines/metatiles/metatiles-1x16.h"
 .include "routines/metasprite.h"
 
@@ -22,13 +23,6 @@ MODULE GameLoop
 	BYTE	state
 
 	WORD	tmp
-
-	; ::TODO add more execution hooks::
-	;; Address of a function to execute once per frame.
-	;; If NULL (0), then no function is executed,
-	;; REGISTERS: 16 bit A, 16 bit Index, DB = $7E, DP = 0
-	;; OUTPUT: c set if function continues next frame, c clear if this is the last frame.
-	ADDR	execOncePerFrame
 .code
 
 .rodata
@@ -53,11 +47,10 @@ ROUTINE Init
 	LDA	#GAMELOOP_SCREEN_MODE
 	STA	BGMODE
 
-	LDX	#0
-	STX	execOncePerFrame
-
 	MetaSprite_Init
 	Screen_SetVramBaseAndSize GAMELOOP
+
+	JSR	BackgroundEvents__Init
 
 	LDA	level
 	JSR	MapLoader__LoadMap
@@ -91,7 +84,7 @@ ROUTINE PlayGame
 		PHA
 		PLB
 
-		REP	#$30
+			REP	#$30
 .A16
 			LDA	#Player__entity
 			TCD
@@ -99,21 +92,13 @@ ROUTINE PlayGame
 			JSR	Player__Update
 			JSR	Player__SetScreenPosition
 
-		; reset DP
-		LDA	#0
-		TCD
+			JSR	BackgroundEvents__Process
 
-		LDX	execOncePerFrame
-		IF_NOT_ZERO
-			LDX	#0
-			JSR	(execOncePerFrame, X)
+			; reset DP
+			LDA	#0
+			TCD
 
-			IF_C_CLEAR
-				STZ	execOncePerFrame
-			ENDIF
-		ENDIF
-
-		SEP	#$20
+			SEP	#$20
 .A8
 		PLB
 

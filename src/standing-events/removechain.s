@@ -5,113 +5,111 @@
 .include "includes/registers.inc"
 .include "includes/structure.inc"
 
+.include "routines/background-events.h"
 .include "routines/metatiles/metatiles-1x16.h"
 
 REMOVE_CHAIN_FRAME_DELAY = 6
 RATTLE_SCREEN_AMOUNT = 3
 
+BACKGROUND_EVENT_STRUCT EventStruct
+	frameDelay			.byte
+	currentChainPieceToRemove	.addr
+	chainTile			.word
+	chainBottomTile			.word
+END_BACKGROUND_EVENT_STRUCT
 
 MODULE	StandingEvents_RemoveChain
-
-.segment "WRAM7E"
-	ADDR	currentChainPieceToRemove
-	WORD	chainTile
-	WORD	chainBottomTile
-
-	BYTE	frameDelay
-.code
-
-; ::TODO redo, maybe I should allocate some DP space for the functions?::
-; ::: That way I don't have to space the tiles so far apart?::
-.global GameLoop__execOncePerFrame
 
 ; IN: A - chain location on map
 ; DP = entity
 .A16
 .I16
 ROUTINE RemoveChain
-	; x = chainLocation
-	; tile = MetaTiles1x16__map[x]
+	; tile = MetaTiles1x16__map[chainLocation]
 	; if tile != 0
-	;	chainBottomTile = tile
-	;	frameDelay = 0
-	;	currentChainPieceToRemove = x
-	;	chainTile = x + MetaTiles1x16__sizeOfMapRow
+	;	entity = BackgroundEvents__NewEvent(RemoveChainEvent)
 	;
-	;	GameLoop__execOncePerFrame = RemoveChainTimerCallback
+	;	if entity
+	;		entity->frameDelay = 0
+	;		entity->chainBottomTile = MetaTiles1x16__map[chainLocation]
+	;		entity->currentChainPieceToRemove = chainLocation
+	;		entity->chainTile = chainLocation + MetaTiles1x16__sizeOfMapRow
 
 	TAX
 
 	; Check if chain already removed, and setup callback.
 	LDA	.loword(MetaTiles1x16__map), X
 	IF_NOT_ZERO
-		STA	chainBottomTile
+		PHX
 
-		SEP	#$20
-.A8
-		; ensure chain is removed immediatly
-		STZ	frameDelay
-		REP	#$20
-.A16
+		LDX	#.loword(RemoveChainEvent)
+		JSR	BackgroundEvents__NewEvent
 
-		STX	currentChainPieceToRemove
+		PLY
 
-		TXA
-		SUB	MetaTiles1x16__sizeOfMapRow
-		TAX
-		LDA	.loword(MetaTiles1x16__map), X
-		STA	chainTile
+		IF_C_SET
+			LDA	.loword(MetaTiles1x16__map), Y
+			STA	a:EventStruct::chainBottomTile, X
 
-		; ::TODO redo this bit, probably use DP allocation like Entities?::
+			; ensure chain is removed immediatly, safe to write in 16 bit mode
+			STZ	a:EventStruct::frameDelay, X
 
-		LDX	#.loword(RemoveChainTimer)
-		STX	GameLoop__execOncePerFrame
+			TYA
+			STA	a:EventStruct::currentChainPieceToRemove, X
+			SUB	a:MetaTiles1x16__sizeOfMapRow
+			TAY
+			LDA	.loword(MetaTiles1x16__map), Y
+			STA	a:EventStruct::chainTile, X
+		ENDIF
 	ENDIF
 
 	RTS
 
 
 ;; Removes a single chain tile every REMOVE_CHAIN_FRAME_DELAY frames.
-;; REGISTERS: 16 bit A, 16 bit Index, DB = $7E, DP = 0
+;; REGISTERS: 16 bit A, 16 bit Index, DB = $7E
+;; INPUT: DP = EventStruct location
 ;; OUTPUT: c set if function continues next frame, c clear if this is the last frame.
 .A16
 .I16
-ROUTINE RemoveChainTimer
-	; if frameDelay != 0
-	;	frameDelay--
-	;	if frameDelay & 1
+ROUTINE RemoveChainEvent
+	; if entity->frameDelay != 0
+	;	entity->frameDelay--
+	;	if entity->frameDelay & 1
 	;		MetaTiles1x16__yPos += RATTLE_SCREEN_AMOUNT
 	;	else
 	;		MetaTiles1x16__yPos -= RATTLE_SCREEN_AMOUNT
 	;	return true
 	; else
-	; 	frameDelay = REMOVE_CHAIN_FRAME_DELAY
+	; 	entity->frameDelay = REMOVE_CHAIN_FRAME_DELAY
 	;	// SOUND - remove chain
 	;	MetaTiles1x16__mapDirty = 1
 	;
 	;	MetaTiles1x16__map[currentChainPieceToRemove] = 0
 	;
-	;	currentChainPieceToRemove -= MetaTiles1x16__sizeOfMapRow
-	;	if currentChainPieceToRemove < 0
+	;	entity->currentChainPieceToRemove -= MetaTiles1x16__sizeOfMapRow
+	;	if entity->currentChainPieceToRemove < 0
 	;		return false
 	;
-	;	if MetaTiles1x16__map[currentChainPieceToRemove] != chainTile
+	;	if MetaTiles1x16__map[currentChainPieceToRemove] != entity->chainTile
 	;		return false
 	;
-	;	MetaTiles1x16__map[currentChainPieceToRemove] = chainBottomTile
+	;	MetaTiles1x16__map[currentChainPieceToRemove] = entity->chainBottomTile
 	;
 	;	return true
 
 	SEP	#$20
 .A8
-	LDA	frameDelay
+	LDA	z:EventStruct::frameDelay
 	IF_NOT_ZERO
-		; rattle the screen - show something is happening
-		.assert REMOVE_CHAIN_FRAME_DELAY & 1 = 0, error, "REMOVE_CHAIN_FRAME_DELAY must be even to rattle screen properly"
-		LSR
+		LSR	; c = LSB of frameDelay
+		DEC	z:EventStruct::frameDelay
 
 		REP	#$20
 .A16
+
+		; rattle the screen - show something is happening
+		.assert REMOVE_CHAIN_FRAME_DELAY & 1 = 0, error, "REMOVE_CHAIN_FRAME_DELAY must be even to rattle screen properly"
 
 		LDA	MetaTiles1x16__yPos
 		IF_C_CLEAR
@@ -123,16 +121,13 @@ ROUTINE RemoveChainTimer
 		ENDIF
 		STA	MetaTiles1x16__yPos
 
-		SEP	#$20
-.A8
-
-		DEC	frameDelay
 		SEC
 		RTS	
 	ENDIF
+.A8
 
 	LDA	#REMOVE_CHAIN_FRAME_DELAY
-	STA	frameDelay
+	STA	z:EventStruct::frameDelay
 
 	; ::SOUND remove chain::
 
@@ -142,7 +137,7 @@ ROUTINE RemoveChainTimer
 	REP	#$30
 .A16
 
-	LDX	currentChainPieceToRemove
+	LDX	z:EventStruct::currentChainPieceToRemove
 	STZ	.loword(MetaTiles1x16__map), X
 
 	TXA
@@ -151,17 +146,17 @@ ROUTINE RemoveChainTimer
 		CLC
 		RTS
 	ENDIF
-	STA	currentChainPieceToRemove
+	STA	z:EventStruct::currentChainPieceToRemove
 
 	TAX
 	LDA	.loword(MetaTiles1x16__map), X
-	CMP	chainTile
+	CMP	z:EventStruct::chainTile
 	IF_NE
 		CLC
 		RTS
 	ENDIF
 
-	LDA	chainBottomTile
+	LDA	z:EventStruct::chainBottomTile
 	STA	.loword(MetaTiles1x16__map), X
 
 	SEC

@@ -5,21 +5,20 @@
 .include "includes/registers.inc"
 .include "includes/structure.inc"
 
+.include "routines/background-events.h"
 .include "routines/metatiles/metatiles-1x16.h"
 
 RATTLE_SCREEN_AMOUNT = 3
 
+BACKGROUND_EVENT_STRUCT EventStruct
+	currentBridgePieceToRemove	.addr
+	bridgeTile			.word
+END_BACKGROUND_EVENT_STRUCT
 
-MODULE	StandingEvents_RemoveBridge
 
-.segment "WRAM7E"
-	ADDR	currentBridgePieceToRemove
-	WORD	bridgeTile
+MODULE StandingEvents_RemoveBridge
+
 .code
-
-; ::TODO redo, maybe I should allocate some DP space for the functions?::
-; ::: That way I don't have to space the tiles so far apart?::
-.global GameLoop__execOncePerFrame
 
 ; IN: A - bridge location on map
 ; DP = entity
@@ -27,55 +26,61 @@ MODULE	StandingEvents_RemoveBridge
 .I16
 ROUTINE RemoveBridge
 	; x = bridgeLocation
-	; tile = MetaTiles1x16__map[x]
+	; tile = MetaTiles1x16__map[bridgeLocation]
 	; if tile != 0
-	;	bridgeTile = tile
-	;	currentBridgePieceToRemove = x
-	;
-	;	GameLoop__execOncePerFrame = RemoveBridgeTimerCallback
+	;	entity = BackgroundEvents__NewEvent(RemoveBridgeEvent)
+	;	if entity
+	;		currentBridgePieceToRemove = bridgeLocation
+	;		entity->bridgeTile = MetaTiles1x16__map[bridgeLocation]
+
 	TAX
 
 	; Check if bridge already removed, and setup callback.
 	LDA	.loword(MetaTiles1x16__map), X
 	IF_NOT_ZERO
-		STA	bridgeTile
-		STX	currentBridgePieceToRemove
+		PHX
 
-		; ::TODO redo this bit, probably use DP allocation like Entities?::
+		LDX	#.loword(RemoveBridgeEvent)
+		JSR	BackgroundEvents__NewEvent
 
-		LDX	#.loword(RemoveBridgeTimer)
-		STX	GameLoop__execOncePerFrame
+		PLA
+		IF_C_SET
+			STA	a:EventStruct::currentBridgePieceToRemove, X
+			TAY
+			LDA	.loword(MetaTiles1x16__map), Y
+			STA	a:EventStruct::bridgeTile, X
+		ENDIF
 	ENDIF
 
 	RTS
 
 
 ;; Removes a single bridge tile every frame
-;; REGISTERS: 16 bit A, 16 bit Index, DB = $7E, DP = 0
+;; REGISTERS: 16 bit A, 16 bit Index, DB = $7E
+;; INPUT: DP = EventStruct location
 ;; OUTPUT: c set if function continues next frame, c clear if this is the last frame.
 .A16
 .I16
-ROUTINE RemoveBridgeTimer
-	; if currentBridgePieceToRemove & 2 != 0
+ROUTINE RemoveBridgeEvent
+	; if event->currentBridgePieceToRemove & 2 != 0
 	;	MetaTiles1x16__yPos += RATTLE_SCREEN_AMOUNT
 	; else
 	;	MetaTiles1x16__yPos -= RATTLE_SCREEN_AMOUNT
 	;
-	; 	frameDelay = REMOVE_BRIDGE_FRAME_DELAY
 	; // SOUND - remove bridge
 	; MetaTiles1x16__mapDirty = 1
 	;
-	; MetaTiles1x16__map[currentBridgePieceToRemove] = 0
+	; MetaTiles1x16__map[event->currentBridgePieceToRemove] = 0
 	;
-	; currentBridgePieceToRemove++ // actualy + 2
+	; event->currentBridgePieceToRemove++ // actualy + 2
 	;
-	; if MetaTiles1x16__map[currentBridgePieceToRemove] != bridgeTile
+	; if MetaTiles1x16__map[event->currentBridgePieceToRemove] != event->bridgeTile
 	; 	return false
 	;
 	; return true
 
 	; rattle the screen - show something is happening
-	LDA	currentBridgePieceToRemove
+	LDA	z:EventStruct::currentBridgePieceToRemove
 	IF_BIT	#2
 		LDA	MetaTiles1x16__yPos
 		ADD	#RATTLE_SCREEN_AMOUNT
@@ -93,15 +98,15 @@ ROUTINE RemoveBridgeTimer
 	REP	#$30
 .A16
 
-	LDX	currentBridgePieceToRemove
+	LDX	z:EventStruct::currentBridgePieceToRemove
 	STZ	.loword(MetaTiles1x16__map), X
 
 	INX
 	INX
-	STX	currentBridgePieceToRemove
+	STX	z:EventStruct::currentBridgePieceToRemove
 
 	LDA	.loword(MetaTiles1x16__map), X
-	CMP	bridgeTile
+	CMP	z:EventStruct::bridgeTile
 	IF_NE
 		CLC
 		RTS
