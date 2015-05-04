@@ -20,6 +20,13 @@ GRAVITY = 41			; Acceleration due to gravity in 1/256 pixels per frame per frame
 SCREEN_LEFT_RIGHT_SPACING = 95
 SCREEN_UP_DOWN_SPACING = 65
 
+; ::TODO move somewhere else
+
+ENTITY_WIDTH = 16
+ENTITY_HEIGHT = 24
+ENTITY_XOFFSET = 8
+ENTITY_YOFFSET = 16
+
 MODULE Player
 
 .segment "SHADOW"
@@ -29,6 +36,7 @@ MODULE Player
 .A8
 .I16
 ROUTINE Init
+
 	; ::TODO dynamic starting position::
 	STZ	entity + EntityStruct::xPos
 	LDX	#80
@@ -42,6 +50,19 @@ ROUTINE Init
 	STX	entity + EntityStruct::xVecl
 	STX	entity + EntityStruct::yVecl
 	STX	entity + EntityStruct::standingTile
+
+	LDX	#ENTITY_WIDTH
+	STX	entity + EntityStruct::size_width
+	LDX	#ENTITY_HEIGHT
+	STX	entity + EntityStruct::size_height
+	LDX	#ENTITY_XOFFSET
+	STX	entity + EntityStruct::size_xOffsetLeft
+	LDX	#ENTITY_YOFFSET
+	STX	entity + EntityStruct::size_yOffsetTop
+	LDX	#ENTITY_WIDTH - ENTITY_XOFFSET
+	STX	entity + EntityStruct::size_xOffsetRight
+	LDX	#ENTITY_HEIGHT - ENTITY_YOFFSET
+	STX	entity + EntityStruct::size_yOffsetBottom
 
 	LDX	#.loword(ExampleMetaSpriteFrame)
 	STX	entity + EntityStruct::metaSpriteFrame

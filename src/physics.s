@@ -18,13 +18,6 @@ METATILES_SIZE = 16
 ;; Maximum Y velocity (prevents fall through walls)
 MAX_Y_VECLOCITY = 10 * 256
 
-; ::TODO move somewhere else
-
-ENTITY_WIDTH = 16
-ENTITY_HEIGHT = 24
-ENTITY_XOFFSET = 8
-ENTITY_YOFFSET = 16
-
 MODULE Physics
 
 .segment "WRAM7E"
@@ -123,10 +116,17 @@ ROUTINE	EntityPhysicsWithCollisionsNoGravity
 		; --------------------------
 		; Check tiles underneath to see if still standing.
 
-		LDA	z:EntityStruct::yVecl + 1
+		; mapYpos = (entity->yVecl.int + entity->yPos.int + entity->size_yOffsetBottom) / 16 * 2
+		; tmp = entity->xPos.int - entity->size_xOffsetLeft
+		; counter = (tmp & 0x000F + entity->size_width - 1) / 16 + 1	// number of tiles to test
+		; mapXpos = tmp / 16 * 2
+		; mapPos = mapXpos + MetaTiles1x16__mapRowAddressTable[mapYpos]
+
+		; A = entity->yVecl
+		XBA
 		AND	#$00FF
 		ADD	z:EntityStruct::yPos + 1
-		ADD	#ENTITY_HEIGHT - ENTITY_YOFFSET
+		ADD	z:EntityStruct::size_yOffsetBottom
 		LSR
 		LSR
 		LSR
@@ -134,11 +134,11 @@ ROUTINE	EntityPhysicsWithCollisionsNoGravity
 		TAX
 
 		LDA	z:EntityStruct::xPos + 1
-		SUB	#ENTITY_XOFFSET
+		SUB	z:EntityStruct::size_xOffsetLeft
 		PHA
 
 		AND	#$000F
-		ADD	#ENTITY_WIDTH
+		ADD	z:EntityStruct::size_width
 		DEC
 		LSR
 		LSR
@@ -182,9 +182,9 @@ _SkipReleadTableYPlus:
 					LDA	z:EntityStruct::yVecl + 1
 					AND	#$00FF
 					ADD	z:EntityStruct::yPos + 1
-					ADD	#ENTITY_HEIGHT - ENTITY_YOFFSET
+					ADD	z:EntityStruct::size_yOffsetBottom
 					AND	#$FFF0
-					SUB	#ENTITY_HEIGHT - ENTITY_YOFFSET
+					SUB	z:EntityStruct::size_yOffsetBottom
 
 					CMP	z:EntityStruct::yPos + 1
 					BLT	FallingThroughPlatform
@@ -194,14 +194,13 @@ _SkipReleadTableYPlus:
 				STX	z:EntityStruct::currentTileProperty
 
 				; Move entity to above solid tile.
-
 				LDA	z:EntityStruct::yVecl + 1
 				AND	#$00FF
 				ADD	z:EntityStruct::yPos + 1
-				ADD	#ENTITY_HEIGHT - ENTITY_YOFFSET
+				ADD	z:EntityStruct::size_yOffsetBottom
 				INC
 				AND	#$FFF0
-				SUB	#ENTITY_HEIGHT - ENTITY_YOFFSET
+				SUB	z:EntityStruct::size_yOffsetBottom
 
 				STA	z:EntityStruct::yPos + 1
 				STZ	z:EntityStruct::yVecl
@@ -231,12 +230,20 @@ FallingThroughPlatform:
 
 		; Entity is moving upwards
 		; ------------------------
+
+		; mapYpos = (entity->yVecl.int + entity->yPos.int - entity->size_yOffsetTop) / 16 * 2
+		; tmp = entity->xPos.int - entity->size_xOffsetLeft
+		; counter = (tmp & 0x000F + entity->size_width - 1) / 16 + 1	// number of tiles to test
+		; mapXpos = tmp / 16 * 2
+		; mapPos = mapXpos + MetaTiles1x16__mapRowAddressTable[mapYpos]
+
 		STZ	z:EntityStruct::standingTile
 
-		LDA	z:EntityStruct::yVecl + 1
+		; A = entity->yVecl and negative.
+		XBA
 		ORA	#$FF00
 		ADD	z:EntityStruct::yPos + 1
-		SUB	#ENTITY_YOFFSET
+		SUB	z:EntityStruct::size_yOffsetTop
 		LSR
 		LSR
 		LSR
@@ -244,11 +251,11 @@ FallingThroughPlatform:
 		TAX
 
 		LDA	z:EntityStruct::xPos + 1
-		SUB	#ENTITY_XOFFSET
+		SUB	z:EntityStruct::size_xOffsetLeft
 		PHA
 
 		AND	#$000F
-		ADD	#ENTITY_WIDTH
+		ADD	z:EntityStruct::size_width
 		DEC
 		LSR
 		LSR
@@ -292,10 +299,10 @@ _SkipReleadTableYMinus:
 					LDA	z:EntityStruct::yVecl + 1
 					ORA	#$FF00
 					ADD	z:EntityStruct::yPos + 1
-					SUB	#ENTITY_YOFFSET
+					SUB	z:EntityStruct::size_yOffsetTop
 					ADD	#METATILES_SIZE
 					AND	#$FFF0
-					ADD	#ENTITY_YOFFSET
+					ADD	z:EntityStruct::size_yOffsetTop
 					STA	z:EntityStruct::yPos + 1
 
 					STZ	z:EntityStruct::yVecl
@@ -328,12 +335,19 @@ End_Y_CollisionTest:
 			STA	z:EntityStruct::xVecl
 
 			; check collisions
+
+			; tmp = entity->yPos.int + - entity->size_yOffsetTop
+			; counter = (tmp & 0x000F + entity->size_height - 1) / 16 + 1	// number of tiles to test
+			; mapYPos = tmp / 16 * 2
+			; mapXpos = (entity->xVecl.int + entity->xPos.int + entity->size_xOffsetRight) / 16 * 2
+			; mapPos = mapXpos + MetaTiles1x16__mapRowAddressTable[mapYpos]
+
 			LDA	z:EntityStruct::yPos + 1
-			SUB	#ENTITY_YOFFSET
+			SUB	z:EntityStruct::size_yOffsetTop
 			PHA
 
 			AND	#$000F
-			ADD	#ENTITY_HEIGHT
+			ADD	z:EntityStruct::size_height
 			DEC
 			LSR
 			LSR
@@ -352,7 +366,7 @@ End_Y_CollisionTest:
 			LDA	z:EntityStruct::xVecl + 1
 			AND	#$00FF
 			ADD	z:EntityStruct::xPos + 1
-			ADD	#ENTITY_WIDTH - ENTITY_XOFFSET
+			ADD	z:EntityStruct::size_xOffsetRight
 			LSR
 			LSR
 			LSR
@@ -377,10 +391,10 @@ End_Y_CollisionTest:
 						LDA	z:EntityStruct::xVecl + 1
 						AND	#$00FF
 						ADD	z:EntityStruct::xPos + 1
-						ADD	#ENTITY_WIDTH - ENTITY_XOFFSET
+						ADD	z:EntityStruct::size_xOffsetRight
 						INC
 						AND	#$FFF0
-						SUB	#ENTITY_WIDTH - ENTITY_XOFFSET
+						SUB	z:EntityStruct::size_xOffsetRight
 						STA	z:EntityStruct::xPos + 1
 
 						STZ	z:EntityStruct::xVecl
@@ -407,12 +421,19 @@ End_Y_CollisionTest:
 			STA	z:EntityStruct::xVecl
 
 			; check collisions
+
+			; tmp = entity->yPos.int + - entity->size_yOffsetTop
+			; counter = (tmp & 0x000F + entity->size_height - 1) / 16 + 1	// number of tiles to test
+			; mapYPos = tmp / 16 * 2
+			; mapXpos = (entity->xVecl.int + entity->xPos.int - entity->size_xOffsetLeft) / 16 * 2
+			; mapPos = mapXpos + MetaTiles1x16__mapRowAddressTable[mapYpos]
+
 			LDA	z:EntityStruct::yPos + 1
-			SUB	#ENTITY_YOFFSET
+			SUB	z:EntityStruct::size_yOffsetTop
 			PHA
 
 			AND	#$000F
-			ADD	#ENTITY_HEIGHT
+			ADD	z:EntityStruct::size_height
 			DEC
 			LSR
 			LSR
@@ -431,7 +452,7 @@ End_Y_CollisionTest:
 			LDA	z:EntityStruct::xVecl + 1
 			ORA	#$FF00
 			ADD	z:EntityStruct::xPos + 1
-			SUB	#ENTITY_XOFFSET
+			SUB	z:EntityStruct::size_xOffsetLeft
 			LSR
 			LSR
 			LSR
@@ -456,10 +477,10 @@ End_Y_CollisionTest:
 						LDA	z:EntityStruct::xVecl + 1
 						ORA	#$FF00
 						ADD	z:EntityStruct::xPos + 1
-						SUB	#ENTITY_XOFFSET
+						SUB	z:EntityStruct::size_xOffsetLeft
 						ADD	#METATILES_SIZE
 						AND	#$FFF0
-						ADD	#ENTITY_XOFFSET
+						ADD	z:EntityStruct::size_xOffsetLeft
 						STA	z:EntityStruct::xPos + 1
 
 						STZ	z:EntityStruct::xVecl

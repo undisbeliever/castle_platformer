@@ -153,8 +153,7 @@ ROUTINE Dead
 
 	LDA	MetaTiles1x16__yPos
 	ADD	#224 + 1
-	; ::SHOULDDO add player yoffset::
-	ADD	#16
+	ADD	z:EntityStruct::size_yOffsetTop
 	STA	tmp
 
 	SEP	#$20

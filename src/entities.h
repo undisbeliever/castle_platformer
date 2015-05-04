@@ -7,16 +7,30 @@
 .include "includes/import_export.inc"
 .include "includes/registers.inc"
 
-; ::DEBUG copied from asteroids::
 .struct EntitySizeStruct
+	;; width of the entity in pixels
 	width			.word
+	;; height of the entity in pixels
 	height			.word
 
-	tileWidth		.byte
-	tileHeight		.byte
-.endstruct
+	;; pixels from entity->xPos to entity->left
+	;; (always positive)
+	xOffsetLeft		.word
+	;; pixels from entity->yPos to entity->top
+	;; (always positive)
+	yOffsetTop		.word
 
-.global EntitySizeStructBank:zp
+	;; ::SHOULDDO decide if this is necessary - should I save 4 bytes?::
+
+	;; pixels from entity->xPos to entity->right
+	;; (width - xOffsetLeft)
+	; exists for speed: saves 7/17/21 cycles on physics
+	xOffsetRight		.word
+	;; pixels from entity->yPos to entity->bottom
+	;; (height - yOffsetTop)
+	; exists for speed: saves 7/17/21 cycles on physics
+	yOffsetBottom		.word
+.endstruct
 
 ; ::DEBUG copied from asteroids::
 .struct EntityStruct
@@ -30,7 +44,15 @@
 	;; xVecl - 1:7:8 signed fixed point
 	yVecl			.res 2
 
-	;; The address of the tile within the map that the entity is standin on.
+	; ::ANNOY must match EntitySizeStruct::
+	size_width		.word
+	size_height		.word
+	size_xOffsetLeft	.word
+	size_yOffsetTop		.word
+	size_xOffsetRight	.word
+	size_yOffsetBottom	.word
+
+	;; The address of the tile within the map that the entity is standing on.
 	;; 0 (NULL) if floating.
 	standingTile		.addr
 
