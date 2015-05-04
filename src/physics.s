@@ -116,8 +116,8 @@ ROUTINE	EntityPhysicsWithCollisionsNoGravity
 		; --------------------------
 		; Check tiles underneath to see if still standing.
 
-		; mapYpos = (entity->yVecl.int + entity->yPos.int + entity->size_yOffsetBottom) / 16 * 2
-		; tmp = entity->xPos.int - entity->size_xOffsetLeft
+		; mapYpos = (entity->yVecl.int + entity->yPos.int - entity->size_yOffset + entity->size_height) / 16 * 2
+		; tmp = entity->xPos.int - entity->size_xOffset
 		; counter = (tmp & 0x000F + entity->size_width - 1) / 16 + 1	// number of tiles to test
 		; mapXpos = tmp / 16 * 2
 		; mapPos = mapXpos + MetaTiles1x16__mapRowAddressTable[mapYpos]
@@ -126,7 +126,8 @@ ROUTINE	EntityPhysicsWithCollisionsNoGravity
 		XBA
 		AND	#$00FF
 		ADD	z:EntityStruct::yPos + 1
-		ADD	z:EntityStruct::size_yOffsetBottom
+		SUB	z:EntityStruct::size_yOffset
+		ADD	z:EntityStruct::size_height
 		LSR
 		LSR
 		LSR
@@ -134,7 +135,7 @@ ROUTINE	EntityPhysicsWithCollisionsNoGravity
 		TAX
 
 		LDA	z:EntityStruct::xPos + 1
-		SUB	z:EntityStruct::size_xOffsetLeft
+		SUB	z:EntityStruct::size_xOffset
 		PHA
 
 		AND	#$000F
@@ -182,9 +183,11 @@ _SkipReleadTableYPlus:
 					LDA	z:EntityStruct::yVecl + 1
 					AND	#$00FF
 					ADD	z:EntityStruct::yPos + 1
-					ADD	z:EntityStruct::size_yOffsetBottom
+					SUB	z:EntityStruct::size_yOffset
+					ADD	z:EntityStruct::size_height
 					AND	#$FFF0
-					SUB	z:EntityStruct::size_yOffsetBottom
+					ADD	z:EntityStruct::size_yOffset
+					SUB	z:EntityStruct::size_height
 
 					CMP	z:EntityStruct::yPos + 1
 					BLT	FallingThroughPlatform
@@ -197,10 +200,12 @@ _SkipReleadTableYPlus:
 				LDA	z:EntityStruct::yVecl + 1
 				AND	#$00FF
 				ADD	z:EntityStruct::yPos + 1
-				ADD	z:EntityStruct::size_yOffsetBottom
+				SUB	z:EntityStruct::size_yOffset
+				ADD	z:EntityStruct::size_height
 				INC
 				AND	#$FFF0
-				SUB	z:EntityStruct::size_yOffsetBottom
+				ADD	z:EntityStruct::size_yOffset
+				SUB	z:EntityStruct::size_height
 
 				STA	z:EntityStruct::yPos + 1
 				STZ	z:EntityStruct::yVecl
@@ -231,8 +236,8 @@ FallingThroughPlatform:
 		; Entity is moving upwards
 		; ------------------------
 
-		; mapYpos = (entity->yVecl.int + entity->yPos.int - entity->size_yOffsetTop) / 16 * 2
-		; tmp = entity->xPos.int - entity->size_xOffsetLeft
+		; mapYpos = (entity->yVecl.int + entity->yPos.int - entity->size_yOffset) / 16 * 2
+		; tmp = entity->xPos.int - entity->size_xOffset
 		; counter = (tmp & 0x000F + entity->size_width - 1) / 16 + 1	// number of tiles to test
 		; mapXpos = tmp / 16 * 2
 		; mapPos = mapXpos + MetaTiles1x16__mapRowAddressTable[mapYpos]
@@ -243,7 +248,7 @@ FallingThroughPlatform:
 		XBA
 		ORA	#$FF00
 		ADD	z:EntityStruct::yPos + 1
-		SUB	z:EntityStruct::size_yOffsetTop
+		SUB	z:EntityStruct::size_yOffset
 		LSR
 		LSR
 		LSR
@@ -251,7 +256,7 @@ FallingThroughPlatform:
 		TAX
 
 		LDA	z:EntityStruct::xPos + 1
-		SUB	z:EntityStruct::size_xOffsetLeft
+		SUB	z:EntityStruct::size_xOffset
 		PHA
 
 		AND	#$000F
@@ -299,10 +304,10 @@ _SkipReleadTableYMinus:
 					LDA	z:EntityStruct::yVecl + 1
 					ORA	#$FF00
 					ADD	z:EntityStruct::yPos + 1
-					SUB	z:EntityStruct::size_yOffsetTop
+					SUB	z:EntityStruct::size_yOffset
 					ADD	#METATILES_SIZE
 					AND	#$FFF0
-					ADD	z:EntityStruct::size_yOffsetTop
+					ADD	z:EntityStruct::size_yOffset
 					STA	z:EntityStruct::yPos + 1
 
 					STZ	z:EntityStruct::yVecl
@@ -336,14 +341,14 @@ End_Y_CollisionTest:
 
 			; check collisions
 
-			; tmp = entity->yPos.int + - entity->size_yOffsetTop
+			; tmp = entity->yPos.int + - entity->size_yOffset
 			; counter = (tmp & 0x000F + entity->size_height - 1) / 16 + 1	// number of tiles to test
 			; mapYPos = tmp / 16 * 2
-			; mapXpos = (entity->xVecl.int + entity->xPos.int + entity->size_xOffsetRight) / 16 * 2
+			; mapXpos = (entity->xVecl.int + entity->xPos.int - entity->size_xOffset + entity->size_width) / 16 * 2
 			; mapPos = mapXpos + MetaTiles1x16__mapRowAddressTable[mapYpos]
 
 			LDA	z:EntityStruct::yPos + 1
-			SUB	z:EntityStruct::size_yOffsetTop
+			SUB	z:EntityStruct::size_yOffset
 			PHA
 
 			AND	#$000F
@@ -366,7 +371,8 @@ End_Y_CollisionTest:
 			LDA	z:EntityStruct::xVecl + 1
 			AND	#$00FF
 			ADD	z:EntityStruct::xPos + 1
-			ADD	z:EntityStruct::size_xOffsetRight
+			SUB	z:EntityStruct::size_xOffset
+			ADD	z:EntityStruct::size_width
 			LSR
 			LSR
 			LSR
@@ -391,10 +397,12 @@ End_Y_CollisionTest:
 						LDA	z:EntityStruct::xVecl + 1
 						AND	#$00FF
 						ADD	z:EntityStruct::xPos + 1
-						ADD	z:EntityStruct::size_xOffsetRight
+						SUB	z:EntityStruct::size_xOffset
+						ADD	z:EntityStruct::size_width
 						INC
 						AND	#$FFF0
-						SUB	z:EntityStruct::size_xOffsetRight
+						ADD	z:EntityStruct::size_xOffset
+						SUB	z:EntityStruct::size_width
 						STA	z:EntityStruct::xPos + 1
 
 						STZ	z:EntityStruct::xVecl
@@ -422,14 +430,14 @@ End_Y_CollisionTest:
 
 			; check collisions
 
-			; tmp = entity->yPos.int + - entity->size_yOffsetTop
+			; tmp = entity->yPos.int + - entity->size_yOffset
 			; counter = (tmp & 0x000F + entity->size_height - 1) / 16 + 1	// number of tiles to test
 			; mapYPos = tmp / 16 * 2
-			; mapXpos = (entity->xVecl.int + entity->xPos.int - entity->size_xOffsetLeft) / 16 * 2
+			; mapXpos = (entity->xVecl.int + entity->xPos.int - entity->size_xOffset) / 16 * 2
 			; mapPos = mapXpos + MetaTiles1x16__mapRowAddressTable[mapYpos]
 
 			LDA	z:EntityStruct::yPos + 1
-			SUB	z:EntityStruct::size_yOffsetTop
+			SUB	z:EntityStruct::size_yOffset
 			PHA
 
 			AND	#$000F
@@ -452,7 +460,7 @@ End_Y_CollisionTest:
 			LDA	z:EntityStruct::xVecl + 1
 			ORA	#$FF00
 			ADD	z:EntityStruct::xPos + 1
-			SUB	z:EntityStruct::size_xOffsetLeft
+			SUB	z:EntityStruct::size_xOffset
 			LSR
 			LSR
 			LSR
@@ -477,10 +485,10 @@ End_Y_CollisionTest:
 						LDA	z:EntityStruct::xVecl + 1
 						ORA	#$FF00
 						ADD	z:EntityStruct::xPos + 1
-						SUB	z:EntityStruct::size_xOffsetLeft
+						SUB	z:EntityStruct::size_xOffset
 						ADD	#METATILES_SIZE
 						AND	#$FFF0
-						ADD	z:EntityStruct::size_xOffsetLeft
+						ADD	z:EntityStruct::size_xOffset
 						STA	z:EntityStruct::xPos + 1
 
 						STZ	z:EntityStruct::xVecl

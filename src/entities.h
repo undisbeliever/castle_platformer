@@ -7,29 +7,18 @@
 .include "includes/import_export.inc"
 .include "includes/registers.inc"
 
+;; Represents the AABB (Axis Aligned Bounding Box) of the entity
+;; for physics and collisions.
 .struct EntitySizeStruct
-	;; width of the entity in pixels
+	;; width of the AABB in pixels
 	width			.word
-	;; height of the entity in pixels
+	;; height of the AABB in pixels
 	height			.word
 
-	;; pixels from entity->xPos to entity->left
-	;; (always positive)
-	xOffsetLeft		.word
-	;; pixels from entity->yPos to entity->top
-	;; (always positive)
-	yOffsetTop		.word
-
-	;; ::SHOULDDO decide if this is necessary - should I save 4 bytes?::
-
-	;; pixels from entity->xPos to entity->right
-	;; (width - xOffsetLeft)
-	; exists for speed: saves 7/17/21 cycles on physics
-	xOffsetRight		.word
-	;; pixels from entity->yPos to entity->bottom
-	;; (height - yOffsetTop)
-	; exists for speed: saves 7/17/21 cycles on physics
-	yOffsetBottom		.word
+	;; pixel distance from leftmost position of AABB to xPos
+	xOffset			.word
+	;; pixel distance from topmost position of AABB to yPos
+	yOffset			.word
 .endstruct
 
 ; ::DEBUG copied from asteroids::
@@ -47,10 +36,8 @@
 	; ::ANNOY must match EntitySizeStruct::
 	size_width		.word
 	size_height		.word
-	size_xOffsetLeft	.word
-	size_yOffsetTop		.word
-	size_xOffsetRight	.word
-	size_yOffsetBottom	.word
+	size_xOffset		.word
+	size_yOffset		.word
 
 	;; The address of the tile within the map that the entity is standing on.
 	;; 0 (NULL) if floating.

@@ -56,13 +56,9 @@ ROUTINE Init
 	LDX	#ENTITY_HEIGHT
 	STX	entity + EntityStruct::size_height
 	LDX	#ENTITY_XOFFSET
-	STX	entity + EntityStruct::size_xOffsetLeft
+	STX	entity + EntityStruct::size_xOffset
 	LDX	#ENTITY_YOFFSET
-	STX	entity + EntityStruct::size_yOffsetTop
-	LDX	#ENTITY_WIDTH - ENTITY_XOFFSET
-	STX	entity + EntityStruct::size_xOffsetRight
-	LDX	#ENTITY_HEIGHT - ENTITY_YOFFSET
-	STX	entity + EntityStruct::size_yOffsetBottom
+	STX	entity + EntityStruct::size_yOffset
 
 	LDX	#.loword(ExampleMetaSpriteFrame)
 	STX	entity + EntityStruct::metaSpriteFrame

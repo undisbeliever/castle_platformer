@@ -153,7 +153,7 @@ ROUTINE Dead
 
 	LDA	MetaTiles1x16__yPos
 	ADD	#224 + 1
-	ADD	z:EntityStruct::size_yOffsetTop
+	ADD	z:EntityStruct::size_yOffset
 	STA	tmp
 
 	SEP	#$20
