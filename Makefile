@@ -14,7 +14,7 @@ API_OBJECTS = $(patsubst %,$(API_DIR)/obj/%.o, $(API_MODULES))
 CONFIG_FILE = $(API_DIR)/config/$(CONFIG).cfg
 
 .PHONY: all
-all: resources tables api $(BINARY)
+all: dirs resources tables api $(BINARY)
 
 $(BINARY): $(API_OBJECTS) $(OBJECTS)
 	ld65 -vm -m $(@:.sfc=.memlog) -C $(CONFIG_FILE) -o $@ $^
@@ -23,6 +23,17 @@ $(BINARY): $(API_OBJECTS) $(OBJECTS)
 
 obj/%.o: src/%.s $(HEADERS) $(CONFIG_FILE) $(API_OBJECTS) $(RESOURCES) $(TABLES)
 	ca65 -I . -I $(API_DIR) -o $@ $<
+
+
+.PHONY: dirs
+dirs: bin/ obj/
+
+bin/:
+	mkdir bin/
+
+obj/:
+	mkdir $(sort $(dir $(OBJECTS)))
+
 
 .PHONY: resources
 resources:
