@@ -2,7 +2,7 @@
 .include "metatileproperties.h"
 .include "includes/import_export.inc"
 
-.include "physics.h"
+.include "entity-physics.h"
 .include "interactive-metatiles/spikedtile.h"
 .include "interactive-metatiles/standing-event-tile.h"
 

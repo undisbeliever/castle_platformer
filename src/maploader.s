@@ -10,7 +10,7 @@
 .include "routines/metatiles/metatiles-1x16.h"
 
 .include "gameloop.h"
-.include "physics.h"
+.include "entity-physics.h"
 .include "interactive-metatiles/standing-event-tile.h"
 
 
@@ -49,7 +49,7 @@ ROUTINE LoadMap
 
 	; set default gravity
 	LDA	#DEFAULT_GRAVITY
-	STA	Physics__gravity
+	STA	EntityPhysics__gravity
 
 	; set the interactive tile tables.
 	PHX
@@ -149,7 +149,7 @@ ROUTINE LoadMetaTiles
 
 	PLA
 	PLX
-	LDY	#.loword(Physics__metaTilePropertyTable)
+	LDY	#.loword(EntityPhysics__metaTilePropertyTable)
 	JSR	ResourceLoader__LoadDataToWram7E
 
 	PLA

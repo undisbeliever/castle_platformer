@@ -5,7 +5,7 @@
 .include "includes/registers.inc"
 .include "includes/structure.inc"
 
-.include "../entities.h"
+.include "../entity-physics.h"
 .include "../standing-events/removechain.h"
 .include "../standing-events/removebridge.h"
 .include "../standing-events/gameover.h"
@@ -36,7 +36,7 @@ LABEL functionsTable
 
 
 ;; Player is standing on the tile
-; DP = entity
+; DP = EntityPhysicsStruct address
 .A16
 .I16
 ROUTINE PlayerStand
@@ -49,7 +49,7 @@ ROUTINE PlayerStand
 	LDX	standingEventsTablePtr
 
 	FOR_Y	standingEventsTableCount, DEC, #0
-		LDA	z:EntityStruct::standingTile
+		LDA	z:EntityPhysicsStruct::standingTile
 
 		CMP	f:StandingEventsTableBank << 16 + StandingEventsTableStruct::minMapLocation, X
 		IF_GE
@@ -72,7 +72,7 @@ ROUTINE PlayerStand
 
 
 ;; Player is touching the tile
-; DP = entity
+; DP = EntityPhysicsStruct address
 .A16
 .I16
 ROUTINE PlayerTouch

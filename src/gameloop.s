@@ -8,8 +8,9 @@
 
 .include "maploader.h"
 .include "controller.h"
-.include "player.h"
-.include "physics.h"
+.include "entities.h"
+.include "entity-physics.h"
+.include "entities/player.h"
 
 .include "routines/block.h"
 .include "routines/background-events.h"
@@ -147,13 +148,13 @@ ROUTINE Dead
 	LDA	#Player__entity
 	TCD
 
-	STZ	z:EntityStruct::xVecl
+	STZ	z:PlayerEntityStruct::xVecl
 	LDA	#.loword(-DEATH_JUMP)
-	STA	z:EntityStruct::yVecl
+	STA	z:PlayerEntityStruct::yVecl
 
 	LDA	MetaTiles1x16__yPos
 	ADD	#224 + 1
-	ADD	z:EntityStruct::size_yOffset
+	ADD	z:PlayerEntityStruct::size_yOffset
 	STA	tmp
 
 	SEP	#$20
@@ -164,17 +165,17 @@ ROUTINE Dead
 
 		REP	#$30
 .A16
-		LDA	z:EntityStruct::yVecl
+		LDA	z:PlayerEntityStruct::yVecl
 		ADD	#DEATH_GRAVITY
-		STA	z:EntityStruct::yVecl
+		STA	z:PlayerEntityStruct::yVecl
 
-		JSR	Physics__EntitySimplePhysics
+		JSR	EntityPhysics__EntitySimplePhysics
 
 		SEP	#$20
 .A8
 		JSR	Entities__Render
 
-		LDY	a:Player__entity + EntityStruct::yPos + 1
+		LDY	a:Player__entity + PlayerEntityStruct::yPos + 1
 		CPY	tmp
 	UNTIL_GE
 

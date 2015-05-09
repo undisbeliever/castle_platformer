@@ -1,5 +1,5 @@
-.ifndef ::_PHYSICS_H_
-::_PHYSICS_H_ = 1
+.ifndef ::_ENTITY_PHYSICS_H_
+::_ENTITY_PHYSICS_H_ = 1
 
 .setcpu "65816"
 
@@ -7,15 +7,18 @@
 .include "includes/import_export.inc"
 .include "includes/registers.inc"
 
+.include "entity.h"
+
+
 .struct MetaTileFunctionsTable
 	;; Called when the player is standing on a tile
 	;; REGISTERS: 16 bit A, 16 bit Index, DB = $7E
-	;; INPUT: ZP - entity
+	;; INPUT: ZP - EntityPhysicsStruct address
 	PlayerStand		.addr
 
 	;; Called when the player is touching a tile
 	;; REGISTERS: 16 bit A, 16 bit Index, DB = $7E
-	;; INPUT: ZP - entity
+	;; INPUT: ZP - EntityPhysicsStruct address
 	PlayerTouch		.addr
 .endstruct
 
@@ -50,16 +53,44 @@
 .global MetaTilePropertyBank:zp
 
 
-IMPORT_MODULE Physics
+;; Entity class that supports physics and tile collisions.
+;;
+;; This class adds:
+;;	* Velocity
+;;	* Collisions with tile map
+;;	* Varying physics constants (friction, acceleration) depending on the tile its standing on or in front of.
+.macro ENTITY_PHYSICS_STRUCT name
+	ENTITY_STRUCT name
+		;; xVecl - 1:7:8 signed fixed point
+		xVecl			.res 2
+		;; xVecl - 1:7:8 signed fixed point
+		yVecl			.res 2
+
+		;; The address of the tile within the map that the entity is standing on.
+		;; 0 (NULL) if floating.
+		standingTile		.addr
+
+		;; The address of the tileproperty that the entity is on.
+		;; If the entity is standing, it set to tile the entity is standing on.
+		;; If the entity is not standing, it is entity's top-left tile. 
+		currentTileProperty	.addr
+.endmacro
+.define END_ENTITY_PHYSICS_STRUCT END_ENTITY_STRUCT
+
+ENTITY_PHYSICS_STRUCT EntityPhysicsStruct
+END_ENTITY_PHYSICS_STRUCT
+
+
+IMPORT_MODULE EntityPhysics
 
 	;; Table that points to the MetaTilePropertyStruct for each metatile.
 	;; Must be set before calling  `EntityPhysicsWithCollisions` or
 	;; `EntityPhysicsWithCollisionsNoGravity`
-	.global	Physics__metaTilePropertyTable : far
+	.global	EntityPhysics__metaTilePropertyTable : far
 
 	;; The level's gravity.
 	;; Must be set before using this module.
-	.global Physics__gravity : far
+	.global EntityPhysics__gravity : far
 
 	;; MetaTileFunctionsTable location of the tile that the entity touched.
 	;; Set by `EntityPhysicsWithCollisions` and `EntityPhysicsWithCollisionsNoGravity`
@@ -80,29 +111,29 @@ IMPORT_MODULE Physics
 	;;	  location of last tile touched that has a functions table.
 	;;
 	;; REQUIRE: 16 bit A, 16 bit Index, DB = $7E
-	;; INPUT: DP - EntityStruct location
+	;; INPUT: DP - entity location (must be a subclass of EntityPhysicsStruct)
 	ROUTINE EntityPhysicsWithCollisions
 
 	;; Preforms physics with collisions, but no gravity for the given entity
 	;; Does the same as `EntityPhysicsWithCollisions` but doesn't add gravity to `z:EntityStruct::yPos`
 	;; REQUIRE: 16 bit A, 16 bit Index, DB = $7E
-	;; INPUT: DP - EntityStruct Location
+	;; INPUT: DP - entity address (must be a subclass of EntityPhysicsStruct)
 	ROUTINE EntityPhysicsWithCollisionsNoGravity
 
 	;; Updates an entities position, from its velocity, there are no collisions.
 	;; REQUIRE: 16 bit A, 16 bit Index, DB = $7E
-	;; INPUT: DP - EntityStruct location
+	;; INPUT: DP - entity address (must be a subclass of EntityPhysicsStruct)
 	ROUTINE EntitySimplePhysics
 
 	;; Move the entity depending on joypad
 	;; REQUIRE: 16 bit A, 16 bit Index, DB = $7E
 	;; INPUT:
-	;;	DP - EntityStruct location
+	;;      DP - entity address (must be a subclass of EntityPhysicsStruct)
 	;;	A - Joypad data. (16 bit)
 	ROUTINE MoveEntityWithController
 ENDMODULE
 
-.endif ; ::_PHYSICS_H_
+.endif ; ::_ENTITY_PHYSICS_H_
 
 ; vim: set ft=asm:
 

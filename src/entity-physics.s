@@ -1,5 +1,5 @@
 
-.include "physics.h"
+.include "entity-physics.h"
 .include "includes/import_export.inc"
 .include "includes/synthetic.inc"
 .include "includes/registers.inc"
@@ -18,7 +18,8 @@ METATILES_SIZE = 16
 ;; Maximum Y velocity (prevents fall through walls)
 MAX_Y_VECLOCITY = 10 * 256
 
-MODULE Physics
+
+MODULE EntityPhysics
 
 .segment "WRAM7E"
 	ADDR	metaTilePropertyTable, N_METATILES
@@ -37,37 +38,37 @@ MODULE Physics
 ROUTINE MoveEntityWithController
 	PHA
 
-	LDX	z:EntityStruct::currentTileProperty
+	LDX	z:EntityPhysicsStruct::currentTileProperty
 
 	IF_BIT	#JOY_LEFT
-		LDA	z:EntityStruct::xVecl
+		LDA	z:EntityPhysicsStruct::xVecl
 		SUB	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::walkAcceleration, X
 		CMP	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::minimumXVelocity, X
 		IF_SLT
 			LDA	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::minimumXVelocity, X
 		ENDIF
-		STA	z:EntityStruct::xVecl
+		STA	z:EntityPhysicsStruct::xVecl
 
 	ELSE_BIT #JOY_RIGHT
-		LDA	z:EntityStruct::xVecl
+		LDA	z:EntityPhysicsStruct::xVecl
 		ADD	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::walkAcceleration, X
 		CMP	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::maximumXVelocity, X
 		IF_SGE
 			LDA	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::maximumXVelocity, X
 		ENDIF
-		STA	z:EntityStruct::xVecl
+		STA	z:EntityPhysicsStruct::xVecl
 	ENDIF
 
 	PLA
 
 	; Jump only if standing.
-	LDY	z:EntityStruct::standingTile
+	LDY	z:EntityPhysicsStruct::standingTile
 	IF_NOT_ZERO
 		IF_BIT	#JOY_B
-			LDX	z:EntityStruct::currentTileProperty
+			LDX	z:EntityPhysicsStruct::currentTileProperty
 			LDA	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::jumpingVelocity, X
 			IF_NOT_ZERO
-				STA	z:EntityStruct::yVecl
+				STA	z:EntityPhysicsStruct::yVecl
 			ENDIF
 		ENDIF
 	ENDIF
@@ -81,7 +82,7 @@ ROUTINE MoveEntityWithController
 .I16
 ROUTINE EntityPhysicsWithCollisions
 
-	LDA	z:EntityStruct::yVecl
+	LDA	z:EntityPhysicsStruct::yVecl
 	ADD	gravity
 	IF_MINUS
 		CMP	#.loword(-MAX_Y_VECLOCITY)
@@ -94,7 +95,7 @@ ROUTINE EntityPhysicsWithCollisions
 			LDA	#MAX_Y_VECLOCITY
 		ENDIF
 	ENDIF
-	STA	z:EntityStruct::yVecl
+	STA	z:EntityPhysicsStruct::yVecl
 
 	.assert * = EntityPhysicsWithCollisionsNoGravity, lderror, "Bad Flow"
 
@@ -110,7 +111,7 @@ ROUTINE	EntityPhysicsWithCollisionsNoGravity
 	; Check Map Collisions
 	; ====================
 
-	LDA	z:EntityStruct::yVecl
+	LDA	z:EntityPhysicsStruct::yVecl
 	IFL_PLUS
 		; Entity is falling/Standing
 		; --------------------------
@@ -125,21 +126,21 @@ ROUTINE	EntityPhysicsWithCollisionsNoGravity
 		; A = entity->yVecl
 		XBA
 		AND	#$00FF
-		ADD	z:EntityStruct::yPos + 1
-		SUB	z:EntityStruct::size_yOffset
-		ADD	z:EntityStruct::size_height
+		ADD	z:EntityPhysicsStruct::yPos + 1
+		SUB	z:EntityPhysicsStruct::size_yOffset
+		ADD	z:EntityPhysicsStruct::size_height
 		LSR
 		LSR
 		LSR
 		AND	#$FFFE
 		TAX
 
-		LDA	z:EntityStruct::xPos + 1
-		SUB	z:EntityStruct::size_xOffset
+		LDA	z:EntityPhysicsStruct::xPos + 1
+		SUB	z:EntityPhysicsStruct::size_xOffset
 		PHA
 
 		AND	#$000F
-		ADD	z:EntityStruct::size_width
+		ADD	z:EntityPhysicsStruct::size_width
 		DEC
 		LSR
 		LSR
@@ -158,7 +159,7 @@ ROUTINE	EntityPhysicsWithCollisionsNoGravity
 
 		LDX	a:MetaTiles1x16__map, Y
 		LDA	a:metaTilePropertyTable, X
-		STA	z:EntityStruct::currentTileProperty
+		STA	z:EntityPhysicsStruct::currentTileProperty
 		BRA	_SkipReleadTableYPlus		; speedup, saves 7 cycles
 
 		REPEAT
@@ -180,35 +181,35 @@ _SkipReleadTableYPlus:
 
 					; Removed the INC, so it tests the current tile,
 					; not the one below the entity
-					LDA	z:EntityStruct::yVecl + 1
+					LDA	z:EntityPhysicsStruct::yVecl + 1
 					AND	#$00FF
-					ADD	z:EntityStruct::yPos + 1
-					SUB	z:EntityStruct::size_yOffset
-					ADD	z:EntityStruct::size_height
+					ADD	z:EntityPhysicsStruct::yPos + 1
+					SUB	z:EntityPhysicsStruct::size_yOffset
+					ADD	z:EntityPhysicsStruct::size_height
 					AND	#$FFF0
-					ADD	z:EntityStruct::size_yOffset
-					SUB	z:EntityStruct::size_height
+					ADD	z:EntityPhysicsStruct::size_yOffset
+					SUB	z:EntityPhysicsStruct::size_height
 
-					CMP	z:EntityStruct::yPos + 1
+					CMP	z:EntityPhysicsStruct::yPos + 1
 					BLT	FallingThroughPlatform
 				ENDIF
 
-				STY	z:EntityStruct::standingTile
-				STX	z:EntityStruct::currentTileProperty
+				STY	z:EntityPhysicsStruct::standingTile
+				STX	z:EntityPhysicsStruct::currentTileProperty
 
 				; Move entity to above solid tile.
-				LDA	z:EntityStruct::yVecl + 1
+				LDA	z:EntityPhysicsStruct::yVecl + 1
 				AND	#$00FF
-				ADD	z:EntityStruct::yPos + 1
-				SUB	z:EntityStruct::size_yOffset
-				ADD	z:EntityStruct::size_height
+				ADD	z:EntityPhysicsStruct::yPos + 1
+				SUB	z:EntityPhysicsStruct::size_yOffset
+				ADD	z:EntityPhysicsStruct::size_height
 				INC
 				AND	#$FFF0
-				ADD	z:EntityStruct::size_yOffset
-				SUB	z:EntityStruct::size_height
+				ADD	z:EntityPhysicsStruct::size_yOffset
+				SUB	z:EntityPhysicsStruct::size_height
 
-				STA	z:EntityStruct::yPos + 1
-				STZ	z:EntityStruct::yVecl
+				STA	z:EntityPhysicsStruct::yPos + 1
+				STZ	z:EntityPhysicsStruct::yVecl
 
 				JMP	End_Y_CollisionTest
 			ENDIF
@@ -220,15 +221,15 @@ FallingThroughPlatform:
 		UNTIL_ZERO
 
 		; not standing on anything, now falling
-		STZ	z:EntityStruct::standingTile
+		STZ	z:EntityPhysicsStruct::standingTile
 
 		; ::HACK system may think currentTileProperty is a platform, but its not, reflect this::
 		; ::MAYDO improve this (extra field for patforms maybe?)::
-		LDX	z:EntityStruct::currentTileProperty
+		LDX	z:EntityPhysicsStruct::currentTileProperty
 		LDA	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::type, X
 		IF_N_SET
 			LDX	#.loword(TileProperties__EmptyTile)
-			STX	z:EntityStruct::currentTileProperty
+			STX	z:EntityPhysicsStruct::currentTileProperty
 		ENDIF
 
 	ELSE
@@ -242,25 +243,25 @@ FallingThroughPlatform:
 		; mapXpos = tmp / 16 * 2
 		; mapPos = mapXpos + MetaTiles1x16__mapRowAddressTable[mapYpos]
 
-		STZ	z:EntityStruct::standingTile
+		STZ	z:EntityPhysicsStruct::standingTile
 
 		; A = entity->yVecl and negative.
 		XBA
 		ORA	#$FF00
-		ADD	z:EntityStruct::yPos + 1
-		SUB	z:EntityStruct::size_yOffset
+		ADD	z:EntityPhysicsStruct::yPos + 1
+		SUB	z:EntityPhysicsStruct::size_yOffset
 		LSR
 		LSR
 		LSR
 		AND	#$FFFE
 		TAX
 
-		LDA	z:EntityStruct::xPos + 1
-		SUB	z:EntityStruct::size_xOffset
+		LDA	z:EntityPhysicsStruct::xPos + 1
+		SUB	z:EntityPhysicsStruct::size_xOffset
 		PHA
 
 		AND	#$000F
-		ADD	z:EntityStruct::size_width
+		ADD	z:EntityPhysicsStruct::size_width
 		DEC
 		LSR
 		LSR
@@ -280,7 +281,7 @@ FallingThroughPlatform:
 		; Travelling upwards, current tile = start of head
 		LDX	a:MetaTiles1x16__map, Y
 		LDA	a:metaTilePropertyTable, X
-		STA	z:EntityStruct::currentTileProperty
+		STA	z:EntityPhysicsStruct::currentTileProperty
 		BRA	_SkipReleadTableYMinus		; speedup, saves 7 cycles
 
 		REPEAT
@@ -301,16 +302,16 @@ _SkipReleadTableYMinus:
 				IF_N_CLEAR
 					; ::TODO head collide::
 
-					LDA	z:EntityStruct::yVecl + 1
+					LDA	z:EntityPhysicsStruct::yVecl + 1
 					ORA	#$FF00
-					ADD	z:EntityStruct::yPos + 1
-					SUB	z:EntityStruct::size_yOffset
+					ADD	z:EntityPhysicsStruct::yPos + 1
+					SUB	z:EntityPhysicsStruct::size_yOffset
 					ADD	#METATILES_SIZE
 					AND	#$FFF0
-					ADD	z:EntityStruct::size_yOffset
-					STA	z:EntityStruct::yPos + 1
+					ADD	z:EntityPhysicsStruct::size_yOffset
+					STA	z:EntityPhysicsStruct::yPos + 1
 
-					STZ	z:EntityStruct::yVecl
+					STZ	z:EntityPhysicsStruct::yVecl
 
 					BRA	End_Y_CollisionTest
 				ENDIF
@@ -324,20 +325,20 @@ End_Y_CollisionTest:
 	ENDIF
 
 
-	LDA	z:EntityStruct::xVecl
+	LDA	z:EntityPhysicsStruct::xVecl
 	IFL_NOT_ZERO
 		IFL_PLUS
 			; Entity is moving Right
 			; ----------------------
 
 			; handle friction
-			LDX	z:EntityStruct::currentTileProperty
+			LDX	z:EntityPhysicsStruct::currentTileProperty
 			SUB	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::friction, X
 			IF_MINUS
-				STZ	z:EntityStruct::xVecl
+				STZ	z:EntityPhysicsStruct::xVecl
 				JMP	End_X_CollisionTest
 			ENDIF
-			STA	z:EntityStruct::xVecl
+			STA	z:EntityPhysicsStruct::xVecl
 
 			; check collisions
 
@@ -347,12 +348,12 @@ End_Y_CollisionTest:
 			; mapXpos = (entity->xVecl.int + entity->xPos.int - entity->size_xOffset + entity->size_width) / 16 * 2
 			; mapPos = mapXpos + MetaTiles1x16__mapRowAddressTable[mapYpos]
 
-			LDA	z:EntityStruct::yPos + 1
-			SUB	z:EntityStruct::size_yOffset
+			LDA	z:EntityPhysicsStruct::yPos + 1
+			SUB	z:EntityPhysicsStruct::size_yOffset
 			PHA
 
 			AND	#$000F
-			ADD	z:EntityStruct::size_height
+			ADD	z:EntityPhysicsStruct::size_height
 			DEC
 			LSR
 			LSR
@@ -368,11 +369,11 @@ End_Y_CollisionTest:
 			AND	#$FFFE
 			TAX
 
-			LDA	z:EntityStruct::xVecl + 1
+			LDA	z:EntityPhysicsStruct::xVecl + 1
 			AND	#$00FF
-			ADD	z:EntityStruct::xPos + 1
-			SUB	z:EntityStruct::size_xOffset
-			ADD	z:EntityStruct::size_width
+			ADD	z:EntityPhysicsStruct::xPos + 1
+			SUB	z:EntityPhysicsStruct::size_xOffset
+			ADD	z:EntityPhysicsStruct::size_width
 			LSR
 			LSR
 			LSR
@@ -394,18 +395,18 @@ End_Y_CollisionTest:
 				IF_NOT_ZERO
 					; Ignore collision if a platform
 					IF_N_CLEAR
-						LDA	z:EntityStruct::xVecl + 1
+						LDA	z:EntityPhysicsStruct::xVecl + 1
 						AND	#$00FF
-						ADD	z:EntityStruct::xPos + 1
-						SUB	z:EntityStruct::size_xOffset
-						ADD	z:EntityStruct::size_width
+						ADD	z:EntityPhysicsStruct::xPos + 1
+						SUB	z:EntityPhysicsStruct::size_xOffset
+						ADD	z:EntityPhysicsStruct::size_width
 						INC
 						AND	#$FFF0
-						ADD	z:EntityStruct::size_xOffset
-						SUB	z:EntityStruct::size_width
-						STA	z:EntityStruct::xPos + 1
+						ADD	z:EntityPhysicsStruct::size_xOffset
+						SUB	z:EntityPhysicsStruct::size_width
+						STA	z:EntityPhysicsStruct::xPos + 1
 
-						STZ	z:EntityStruct::xVecl
+						STZ	z:EntityPhysicsStruct::xVecl
 
 						BRL	End_X_CollisionTest
 					ENDIF
@@ -420,13 +421,13 @@ End_Y_CollisionTest:
 			; ---------------------
 
 			; handle friction
-			LDX	z:EntityStruct::currentTileProperty
+			LDX	z:EntityPhysicsStruct::currentTileProperty
 			ADD	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::friction, X
 			IF_PLUS
-				STZ	z:EntityStruct::xVecl
+				STZ	z:EntityPhysicsStruct::xVecl
 				BRA	End_X_CollisionTest
 			ENDIF
-			STA	z:EntityStruct::xVecl
+			STA	z:EntityPhysicsStruct::xVecl
 
 			; check collisions
 
@@ -436,12 +437,12 @@ End_Y_CollisionTest:
 			; mapXpos = (entity->xVecl.int + entity->xPos.int - entity->size_xOffset) / 16 * 2
 			; mapPos = mapXpos + MetaTiles1x16__mapRowAddressTable[mapYpos]
 
-			LDA	z:EntityStruct::yPos + 1
-			SUB	z:EntityStruct::size_yOffset
+			LDA	z:EntityPhysicsStruct::yPos + 1
+			SUB	z:EntityPhysicsStruct::size_yOffset
 			PHA
 
 			AND	#$000F
-			ADD	z:EntityStruct::size_height
+			ADD	z:EntityPhysicsStruct::size_height
 			DEC
 			LSR
 			LSR
@@ -457,10 +458,10 @@ End_Y_CollisionTest:
 			AND	#$FFFE
 			TAX
 
-			LDA	z:EntityStruct::xVecl + 1
+			LDA	z:EntityPhysicsStruct::xVecl + 1
 			ORA	#$FF00
-			ADD	z:EntityStruct::xPos + 1
-			SUB	z:EntityStruct::size_xOffset
+			ADD	z:EntityPhysicsStruct::xPos + 1
+			SUB	z:EntityPhysicsStruct::size_xOffset
 			LSR
 			LSR
 			LSR
@@ -482,16 +483,16 @@ End_Y_CollisionTest:
 				IF_NOT_ZERO
 					; Ignore collision if a platform
 					IF_N_CLEAR
-						LDA	z:EntityStruct::xVecl + 1
+						LDA	z:EntityPhysicsStruct::xVecl + 1
 						ORA	#$FF00
-						ADD	z:EntityStruct::xPos + 1
-						SUB	z:EntityStruct::size_xOffset
+						ADD	z:EntityPhysicsStruct::xPos + 1
+						SUB	z:EntityPhysicsStruct::size_xOffset
 						ADD	#METATILES_SIZE
 						AND	#$FFF0
-						ADD	z:EntityStruct::size_xOffset
-						STA	z:EntityStruct::xPos + 1
+						ADD	z:EntityPhysicsStruct::size_xOffset
+						STA	z:EntityPhysicsStruct::xPos + 1
 
-						STZ	z:EntityStruct::xVecl
+						STZ	z:EntityPhysicsStruct::xVecl
 
 						BRA	End_X_CollisionTest
 					ENDIF
@@ -521,51 +522,51 @@ ROUTINE EntitySimplePhysics
 	; ::KUDOS Khaz::
 	; ::: http://forums.nesdev.com/viewtopic.php?f=12&t=12459&p=142645#p142674 ::
 	CLC
-	LDA	z:EntityStruct::xVecl
+	LDA	z:EntityPhysicsStruct::xVecl
 	IF_MINUS
 		; xVecl is negative
 		; Fastest case by 1 cycle if no underflow, otherwise slowest by 2 cycles
 
-		ADC	z:EntityStruct::xPos
-		STA	z:EntityStruct::xPos
+		ADC	z:EntityPhysicsStruct::xPos
+		STA	z:EntityPhysicsStruct::xPos
 		BCS	Process_End_XPos
 			; 16 bit underflow - subtract by one
 			SEP	#$20        ; 8 bit A
-				DEC	z:EntityStruct::xPos + 2
+				DEC	z:EntityPhysicsStruct::xPos + 2
 			REP     #$20        ; 16 bit A again
 	ELSE
 		; else - sint16 is positive
-		ADC	z:EntityStruct::xPos
-		STA	z:EntityStruct::xPos
+		ADC	z:EntityPhysicsStruct::xPos
+		STA	z:EntityPhysicsStruct::xPos
 		BCC	Process_End_XPos
 			; 16 bit overflow - add carry
 			SEP	#$20        ; 8 bit A
-				INC	z:EntityStruct::xPos + 2
+				INC	z:EntityPhysicsStruct::xPos + 2
 			REP	#$20        ; 16 bit A again
 Process_End_XPos:
 	ENDIF
 
 	CLC
-	LDA	z:EntityStruct::yVecl
+	LDA	z:EntityPhysicsStruct::yVecl
 	IF_MINUS
 		; yVecl is negative
 		; Fastest case by 1 cycle if no underflow, otherwise slowest by 2 cycles
 
-		ADC	z:EntityStruct::yPos
-		STA	z:EntityStruct::yPos
+		ADC	z:EntityPhysicsStruct::yPos
+		STA	z:EntityPhysicsStruct::yPos
 		BCS	Process_End_YPos
 			; 16 bit underflow - subtract by one
 			SEP	#$20        ; 8 bit A
-			DEC	z:EntityStruct::yPos + 2
+			DEC	z:EntityPhysicsStruct::yPos + 2
 			REP     #$20        ; 16 bit A again
 	ELSE
 		; else - sint16 is positive
-		ADC	z:EntityStruct::yPos
-		STA	z:EntityStruct::yPos
+		ADC	z:EntityPhysicsStruct::yPos
+		STA	z:EntityPhysicsStruct::yPos
 		BCC	Process_End_YPos
 			; 16 bit overflow - add carry
 			SEP	#$20        ; 8 bit A
-			INC	z:EntityStruct::yPos + 2
+			INC	z:EntityPhysicsStruct::yPos + 2
 			REP	#$20        ; 16 bit A again
 Process_End_YPos:
 	ENDIF

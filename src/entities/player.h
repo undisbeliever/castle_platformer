@@ -1,5 +1,5 @@
-.ifndef ::_PLAYER_H_
-::_PLAYER_H_ = 1
+.ifndef ::_ENTITIES_PLAYER_H_
+::_ENTITIES_PLAYER_H_ = 1
 
 .setcpu "65816"
 
@@ -7,12 +7,16 @@
 .include "includes/import_export.inc"
 .include "includes/registers.inc"
 
-.include "entities.h"
+.include "../entities.h"
+.include "../entity-physics.h"
+
+ENTITY_PHYSICS_STRUCT PlayerEntityStruct
+END_ENTITY_STRUCT
 
 
 IMPORT_MODULE Player
-	;; The player's EntityStruct.
-	STRUCT	entity, EntityStruct
+	;; The player's PlayerEntityStruct.
+	STRUCT	entity, PlayerEntityStruct
 
 	;; Initialize the player
 	;; REQUIRE: 8 bit A, 16 bit Index
@@ -27,7 +31,7 @@ IMPORT_MODULE Player
 	ROUTINE	SetScreenPosition
 ENDMODULE
 
-.endif ; ::_PLAYER_H_
+.endif ; ::_ENTITIES_PLAYER_H_
 
 ; vim: set ft=asm:
 

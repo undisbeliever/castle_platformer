@@ -5,7 +5,8 @@
 .include "includes/registers.inc"
 .include "includes/structure.inc"
 
-.include "player.h"
+.include "entity.h"
+.include "entities/player.h"
 
 .include "routines/metasprite.h"
 .include "routines/metatiles/metatiles-1x16.h"

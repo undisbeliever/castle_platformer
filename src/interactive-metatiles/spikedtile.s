@@ -5,7 +5,7 @@
 .include "includes/registers.inc"
 .include "includes/structure.inc"
 
-.include "../entities.h"
+.include "../entity-physics.h"
 .include "../gameloop.h"
 
 MODULE	SpikedTile
@@ -19,7 +19,7 @@ LABEL functionsTable
 .code
 
 ;; Player is standing on the tile
-; DP = entity
+; DP =  EntityPhysicsStruct address
 .A16
 .I16
 ROUTINE PlayerStand
@@ -27,7 +27,7 @@ ROUTINE PlayerStand
 
 
 ;; Player is touching the tile
-; DP = entity
+; DP = EntityPhysicsStruct address
 .A16
 .I16
 ROUTINE PlayerTouch

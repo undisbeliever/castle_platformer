@@ -5,10 +5,10 @@
 .include "includes/registers.inc"
 .include "includes/structure.inc"
 
-.include "controller.h"
-.include "entities.h"
-.include "gameloop.h"
-.include "physics.h"
+.include "../entities.h"
+.include "../entity-physics.h"
+.include "../controller.h"
+.include "../gameloop.h"
 
 .include "routines/block.h"
 .include "routines/metasprite.h"
@@ -27,10 +27,13 @@ ENTITY_HEIGHT = 24
 ENTITY_XOFFSET = 8
 ENTITY_YOFFSET = 16
 
+.define PES PlayerEntityStruct
+
+
 MODULE Player
 
 .segment "SHADOW"
-	STRUCT	entity, EntityStruct
+	STRUCT	entity, PlayerEntityStruct
 .code
 
 .A8
@@ -38,32 +41,32 @@ MODULE Player
 ROUTINE Init
 
 	; ::TODO dynamic starting position::
-	STZ	entity + EntityStruct::xPos
+	STZ	entity + PES::xPos
 	LDX	#80
-	STX	entity + EntityStruct::xPos + 1
+	STX	entity + PES::xPos + 1
 
-	STZ	entity + EntityStruct::yPos
+	STZ	entity + PES::yPos
 	LDY	#200
-	STY	entity + EntityStruct::yPos + 1
+	STY	entity + PES::yPos + 1
 
 	LDX	#0
-	STX	entity + EntityStruct::xVecl
-	STX	entity + EntityStruct::yVecl
-	STX	entity + EntityStruct::standingTile
+	STX	entity + PES::xVecl
+	STX	entity + PES::yVecl
+	STX	entity + PES::standingTile
 
 	LDX	#ENTITY_WIDTH
-	STX	entity + EntityStruct::size_width
+	STX	entity + PES::size_width
 	LDX	#ENTITY_HEIGHT
-	STX	entity + EntityStruct::size_height
+	STX	entity + PES::size_height
 	LDX	#ENTITY_XOFFSET
-	STX	entity + EntityStruct::size_xOffset
+	STX	entity + PES::size_xOffset
 	LDX	#ENTITY_YOFFSET
-	STX	entity + EntityStruct::size_yOffset
+	STX	entity + PES::size_yOffset
 
 	LDX	#.loword(ExampleMetaSpriteFrame)
-	STX	entity + EntityStruct::metaSpriteFrame
+	STX	entity + PES::metaSpriteFrame
 	LDX	#0
-	STX	entity + EntityStruct::metaSpriteCharAttr
+	STX	entity + PES::metaSpriteCharAttr
 
 	; ::TODO dynamicaly load player tiles and palette::
 	TransferToVramLocation	ExampleObjectTiles,	GAMELOOP_OAM_TILES
@@ -77,20 +80,20 @@ ROUTINE Init
 .I16
 ROUTINE Update
 	LDA	Controller__current
-	JSR	Physics__MoveEntityWithController
+	JSR	EntityPhysics__MoveEntityWithController
 
-	JSR	Physics__EntityPhysicsWithCollisions
+	JSR	EntityPhysics__EntityPhysicsWithCollisions
 
 	; Player/tile interactions
-	LDX	Physics__entityTouchTileFunctionPtr
+	LDX	EntityPhysics__entityTouchTileFunctionPtr
 	IF_NOT_ZERO
 		JSR	(MetaTileFunctionsTable::PlayerTouch, X)
 	ENDIF
 
 
-	LDY	z:EntityStruct::standingTile
+	LDY	z:PES::standingTile
 	IF_NOT_ZERO
-		LDX	z:EntityStruct::currentTileProperty
+		LDX	z:PES::currentTileProperty
 		LDA	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::functionsTable, X
 		IF_NOT_ZERO
 			TAX
@@ -107,11 +110,11 @@ ROUTINE Update
 .A16
 .I16
 ROUTINE	SetScreenPosition
-	LDA	entity + EntityStruct::xPos + 1
+	LDA	entity + PES::xPos + 1
 	SUB	MetaTiles1x16__xPos
 	CMP	#256 - SCREEN_LEFT_RIGHT_SPACING
 	IF_SGE
-		LDA	entity + EntityStruct::xPos + 1
+		LDA	entity + PES::xPos + 1
 		SUB	#256 - SCREEN_LEFT_RIGHT_SPACING
 		CMP	MetaTiles1x16__maxXPos
 		IF_GE
@@ -121,7 +124,7 @@ ROUTINE	SetScreenPosition
 	ELSE
 		CMP	#SCREEN_LEFT_RIGHT_SPACING
 		IF_SLT
-			LDA	entity + EntityStruct::xPos + 1
+			LDA	entity + PES::xPos + 1
 			SUB	#SCREEN_LEFT_RIGHT_SPACING
 			IF_MINUS
 				LDA	#0
@@ -130,11 +133,11 @@ ROUTINE	SetScreenPosition
 		ENDIF
 	ENDIF
 
-	LDA	entity + EntityStruct::yPos + 1
+	LDA	entity + PES::yPos + 1
 	SUB	MetaTiles1x16__yPos
 	CMP	#224 - SCREEN_UP_DOWN_SPACING
 	IF_SGE
-		LDA	entity + EntityStruct::yPos + 1
+		LDA	entity + PES::yPos + 1
 		SUB	#224 - SCREEN_UP_DOWN_SPACING
 		CMP	MetaTiles1x16__maxYPos
 		IF_GE
@@ -144,7 +147,7 @@ ROUTINE	SetScreenPosition
 	ELSE
 		CMP	#SCREEN_UP_DOWN_SPACING
 		IF_SLT
-			LDA	entity + EntityStruct::yPos + 1
+			LDA	entity + PES::yPos + 1
 			SUB	#SCREEN_UP_DOWN_SPACING
 			IF_MINUS
 				LDA	#0

@@ -6,7 +6,7 @@
 ; Common includes
 .include "includes/import_export.inc"
 .include "includes/registers.inc"
-.include "physics.h"
+.include "entity-physics.h"
 
 
 IMPORT_MODULE TileProperties
