@@ -15,16 +15,7 @@ END_ENTITY_STRUCT
 
 
 IMPORT_MODULE Player
-	;; The player's PlayerEntityStruct.
-	STRUCT	entity, PlayerEntityStruct
-
-	;; Initialize the player
-	;; REQUIRE: 8 bit A, 16 bit Index
-	ROUTINE Init
-
-	;; Updates the player state
-	;; REQUIRE: 16 bit A, 16 bit Index, DB = $7E
-	ROUTINE Update
+	LABEL	InitState
 
 	;; Updates the map's position, depending on the players position
 	;; REQUIRE: 16 bit A, 16 bit Index, DB = $7E or access shadow

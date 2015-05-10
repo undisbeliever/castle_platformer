@@ -7,6 +7,10 @@
 .include "includes/import_export.inc"
 .include "includes/registers.inc"
 
+; ::SHOULDDO make configurable::
+;; segment that contains the standing event table
+.define STANDING_EVENTS_TABLE_BANK "BANK1"
+
 ; A switchtile only handles a horizontal row of tiles
 .struct StandingEventsTableStruct
 	minMapLocation	.addr
@@ -14,9 +18,6 @@
 	command		.addr
 	parameter	.word
 .endstruct
-
-;; The bank that contains the switch tile table
-.global StandingEventsTableBank : zp
 
 .enum StandingEventsCommand
 	;; Removes the chain incrementally (upwards) while Rumbling the screen
@@ -41,7 +42,7 @@
 .endenum
 
 IMPORT_MODULE StandingEventTile
-	;; The memory location within `StandingEventsTableBank` of the StandingEventTile table
+	;; The memory location within `MAP_PROPERTIES_BANK` of the StandingEventTile table
 	.global StandingEventTile__standingEventsTablePtr : far
 
 	;; The number of entries in the StandingEventTile table

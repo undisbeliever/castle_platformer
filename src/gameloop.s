@@ -56,9 +56,6 @@ ROUTINE Init
 	LDA	level
 	JSR	MapLoader__LoadMap
 
-	; ::TODO dynamicaly load player::
-	JSR	Player__Init
-
 	LDA	#TM_BG1 | TM_OBJ
 	STA	TM
 
@@ -87,10 +84,10 @@ ROUTINE PlayGame
 
 			REP	#$30
 .A16
-			LDA	#Player__entity
-			TCD
+			JSR	Entities__Process
 
-			JSR	Player__Update
+			LDA	#Entities__player
+			TCD
 			JSR	Player__SetScreenPosition
 
 			JSR	BackgroundEvents__Process
@@ -145,7 +142,7 @@ ROUTINE Dead
 
 	REP	#$30
 .A16
-	LDA	#Player__entity
+	LDA	#Entities__player
 	TCD
 
 	STZ	z:PlayerEntityStruct::xVecl
@@ -157,10 +154,9 @@ ROUTINE Dead
 	ADD	z:PlayerEntityStruct::size_yOffset
 	STA	tmp
 
-	SEP	#$20
-.A8
-
 	REPEAT
+		SEP	#$20
+.A8
 		JSR	Screen__WaitFrame
 
 		REP	#$30
@@ -175,12 +171,15 @@ ROUTINE Dead
 .A8
 		JSR	Entities__Render
 
-		LDY	a:Player__entity + PlayerEntityStruct::yPos + 1
-		CPY	tmp
+		REP	#$20
+.A16
+		LDA	#Entities__player
+		TCD
+
+		LDA	z:PlayerEntityStruct::yPos + 1
+		CMP	tmp
 	UNTIL_GE
 
-	LDA	#0
-	XBA
 	LDA	#0
 	TCD
 

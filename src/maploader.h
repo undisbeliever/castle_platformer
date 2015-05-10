@@ -6,6 +6,11 @@
 .include "includes/import_export.inc"
 .include "includes/registers.inc"
 
+;; ::TODO make configurable::
+.define MAP_PROPERTIES_BANK "BANK1"
+.define MAP_ENTITIES_TABLE_BANK "BANK1"
+
+
 .enum	MapDataFormat
 	UNCOMPRESSED	= 0
 .endenum
@@ -26,20 +31,45 @@
 
 .struct MapTableFormat
 	mapData			.faraddr
-	tileSetId		.byte
+	mapProperties		.addr
+.endstruct
+
+
+;; Table of entities in the map
+;; First entity is the player, the rest are NPCs
+.struct MapEntitiesTableStruct
+	;; entity xPos
 	xPos			.word
+	;; entity yPos
 	yPos			.word
-	interactiveTiles	.addr
+	;; entity Init parameter
+	parameter		.word
+	;; entity state (address within `ENTITY_STATE_BANK`)
+	entityState		.addr
 .endstruct
 
-.struct	InteractiveTilesStruct
-	; Address within `SwitchTileTableBank` of the switchtile of the level
+
+.struct	MapPropertiesStruct
+	;; Tileset to load
+	tileSetId		.byte
+
+	;; Starting map x position
+	xPos			.word
+	;; Starting map y position
+	yPos			.word
+
+	;; Address within `MAP_PROPERTIES_BANK` of the map entities table
+	mapEntitiesTable	.addr
+	;; Number of entities on the map.
+	mapEntitiesTableCount	.word
+
+	;; Address within `MAP_PROPERTIES_BANK` of the `StandingEventsTableStruct`
+	;; of the level
 	standingEventsTablePtr	.addr
-	; Number of entries in the switchtile table.
-	standingEventsTableCount	.word
+	;; Number of entries in the switchtile table.
+	standingEventsTableCount .word
 .endstruct
 
-.global InteractiveTilesStructBank : zp
 
 ;; A table of `MapTableFormat`, one for each map
 .global	MapsTable
@@ -59,7 +89,7 @@
 IMPORT_MODULE MapLoader
 	;; Loads a map into the MetaTile1x16 module.
 	;; REQUIRES: 8 bit A, 16 bit Index, DP = 0, Force Blank
-	;; INPUT: A - the map number to load. 
+	;; INPUT: A - the map number to load.
 	ROUTINE	LoadMap
 
 	;; Loads a map's tileset into the MetaTile1x16 module and VRAM.

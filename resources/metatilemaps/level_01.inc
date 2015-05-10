@@ -1,10 +1,27 @@
 ; StandingEvent tile locations and parameters.
 ; ::TODO generate by program::
 
-Level01_InteractiveTilesStruct:
+.segment MAP_PROPERTIES_BANK
+
+Level01_MapPropertiesStruct:
+	.byte	TILESET_CASTLE_PLATFORMER		; tileset
+	.word	0					; xPos
+	.word	0					; yPos
+	.addr	Level01_MapEntitiesTable		; mapEntitiesTable
+	.word	Level01_MapEntitiesTable_Count		; mapEntitiesTableCount
 	.addr	Level01_StandingEventsTileTable		; standingEventsTablePtr
 	.word	Level01_StandingEventsTileTable_Count	; standingEventsTableCount
 
+.segment MAP_ENTITIES_TABLE_BANK
+
+Level01_MapEntitiesTable:
+	;	xPos,	yPos,	parameter,	entityState
+	.word 	80,	200,	0,		.loword(Player__InitState)		; first Entity is player
+
+Level01_MapEntitiesTable_Count = (* - Level01_MapEntitiesTable) / .sizeof(MapEntitiesTableStruct)
+
+
+.segment STANDING_EVENTS_TABLE_BANK
 
 Level01_StandingEventsTileTable:
 	;	minMapLocation      , minMapLocation      , command                             , parameter
@@ -15,7 +32,6 @@ Level01_StandingEventsTileTable:
 	.word	(52 * 112 + 100) * 2, (52 * 112 + 109) * 2, StandingEventsCommand::GAME_OVER    , 0
 
 Level01_StandingEventsTileTable_Count = (* - Level01_StandingEventsTileTable) / .sizeof(StandingEventsTableStruct)
-
 
 ; vim: ft=asm:
 

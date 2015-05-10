@@ -10,6 +10,7 @@
 .include "routines/metatiles/metatiles-1x16.h"
 
 .include "gameloop.h"
+.include "entities.h"
 .include "entity-physics.h"
 .include "interactive-metatiles/standing-event-tile.h"
 
@@ -24,11 +25,19 @@ DEFAULT_GRAVITY = 35		; Acceleration due to gravity in 1/256 pixels per frame pe
 
 MODULE MapLoader
 
-.segment "ZEROPAGE"
+.importzp ResourceLoader__dataPtr
+
+;	dataPtr = ResourceLoader__dataPtr'
+
+.zeropage
 	FARADDR	dataPtr
 
 .segment "SHADOW"
+	WORD	tmp
 
+.segment "WRAM7E"
+	WORD	count
+	WORD	entitiesTableAddr
 
 .code
 
@@ -38,24 +47,48 @@ MODULE MapLoader
 ROUTINE LoadMap
 	REP	#$30
 .A16
-	.assert .sizeof(MapTableFormat) = 10, error, "MapTableFormat must be 8 bytes"
+	.assert .sizeof(MapTableFormat) = 5, error, "MapTableFormat must be 6 bytes"
 	AND	#$00FF
 	STA	dataPtr
 	ASL
 	ASL
 	ADC	dataPtr ; carry clear from ASL
-	ASL
 	TAX
 
 	; set default gravity
+	; -------------------
 	LDA	#DEFAULT_GRAVITY
 	STA	EntityPhysics__gravity
 
-	; set the interactive tile tables.
-	PHX
-	JSR	SetInteractiveTileTables
-	PLX
 
+	PHX
+
+	; load map propeties
+	; ------------------
+
+	LDA	f:MapsTable + MapTableFormat::mapProperties, X
+	TAX
+
+	LDA	f:MapPropertiesBank << 16 + MapPropertiesStruct::tileSetId, X
+	STA	tmp
+
+	LDA	f:MapPropertiesBank << 16 + MapPropertiesStruct::xPos, X
+	STA	MetaTiles1x16__xPos
+	LDA	f:MapPropertiesBank + MapPropertiesStruct::yPos, X
+	STA	MetaTiles1x16__yPos << 16
+
+	LDA	f:MapPropertiesBank << 16 + MapPropertiesStruct::standingEventsTablePtr, X
+	STA	f:StandingEventTile__standingEventsTablePtr
+	LDA	f:MapPropertiesBank << 16 + MapPropertiesStruct::standingEventsTableCount, X
+	STA	f:StandingEventTile__standingEventsTableCount
+
+	JSR	LoadEntities
+
+
+	; load map data
+	; -------------
+
+	PLX
 	LDA	f:MapsTable + MapTableFormat::mapData, X
 	STA	dataPtr
 
@@ -64,16 +97,8 @@ ROUTINE LoadMap
 	LDA	f:MapsTable + MapTableFormat::mapData + 2, X
 	STA	dataPtr + 2
 
-	LDA	f:MapsTable + MapTableFormat::tileSetId, X
-	PHA
-
 	REP	#$30
 .A16
-	LDA	f:MapsTable + MapTableFormat::xPos, X
-	STA	MetaTiles1x16__xPos
-	LDA	f:MapsTable + MapTableFormat::yPos, X
-	STA	MetaTiles1x16__yPos
-
 
 	LDY	#MapDataPrefix::width
 	LDA	[dataPtr], Y
@@ -92,24 +117,54 @@ ROUTINE LoadMap
 	LDY	#.loword(MetaTiles1x16__map)
 	JSR	ResourceLoader__LoadDataToWram7E
 
-	PLA
+	LDA	tmp
 	JSR	LoadMetaTiles
 
 	JMP	MetaTiles1x16__MapInit
 
 
-; IN: X - MapTableFormat offset
+; IN: X - MapPropertiesStruct offset
 .A16
 .I16
-ROUTINE SetInteractiveTileTables
-	LDA	f:MapsTable + MapTableFormat::interactiveTiles, X
+ROUTINE LoadEntities
+	PHB
+
+	PEA	$7E7E
+	PLB
+	PLB
+
+	JSR	Entities__Init
+
+	LDA	f:MapPropertiesBank << 16 + MapPropertiesStruct::mapEntitiesTableCount, X
+	STA	a:count
+
+	LDA	f:MapPropertiesBank << 16 + MapPropertiesStruct::mapEntitiesTable, X
+	STA	a:entitiesTableAddr
 	TAX
 
-	LDA	f:InteractiveTilesStructBank << 16 + InteractiveTilesStruct::standingEventsTablePtr, X
-	STA	f:StandingEventTile__standingEventsTablePtr
-	LDA	f:InteractiveTilesStructBank << 16 + InteractiveTilesStruct::standingEventsTableCount, X
-	STA	f:StandingEventTile__standingEventsTableCount
+	; First entity is the player
+	LDA	f:MapEntitiesTableBank << 16 + MapEntitiesTableStruct::xPos, X
+	PHA
+	LDA	f:MapEntitiesTableBank << 16 + MapEntitiesTableStruct::yPos, X
+	TAY
+	LDA	f:MapEntitiesTableBank << 16 + MapEntitiesTableStruct::parameter, X
+	STA	Entities__parameter
+	LDA	f:MapEntitiesTableBank << 16 + MapEntitiesTableStruct::entityState, X
+	PLX
+	JSR	Entities__NewPlayer
 
+	REPEAT
+		DEC	a:count
+	WHILE_NOT_ZERO
+		LDA	entitiesTableAddr
+		ADD	#.sizeof(MapEntitiesTableStruct)
+		STA	entitiesTableAddr
+		TAX
+
+		; ::TODO load more entities::
+	WEND
+
+	PLB
 	RTS
 
 
@@ -162,6 +217,13 @@ ROUTINE LoadMetaTiles
 	JSR	ResourceLoader__LoadVram_8A
 
 	RTS
+
+
+.segment MAP_PROPERTIES_BANK
+	MapPropertiesBank = .bankbyte(*)
+
+.segment MAP_ENTITIES_TABLE_BANK
+	MapEntitiesTableBank = .bankbyte(*)
 
 ENDMODULE
 

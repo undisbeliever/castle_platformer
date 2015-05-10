@@ -8,7 +8,26 @@
 .include "includes/registers.inc"
 
 ; ::SHOULDO make configurable::
-MAX_ENTITY_SIZE = 64
+ENTITY_MALLOC = 64
+
+;; Function table for player entity
+.struct PlayerEntityFunctionsTable
+	;; Called on entity creation, after state is loaded.
+	;; MUST NOT SET the Entity's `functionsTable` to NULL.
+	;; REQUIRES: 16 bit A, 16 bit Index
+	;; INPUT:
+	;;	dp = EntityStruct address
+	;;	A = parameter
+	Init			.addr
+
+	;; Called once per frame.
+	;; May set the Entity's `functionsTable` to NULL to delete the entity.
+	;; REQUIRES: 16 bit A, 16 bit Index
+	;; INPUT: dp = EntityStruct address
+	Process			.addr
+.endstruct
+
+
 
 ;; Represents the AABB (Axis Aligned Bounding Box) of the entity
 ;; for physics and collisions.
@@ -63,7 +82,7 @@ MAX_ENTITY_SIZE = 64
 
 .macro END_ENTITY_STRUCT
 	.endstruct
-	.assert .sizeof(__ENTITY_STRUCT_NAME) <= ::MAX_ENTITY_SIZE, error, .sprintf("ERROR: %s is too large (%d bytes max, %d bytes used)", .string(name), ::MAX_ENTITY_SIZE, .sizeof(__ENTITY_STRUCT_NAME))
+	.assert .sizeof(__ENTITY_STRUCT_NAME) <= ::ENTITY_MALLOC, error, .sprintf("ERROR: %s is too large (%d bytes max, %d bytes used)", .string(name), ::ENTITY_MALLOC, .sizeof(__ENTITY_STRUCT_NAME))
 	.undefine __ENTITY_STRUCT_NAME
 .endmacro
 

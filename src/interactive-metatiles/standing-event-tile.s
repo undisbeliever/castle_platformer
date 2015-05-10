@@ -78,5 +78,9 @@ ROUTINE PlayerStand
 ROUTINE PlayerTouch
 	RTS
 
+
+.segment STANDING_EVENTS_TABLE_BANK
+	StandingEventsTableBank = .bankbyte(*)
+
 ENDMODULE
 

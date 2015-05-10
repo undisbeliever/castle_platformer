@@ -15,8 +15,6 @@
 .include "routines/metatiles/metatiles-1x16.h"
 
 ; ::TODO move somewhere else
-GRAVITY = 41			; Acceleration due to gravity in 1/256 pixels per frame per frame
-
 SCREEN_LEFT_RIGHT_SPACING = 95
 SCREEN_UP_DOWN_SPACING = 65
 
@@ -31,54 +29,37 @@ ENTITY_YOFFSET = 16
 
 
 MODULE Player
+	SAME_VARIABLE entity, Entities__player
 
-.segment "SHADOW"
-	STRUCT	entity, PlayerEntityStruct
-.code
+.rodata
+LABEL	FunctionsTable
+	.addr	.loword(Init)
+	.addr	.loword(Process)
 
+
+; dp = entity
 .A8
 .I16
 ROUTINE Init
-
-	; ::TODO dynamic starting position::
-	STZ	entity + PES::xPos
-	LDX	#80
-	STX	entity + PES::xPos + 1
-
-	STZ	entity + PES::yPos
-	LDY	#200
-	STY	entity + PES::yPos + 1
-
-	LDX	#0
-	STX	entity + PES::xVecl
-	STX	entity + PES::yVecl
-	STX	entity + PES::standingTile
-
-	LDX	#ENTITY_WIDTH
-	STX	entity + PES::size_width
-	LDX	#ENTITY_HEIGHT
-	STX	entity + PES::size_height
-	LDX	#ENTITY_XOFFSET
-	STX	entity + PES::size_xOffset
-	LDX	#ENTITY_YOFFSET
-	STX	entity + PES::size_yOffset
-
-	LDX	#.loword(ExampleMetaSpriteFrame)
-	STX	entity + PES::metaSpriteFrame
-	LDX	#0
-	STX	entity + PES::metaSpriteCharAttr
-
 	; ::TODO dynamicaly load player tiles and palette::
+	SEP	#$20
+.A8
+	PHB
+	PHK
+	PLB
 	TransferToVramLocation	ExampleObjectTiles,	GAMELOOP_OAM_TILES
 	TransferToCgramLocation	ExampleObjectPalette,	128
 
+	REP	#$20
+.A16
+	PLB
 	RTS
 
 
 ; DP = entity
 .A16
 .I16
-ROUTINE Update
+ROUTINE Process
 	LDA	Controller__current
 	JSR	EntityPhysics__MoveEntityWithController
 
@@ -110,11 +91,11 @@ ROUTINE Update
 .A16
 .I16
 ROUTINE	SetScreenPosition
-	LDA	entity + PES::xPos + 1
+	LDA	z:PES::xPos + 1
 	SUB	MetaTiles1x16__xPos
 	CMP	#256 - SCREEN_LEFT_RIGHT_SPACING
 	IF_SGE
-		LDA	entity + PES::xPos + 1
+		LDA	z:PES::xPos + 1
 		SUB	#256 - SCREEN_LEFT_RIGHT_SPACING
 		CMP	MetaTiles1x16__maxXPos
 		IF_GE
@@ -124,7 +105,7 @@ ROUTINE	SetScreenPosition
 	ELSE
 		CMP	#SCREEN_LEFT_RIGHT_SPACING
 		IF_SLT
-			LDA	entity + PES::xPos + 1
+			LDA	z:PES::xPos + 1
 			SUB	#SCREEN_LEFT_RIGHT_SPACING
 			IF_MINUS
 				LDA	#0
@@ -133,11 +114,11 @@ ROUTINE	SetScreenPosition
 		ENDIF
 	ENDIF
 
-	LDA	entity + PES::yPos + 1
+	LDA	z:PES::yPos + 1
 	SUB	MetaTiles1x16__yPos
 	CMP	#224 - SCREEN_UP_DOWN_SPACING
 	IF_SGE
-		LDA	entity + PES::yPos + 1
+		LDA	z:PES::yPos + 1
 		SUB	#224 - SCREEN_UP_DOWN_SPACING
 		CMP	MetaTiles1x16__maxYPos
 		IF_GE
@@ -147,7 +128,7 @@ ROUTINE	SetScreenPosition
 	ELSE
 		CMP	#SCREEN_UP_DOWN_SPACING
 		IF_SLT
-			LDA	entity + PES::yPos + 1
+			LDA	z:PES::yPos + 1
 			SUB	#SCREEN_UP_DOWN_SPACING
 			IF_MINUS
 				LDA	#0
@@ -158,6 +139,25 @@ ROUTINE	SetScreenPosition
 
 	RTS
 
+
+.segment ENTITY_STATE_BANK
+
+LABEL	InitState
+	.word	InitState_End - InitState	; size
+	.addr	.loword(FunctionsTable)		; functionsTable
+	.byte	0, 0, 0				; xPos
+	.byte	0, 0, 0				; yPos
+	.word	ENTITY_WIDTH			; size_width
+	.word	ENTITY_HEIGHT			; size_height
+	.word	ENTITY_XOFFSET			; size_xOffset
+	.word	ENTITY_YOFFSET			; size_yOffset
+	.word	.loword(ExampleMetaSpriteFrame)	; metaSpriteFrame 
+	.word	0				; metaSpriteCharAttr
+	.word	0				; xVecl
+	.word	0				; yVecl
+	.addr	0				; standingTile
+	.addr	0				; currentTileProperty
+InitState_End:
 
 
 .segment "BANK1"

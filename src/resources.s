@@ -12,6 +12,11 @@
 
 .include "routines/resourceloader.h"
 
+; ::TODO better thing::
+.include "entities/player.h"
+
+
+; ::TODO enum::
 TILESET_CASTLE_PLATFORMER = 0
 PALETTE_CASTLE_PLATFORMER = 0
 TILES_CASTLE_PLATFORMER   = 0
@@ -20,15 +25,12 @@ TILES_CASTLE_PLATFORMER   = 0
 
 MapsTable:
 	.faraddr	Level01
-	.byte		TILESET_CASTLE_PLATFORMER
-	.word		0
-	.word		0
-	.addr		Level01_InteractiveTilesStruct
+	.addr		Level01_MapPropertiesStruct
 
 
 PalettesTable:
 	.faraddr	CastlePlatformer_Palette
-	.byte	128
+	.byte		128
 
 
 VramTable:
@@ -43,9 +45,6 @@ MetaTilesTable:
 
 
 ; Interactive tile tables for the levels
-.segment "BANK1"
-InteractiveTilesStructBank = .bankbyte(*)
-StandingEventsTableBank = .bankbyte(*)
 	.include "resources/metatilemaps/level_01.inc"
 
 
