@@ -302,12 +302,12 @@ ROUTINE NewProjectile
 		; carry clear, A = npcLeft
 		ADC	z:EntityStruct::size_width
 		CMP	playerLeft
-		BLT	NoNpcPlayerCollision
+		BSLT	NoNpcPlayerCollision
 	ELSE
 		; carry set, A = npcLeft
 		SBC	a:player + EntityStruct::size_width
 		CMP	playerLeft
-		BGE	NoNpcPlayerCollision
+		BSGE	NoNpcPlayerCollision
 	ENDIF
 
 	LDA	a:player + EntityStruct::yPos + 1
@@ -323,12 +323,12 @@ ROUTINE NewProjectile
 		; carry clear, A = npcTop
 		ADC	z:EntityStruct::size_height
 		CMP	playerTop
-		BLT	NoNpcPlayerCollision
+		BSLT	NoNpcPlayerCollision
 	ELSE
 		; carry set, A = npcTop
 		SBC	a:player + EntityStruct::size_height
 		CMP	playerTop
-		BGE	NoNpcPlayerCollision
+		BSGE	NoNpcPlayerCollision
 	ENDIF
 
 	LDX	z:EntityStruct::functionsTable

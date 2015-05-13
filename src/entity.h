@@ -112,9 +112,9 @@ ENTITY_MALLOC = 64
 		;; the linked list.
 		functionsTable		.addr
 
-		;; xPos - 16:8 unsigned fixed point
+		;; xPos - 1:15:8 signed fixed point
 		xPos			.res 3
-		;; yPos - 16:8 unsigned fixed point
+		;; yPos - 1:15:8 signed fixed point
 		yPos			.res 3
 
 		;; Size of the entity.
