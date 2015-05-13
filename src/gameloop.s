@@ -97,13 +97,12 @@ ROUTINE PlayGame
 			TCD
 
 			SEP	#$20
-.A8
-		PLB
 
+.A8
+		JSR	Entities__Render
 		JSR	MetaTiles1x16__Update
 
-		JSR	Entities__Render
-
+		PLB
 		LDA	state
 	UNTIL_NOT_ZERO
 

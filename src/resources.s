@@ -14,6 +14,7 @@
 
 ; ::TODO better thing::
 .include "entities/player.h"
+.include "entities/npc-unmoving.h"
 
 
 ; ::TODO enum::

@@ -74,8 +74,8 @@ ROUTINE LoadMap
 
 	LDA	f:MapPropertiesBank << 16 + MapPropertiesStruct::xPos, X
 	STA	MetaTiles1x16__xPos
-	LDA	f:MapPropertiesBank + MapPropertiesStruct::yPos, X
-	STA	MetaTiles1x16__yPos << 16
+	LDA	f:MapPropertiesBank << 16 + MapPropertiesStruct::yPos, X
+	STA	MetaTiles1x16__yPos
 
 	LDA	f:MapPropertiesBank << 16 + MapPropertiesStruct::standingEventsTablePtr, X
 	STA	f:StandingEventTile__standingEventsTablePtr
@@ -161,7 +161,16 @@ ROUTINE LoadEntities
 		STA	entitiesTableAddr
 		TAX
 
-		; ::TODO load more entities::
+		; Rest of the table are NPCs
+		LDA	f:MapEntitiesTableBank << 16 + MapEntitiesTableStruct::xPos, X
+		PHA
+		LDA	f:MapEntitiesTableBank << 16 + MapEntitiesTableStruct::yPos, X
+		TAY
+		LDA	f:MapEntitiesTableBank << 16 + MapEntitiesTableStruct::parameter, X
+		STA	Entities__parameter
+		LDA	f:MapEntitiesTableBank << 16 + MapEntitiesTableStruct::entityState, X
+		PLX
+		JSR	Entities__NewNpc
 	WEND
 
 	PLB

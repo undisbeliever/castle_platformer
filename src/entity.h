@@ -28,6 +28,47 @@ ENTITY_MALLOC = 64
 .endstruct
 
 
+;; Function table for NPC enities
+.struct NpcEntityFunctionsTable
+	;; Called on entity creation, after state is loaded.
+	;; MUST NOT SET the Entity's `functionsTable` to NULL.
+	;; REQUIRES: 16 bit A, 16 bit Index
+	;; INPUT:
+	;;	dp = EntityStruct address
+	;;	A = parameter
+	Init			.addr
+
+	;; Called once per frame.
+	;; May set the Entity's `functionsTable` to NULL to delete the entity.
+	;; REQUIRES: 16 bit A, 16 bit Index
+	;; INPUT: dp = EntityStruct address
+	Process			.addr
+
+	;; Called when the player collides with the npc
+	;; REQUIRES: 16 bit A, 16 bit Index
+	;; INPUT:
+	;;	dp: EntityStruct NPC address
+	CollisionPlayer		.addr
+.endstruct
+
+
+;; Function table for player projectiles
+.struct ProjectileEntityFunctionsTable
+	;; Called on entity creation, after state is loaded.
+	;; MUST NOT SET the Entity's `functionsTable` to NULL.
+	;; REQUIRES: 16 bit A, 16 bit Index
+	;; INPUT:
+	;;	dp = EntityStruct address
+	;;	A = parameter
+	Init			.addr
+
+	;; Called once per frame.
+	;; May set the Entity's `functionsTable` to NULL to delete the entity.
+	;; REQUIRES: 16 bit A, 16 bit Index
+	;; INPUT: dp = EntityStruct address
+	Process			.addr
+.endstruct
+
 
 ;; Represents the AABB (Axis Aligned Bounding Box) of the entity
 ;; for physics and collisions.
@@ -54,9 +95,16 @@ ENTITY_MALLOC = 64
 	.define __ENTITY_STRUCT_NAME name
 
 	.struct name
-		;; Next entity in the linked list.
-		;; If 0 then this is the last entity in the linked list.
-		nextEntity		.addr
+		.union
+			;; Next entity in the linked list.
+			;; If 0 then this is the last entity in the linked list.
+			nextEntity		.addr
+
+			;; Size of the entity in the ROM
+			;; this field is only used when loading the entity's state
+			;; from ROM into RAM.
+			sizeInBytes		.word
+		.endunion
 
 		;; location of the NpcEntityFunctionsTable/ProjectileEntityFunctionsTable/ParticleFunctionsTable for this entity.
 		;; if 0 then the entity is considered inactive and will be removed from
@@ -68,8 +116,13 @@ ENTITY_MALLOC = 64
 		;; yPos - 16:8 unsigned fixed point
 		yPos			.res 3
 
-		; ::ANNOY must match EntitySizeStruct::
-		size_width		.word
+		;; Size of the entity.
+		.union
+			size		.word
+			; ::ANNOY cannot access nested structs easily::
+			; ::: MUST match EntitySizeStruct::
+			size_width	.word
+		.endunion
 		size_height		.word
 		size_xOffset		.word
 		size_yOffset		.word
