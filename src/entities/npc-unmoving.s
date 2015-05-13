@@ -35,7 +35,7 @@ LABEL	FunctionsTable
 ; DP = entity
 ; DB = $7E
 ; A = If non-zero then the NPC cannot kill the player.
-.A8
+.A16
 .I16
 ROUTINE Init
 	STA	z:UES::backgroundNpc
@@ -44,14 +44,17 @@ ROUTINE Init
 
 ; DP = entity
 ; DB = $7E
+; OUT: c set if entity still alive
 .A16
 .I16
 ROUTINE Process
+	SEC
 	RTS
 
 
 ; DP = entity
 ; DB = $7E
+; OUT: c set if entity still alive
 .A16
 .I16
 ROUTINE	CollisionPlayer
@@ -61,6 +64,7 @@ ROUTINE	CollisionPlayer
 		STA	GameLoop__state
 	ENDIF
 
+	SEC
 	RTS
 
 

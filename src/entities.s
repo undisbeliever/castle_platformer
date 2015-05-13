@@ -132,6 +132,7 @@ ROUTINE NewPlayer
 	RTS
 
 
+
 ; INPUT: X = xpos, Y = ypos, A = address in InitBank of data
 ;	parameter = parameter to pass to init function
 ; REGISTERS: 16 bit A, 16 bit Index, DB=$7E
@@ -228,7 +229,7 @@ ROUTINE NewProjectile
 
 
 
-;; Preforms a bounding box collision between the current entity (dp) and the player.
+;; Preforms a bounding box collision between the current NPC (dp) and the player.
 ;;
 ;; If there is a collision, it will call the Entity's Player Collision routine.
 ;;
@@ -240,8 +241,8 @@ ROUTINE NewProjectile
 ;;	EntityCollisionRoutine: the routine in the Entity's finction table to call if there is a collision
 ;; INPUT:
 ;;	DP: address of npc
-.macro Entity__CheckEntityPlayerCollision player, EntityCollisionRoutine
-
+;; OUTPUT: branches to _NpcDead if NPC is dead.
+.macro Process_CheckNpcPlayerCollision
 	; Research
 	; --------
 	; The following is the fastest I can think of.
@@ -273,17 +274,14 @@ ROUTINE NewProjectile
 	;			goto NoCollision
 	;
 	; 	CollisionRoutine(npc)
-	;	if npc->functionsTable
-	;		npc->functionsTable->CollisionPlayer(npc)
-	;	else
-	;		return
+	;	npc->functionsTable->CollisionPlayer(npc)
 	;
 
 	;; ::TODO assert .asize = 16::
 	.A16
 	.I16
 
-	.local NoCollision
+	.local NoNpcPlayerCollision
 	.local playerLeft, playerTop, npcLeft, npcTop
 
 	playerLeft = playerTmp
@@ -304,12 +302,12 @@ ROUTINE NewProjectile
 		; carry clear, A = npcLeft
 		ADC	z:EntityStruct::size_width
 		CMP	playerLeft
-		BLT	NoCollision
+		BLT	NoNpcPlayerCollision
 	ELSE
 		; carry set, A = npcLeft
 		SBC	a:player + EntityStruct::size_width
 		CMP	playerLeft
-		BGE	NoCollision
+		BGE	NoNpcPlayerCollision
 	ENDIF
 
 	LDA	a:player + EntityStruct::yPos + 1
@@ -325,19 +323,21 @@ ROUTINE NewProjectile
 		; carry clear, A = npcTop
 		ADC	z:EntityStruct::size_height
 		CMP	playerTop
-		BLT	NoCollision
+		BLT	NoNpcPlayerCollision
 	ELSE
 		; carry set, A = npcTop
 		SBC	a:player + EntityStruct::size_height
 		CMP	playerTop
-		BGE	NoCollision
+		BGE	NoNpcPlayerCollision
 	ENDIF
 
 	LDX	z:EntityStruct::functionsTable
-	JSR	(EntityCollisionRoutine, X)
+	JSR	(NpcEntityFunctionsTable::CollisionPlayer, X)
+	BCC	_NpcDead
 
-NoCollision:
+NoNpcPlayerCollision:
 .endmacro
+
 
 
 
@@ -350,42 +350,107 @@ ROUTINE Process
 	LDX	z:EntityStruct::functionsTable
 	JSR	(PlayerEntityFunctionsTable::Process, X)
 
+
+	; Projectile Loop
+	; ---------------
+	STZ	previousEntity
+
 	LDA	firstActiveProjectile
 	IF_NOT_ZERO
 		REPEAT
 			TCD
 
 			LDX	z:EntityStruct::functionsTable
-			IF_NOT_ZERO
-				JSR	(ProjectileEntityFunctionsTable::Process, X)
-				; ::TODO test and remove remove from lists::
-			ENDIF
+			JSR	(ProjectileEntityFunctionsTable::Process, X)
+			IF_C_CLEAR
+_ProjectileDead:		; Projectile is dead.
+				; Calls Projectile->Destructor
+				; Remove the entity from the list
+				; Move memory into free list.
+				; Resume Projectile loop if there are more entities to process.
 
-			LDA	z:EntityStruct::nextEntity
+				LDA	z:EntityStruct::nextEntity
+				TAY
+
+				LDX	previousEntity
+				IF_ZERO
+					STA	firstActiveProjectile
+				ELSE
+					STA	a:EntityStruct::nextEntity, X
+				ENDIF
+
+				LDA	firstFreeProjectile
+				STA	z:EntityStruct::nextEntity
+				TDC
+				STA	firstFreeProjectile
+
+				TYA
+			ELSE
+
+				; projectile still alive
+				TDC
+				STA	previousEntity
+				LDA	z:EntityStruct::nextEntity
+			ENDIF
 		UNTIL_ZERO
 	ENDIF
+
+
+	; NPC Loop
+	; --------
+	STZ	previousEntity
 
 	LDA	firstActiveNpc
-	TCD
-	IF_NOT_ZERO
-		REPEAT
-			TCD
-
-			LDX	z:EntityStruct::functionsTable
-			IF_NOT_ZERO
-				JSR	(NpcEntityFunctionsTable::Process, X)
-			ENDIF
-
-			Entity__CheckEntityPlayerCollision player, NpcEntityFunctionsTable::CollisionPlayer
-
-			; ::TODO projectile collision tests::
-			; ::TODO test and remove remove from lists::
-
-			LDA	z:EntityStruct::nextEntity
-		UNTIL_ZERO
+	IF_ZERO
+		RTS
 	ENDIF
 
+	REPEAT
+		TCD
+
+		LDX	z:EntityStruct::functionsTable
+		JSR	(NpcEntityFunctionsTable::Process, X)
+		IF_C_CLEAR
+_NpcDead:		; NPC is dead.
+			; Calls NPC->Destructor
+			; Remove the entity from the list
+			; Move memory into free list.
+			; Resume NPC loop if there are more entities to process.
+
+			LDA	z:EntityStruct::nextEntity
+			TAY
+
+			LDX	previousEntity
+			IF_ZERO
+				STA	firstActiveNpc
+			ELSE
+				STA	a:EntityStruct::nextEntity, X
+			ENDIF
+
+			LDA	firstFreeNpc
+			STA	z:EntityStruct::nextEntity
+			TDC
+			STA	firstFreeNpc
+
+			TYA
+			BNE	CONTINUE_LABEL
+
+			; branch is too far
+			BRA	BREAK_LABEL
+		ENDIF
+
+		Process_CheckNpcPlayerCollision
+
+		; ::TODO projectile collision tests::
+
+		TDC
+		STA	previousEntity
+		LDA	z:EntityStruct::nextEntity
+	UNTIL_ZERO
+
 	RTS
+
+
 
 
 .A8

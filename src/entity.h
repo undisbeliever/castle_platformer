@@ -42,12 +42,13 @@ ENTITY_MALLOC = 64
 	;; May set the Entity's `functionsTable` to NULL to delete the entity.
 	;; REQUIRES: 16 bit A, 16 bit Index
 	;; INPUT: dp = EntityStruct address
+	;; OUTPUT: Carry set if entity still alive
 	Process			.addr
 
 	;; Called when the player collides with the npc
 	;; REQUIRES: 16 bit A, 16 bit Index
-	;; INPUT:
-	;;	dp: EntityStruct NPC address
+	;; INPUT: dp: EntityStruct NPC address
+	;; OUTPUT: Carry set if entity still alive
 	CollisionPlayer		.addr
 .endstruct
 
