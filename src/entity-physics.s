@@ -27,6 +27,7 @@ MODULE EntityPhysics
 	WORD	gravity
 
 	ADDR	entityTouchTileFunctionPtr
+	WORD	status
 
 	WORD	counter
 .code
@@ -42,6 +43,7 @@ ROUTINE MoveEntityWithController
 	LDX	z:EntityPhysicsStruct::currentTileProperty
 
 	IF_BIT	#JOY_RUN
+		; Running
 		IF_BIT	#JOY_LEFT
 			LDA	z:EntityPhysicsStruct::xVecl
 			SUB	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::walkAcceleration, X
@@ -128,6 +130,7 @@ ROUTINE EntityPhysicsWithCollisions
 ROUTINE	EntityPhysicsWithCollisionsNoGravity
 
 	STZ	entityTouchTileFunctionPtr
+	STZ	status
 
 	; Check Map Collisions
 	; ====================
@@ -213,7 +216,13 @@ _SkipReleadTableYPlus:
 
 					CMP	z:EntityPhysicsStruct::yPos + 1
 					BLT	FallingThroughPlatform
+
+					LDA	#EntityPhysicsStatusBits::STANDING | EntityPhysicsStatusBits::PLATFORM
+				ELSE
+					LDA	#EntityPhysicsStatusBits::STANDING
 				ENDIF
+
+				STA	status
 
 				STY	z:EntityPhysicsStruct::standingTile
 				STX	z:EntityPhysicsStruct::currentTileProperty
@@ -334,6 +343,9 @@ _SkipReleadTableYMinus:
 
 					STZ	z:EntityPhysicsStruct::yVecl
 
+					LDA	#EntityPhysicsStatusBits::HEAD_COLLISION
+					STA	status
+
 					BRA	End_Y_CollisionTest
 				ENDIF
 			ENDIF
@@ -429,6 +441,9 @@ End_Y_CollisionTest:
 
 						STZ	z:EntityPhysicsStruct::xVecl
 
+						LDA	#EntityPhysicsStatusBits::RIGHT_COLLISION
+						TSB	status
+
 						BRL	End_X_CollisionTest
 					ENDIF
 				ENDIF
@@ -514,6 +529,9 @@ End_Y_CollisionTest:
 						STA	z:EntityPhysicsStruct::xPos + 1
 
 						STZ	z:EntityPhysicsStruct::xVecl
+
+						LDA	#EntityPhysicsStatusBits::LEFT_COLLISION
+						TSB	status
 
 						BRA	End_X_CollisionTest
 					ENDIF

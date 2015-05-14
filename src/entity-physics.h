@@ -9,6 +9,8 @@
 
 .include "entity.h"
 
+.include "routines/metatiles/metatiles-1x16.h"
+
 
 .struct MetaTileFunctionsTable
 	;; Called when the player is standing on a tile
@@ -56,6 +58,14 @@
 	jumpingVelocity		.word
 .endstruct
 
+.enum EntityPhysicsStatusBits
+	STANDING 	= $80
+	PLATFORM 	= $40
+	HEAD_COLLISION	= $04
+	RIGHT_COLLISION	= $02
+	LEFT_COLLISION	= $01
+.endenum
+
 .global MetaTilePropertyBank:zp
 
 
@@ -92,11 +102,13 @@ IMPORT_MODULE EntityPhysics
 	;; Table that points to the MetaTilePropertyStruct for each metatile.
 	;; Must be set before calling  `EntityPhysicsWithCollisions` or
 	;; `EntityPhysicsWithCollisionsNoGravity`
-	.global	EntityPhysics__metaTilePropertyTable : far
+	;; ACCESSED: DB = $7E
+	ADDR	metaTilePropertyTable, N_METATILES
 
 	;; The level's gravity.
 	;; Must be set before using this module.
-	.global EntityPhysics__gravity : far
+	;; ACCESSED: DB = $7E
+	WORD	gravity
 
 	;; MetaTileFunctionsTable location of the tile that the entity touched.
 	;; Set by `EntityPhysicsWithCollisions` and `EntityPhysicsWithCollisionsNoGravity`
@@ -104,6 +116,17 @@ IMPORT_MODULE EntityPhysics
 	;;
 	;; ACCESSED: DB = $7E
 	ADDR entityTouchTileFunctionPtr
+
+	;; Status flags to tell the AI the state of the collisions
+	;; between the entity and the tilemap.
+	;;
+	;; The value of the bits is defined by `EntityPhysicsStatusBits`
+	;;
+	;; Set by `EntityPhysicsWithCollisions`
+	;;
+	;; ACCESSED: DB = $7E
+	BYTE status
+
 
 	;; Preforms physics and collisions for a given entity.
 	;;	* Adds Gravity
@@ -113,8 +136,10 @@ IMPORT_MODULE EntityPhysics
 	;;	* Sets `Entity::standingTile` to NULL (0) if entity is floating
 	;;	* Sets `Entity::standingTile` to the MetaTilePropertyStruct of
 	;;	  the tile the entity is standing on
-	;;	* Sets `Physics__entityTouchTileFunctionPtr` to the MetaTileFunctionsTable
+	;;	* Sets `EntityPhysics__entityTouchTileFunctionPtr` to the MetaTileFunctionsTable
 	;;	  location of last tile touched that has a functions table.
+	;;	* Sets the `EntityPhysics__status` `EntityPhysicsStatusBits` bits if a
+	;;	  collision occoured.
 	;;
 	;; REQUIRE: 16 bit A, 16 bit Index, DB = $7E
 	;; INPUT: DP - entity location (must be a subclass of EntityPhysicsStruct)

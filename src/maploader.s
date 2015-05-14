@@ -58,7 +58,7 @@ ROUTINE LoadMap
 	; set default gravity
 	; -------------------
 	LDA	#DEFAULT_GRAVITY
-	STA	EntityPhysics__gravity
+	STA	f:EntityPhysics__gravity
 
 
 	PHX

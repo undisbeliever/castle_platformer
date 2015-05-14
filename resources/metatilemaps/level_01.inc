@@ -17,14 +17,19 @@ Level01_MapPropertiesStruct:
 Level01_MapEntitiesTable:
 	;	xPos,	yPos,	parameter,	entityState
 	; first Entity is player
-	.word 	80,	200,	0,		.loword(Player__InitState)
+	.word 	80,	216,	0,		.loword(Player__InitState)
 	; rest are NPCs
-	.word 	280,	200,	0,		.loword(Npc_Unmoving__InitState)
 
-.repeat 11, i
-	; Example of using the Entity parameter.
-	.word 1000+50*i,100,	1,		.loword(Npc_Unmoving__InitState)
-.endrepeat
+	.word 	336,	216,	0,		.loword(Npc_WalkAndTurn__WalkLeft)
+	.word 	600,	216,	0,		.loword(Npc_WalkAndTurn__WalkLeft)
+	.word 	744,	168,	0,		.loword(Npc_WalkAndTurn__WalkLeft)
+	.word 	1672,	200,	0,		.loword(Npc_WalkAndTurn__WalkLeft)
+
+	.word 	192,	552,	16,		.loword(Npc_WalkAndTurn__WalkLeft)
+	.word 	192,	552,	16,		.loword(Npc_WalkAndTurn__WalkRight)
+
+	.word 	192,	648,	16,		.loword(Npc_WalkAndTurn__WalkLeft)
+	.word 	192,	648,	16,		.loword(Npc_WalkAndTurn__WalkRight)
 
 Level01_MapEntitiesTable_Count = (* - Level01_MapEntitiesTable) / .sizeof(MapEntitiesTableStruct)
 
