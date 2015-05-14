@@ -14,6 +14,7 @@
 
 ; ::TODO better thing::
 .include "entities/player.h"
+.include "entities/npc-stomper.h"
 .include "entities/npc-unmoving.h"
 .include "entities/npc-walk-and-turn.h"
 

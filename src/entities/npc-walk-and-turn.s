@@ -36,6 +36,8 @@ LABEL	FunctionsTable
 	.addr	.loword(CollisionPlayer)
 
 
+.code
+
 ; DP = entity
 ; DB = $7E
 ; A = Number of pixels ahead of the entity to check before ledge. (If non zero)

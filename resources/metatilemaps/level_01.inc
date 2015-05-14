@@ -23,13 +23,15 @@ Level01_MapEntitiesTable:
 	.word 	336,	216,	0,		.loword(Npc_WalkAndTurn__WalkLeft)
 	.word 	600,	216,	0,		.loword(Npc_WalkAndTurn__WalkLeft)
 	.word 	744,	168,	0,		.loword(Npc_WalkAndTurn__WalkLeft)
-	.word 	1672,	200,	0,		.loword(Npc_WalkAndTurn__WalkLeft)
 
 	.word 	192,	552,	16,		.loword(Npc_WalkAndTurn__WalkLeft)
 	.word 	192,	552,	16,		.loword(Npc_WalkAndTurn__WalkRight)
 
 	.word 	192,	648,	16,		.loword(Npc_WalkAndTurn__WalkLeft)
 	.word 	192,	648,	16,		.loword(Npc_WalkAndTurn__WalkRight)
+
+	.word 	752,	736,	0,		.loword(Npc_Stomper__InitState)
+
 
 Level01_MapEntitiesTable_Count = (* - Level01_MapEntitiesTable) / .sizeof(MapEntitiesTableStruct)
 
