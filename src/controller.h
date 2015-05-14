@@ -7,6 +7,8 @@
 .include "includes/import_export.inc"
 .include "includes/registers.inc"
 
+JOY_RUN  = JOY_Y
+JOY_JUMP = JOY_B
 
 IMPORT_MODULE Controller
 	;; New buttons pressed on current frame.

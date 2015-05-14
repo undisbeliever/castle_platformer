@@ -41,8 +41,14 @@
 	walkAcceleration	.word
 	;; Minimum (negative) velocity when walking left
 	;; 1:7:8 signed fixed point
-	minimumXVelocity	.word
+	minimumWalkXVelocity	.word
 	;; Maximum (positive) velocity when walking right
+	;; 1:7:8 signed fixed point
+	maximumWalkXVelocity	.word
+	;; Minimum (negative) velocity when running left
+	;; 1:7:8 signed fixed point
+	minimumXVelocity	.word
+	;; Maximum (positive) velocity when running right
 	;; 1:7:8 signed fixed point
 	maximumXVelocity	.word
 	;; Jumping velocity, if 0 then the player cannot jump.

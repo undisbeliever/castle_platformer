@@ -5,6 +5,7 @@
 .include "includes/registers.inc"
 .include "includes/structure.inc"
 
+.include "controller.h"
 .include "entities.h"
 .include "metatileproperties.h"
 
@@ -40,23 +41,43 @@ ROUTINE MoveEntityWithController
 
 	LDX	z:EntityPhysicsStruct::currentTileProperty
 
-	IF_BIT	#JOY_LEFT
-		LDA	z:EntityPhysicsStruct::xVecl
-		SUB	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::walkAcceleration, X
-		CMP	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::minimumXVelocity, X
-		IF_SLT
-			LDA	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::minimumXVelocity, X
-		ENDIF
-		STA	z:EntityPhysicsStruct::xVecl
+	IF_BIT	#JOY_RUN
+		IF_BIT	#JOY_LEFT
+			LDA	z:EntityPhysicsStruct::xVecl
+			SUB	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::walkAcceleration, X
+			CMP	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::minimumXVelocity, X
+			IF_SLT
+				LDA	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::minimumXVelocity, X
+			ENDIF
+			STA	z:EntityPhysicsStruct::xVecl
 
-	ELSE_BIT #JOY_RIGHT
-		LDA	z:EntityPhysicsStruct::xVecl
-		ADD	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::walkAcceleration, X
-		CMP	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::maximumXVelocity, X
-		IF_SGE
-			LDA	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::maximumXVelocity, X
+		ELSE_BIT #JOY_RIGHT
+			LDA	z:EntityPhysicsStruct::xVecl
+			ADD	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::walkAcceleration, X
+			CMP	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::maximumXVelocity, X
+			IF_SGE
+				LDA	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::maximumXVelocity, X
+			ENDIF
+			STA	z:EntityPhysicsStruct::xVecl
 		ENDIF
-		STA	z:EntityPhysicsStruct::xVecl
+	ELSE
+		; Walking
+		IF_BIT	#JOY_LEFT
+			LDA	z:EntityPhysicsStruct::xVecl
+			CMP	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::minimumWalkXVelocity, X
+			IF_SGE
+				SUB	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::walkAcceleration, X
+				STA	z:EntityPhysicsStruct::xVecl
+			ENDIF
+
+		ELSE_BIT #JOY_RIGHT
+			LDA	z:EntityPhysicsStruct::xVecl
+			CMP	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::maximumWalkXVelocity, X
+			IF_SLT
+				ADD	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::walkAcceleration, X
+				STA	z:EntityPhysicsStruct::xVecl
+			ENDIF
+		ENDIF
 	ENDIF
 
 	PLA
@@ -64,7 +85,7 @@ ROUTINE MoveEntityWithController
 	; Jump only if standing.
 	LDY	z:EntityPhysicsStruct::standingTile
 	IF_NOT_ZERO
-		IF_BIT	#JOY_B
+		IF_BIT	#JOY_JUMP
 			LDX	z:EntityPhysicsStruct::currentTileProperty
 			LDA	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::jumpingVelocity, X
 			IF_NOT_ZERO
