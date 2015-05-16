@@ -5,6 +5,7 @@
 .include "includes/registers.inc"
 .include "includes/structure.inc"
 
+.include "player.h"
 .include "../entities.h"
 .include "../entity.h"
 .include "../entity-physics.h"
@@ -17,6 +18,7 @@ ENTITY_HEIGHT = 16
 ENTITY_XOFFSET = 8
 ENTITY_YOFFSET = 8
 
+.define player Entities__player
 .define WES WalkAndTurnEntityStruct
 ENTITY_PHYSICS_STRUCT WalkAndTurnEntityStruct
 	;; If zero moving left, else right
@@ -139,12 +141,32 @@ ROUTINE Process
 	RTS
 
 
+
 ; DP = entity
 ; DB = $7E
 ; OUT: c set if entity still alive
 .A16
 .I16
 ROUTINE	CollisionPlayer
+	; if player.yVecl >= 0 AND player.bottom < npc->yPos
+	;	Player__JumpOnNpc()
+	; else
+	;	GameLoop__state = GameState::DEAD
+
+	LDA	player + PlayerEntityStruct::yVecl
+	IF_PLUS
+		LDA	player + PlayerEntityStruct::yPos + 1
+		SUB	player + PlayerEntityStruct::size_yOffset
+		ADD	player + PlayerEntityStruct::size_height
+
+		CMP	z:WES::yPos + 1
+		IF_LT
+			JSR	Player__JumpOnNpc
+			CLC
+			RTS
+		ENDIF
+	ENDIF
+
 	LDA	#GameState::DEAD
 	STA	GameLoop__state
 

@@ -21,15 +21,22 @@ Level01_MapEntitiesTable:
 	; rest are NPCs
 
 	.word 	336,	216,	0,		.loword(Npc_WalkAndTurn__WalkLeft)
+	.word 	360,	216,	0,		.loword(Npc_WalkAndTurn__WalkLeft)
 	.word 	600,	216,	0,		.loword(Npc_WalkAndTurn__WalkLeft)
 	.word 	744,	168,	0,		.loword(Npc_WalkAndTurn__WalkLeft)
 
+	; steps going down
+	.word 	784,	440,	0,		.loword(Npc_WalkAndTurn__WalkLeft)
+	.word 	1008,	376,	0,		.loword(Npc_WalkAndTurn__WalkLeft)
+	.word 	1232,	310,	0,		.loword(Npc_WalkAndTurn__WalkLeft)
+
+	; Ice
 	.word 	192,	552,	16,		.loword(Npc_WalkAndTurn__WalkLeft)
 	.word 	192,	552,	16,		.loword(Npc_WalkAndTurn__WalkRight)
-
 	.word 	192,	648,	16,		.loword(Npc_WalkAndTurn__WalkLeft)
 	.word 	192,	648,	16,		.loword(Npc_WalkAndTurn__WalkRight)
 
+	; Stomp
 	.word 	752,	736,	0,		.loword(Npc_Stomper__InitState)
 
 

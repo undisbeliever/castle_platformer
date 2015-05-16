@@ -20,6 +20,8 @@ SCREEN_UP_DOWN_SPACING = 65
 
 ; ::TODO move somewhere else
 
+JUMP_ON_NPC_VELOCITY = $0200
+
 ENTITY_WIDTH = 16
 ENTITY_HEIGHT = 24
 ENTITY_XOFFSET = 8
@@ -29,7 +31,7 @@ ENTITY_YOFFSET = 16
 
 
 MODULE Player
-	SAME_VARIABLE entity, Entities__player
+	SAME_VARIABLE player, Entities__player
 
 .rodata
 LABEL	FunctionsTable
@@ -86,6 +88,19 @@ ROUTINE Process
 
 	RTS
 
+
+; INTERACTION ROUTINES
+; ====================
+
+.A16
+.I16
+ROUTINE JumpOnNpc
+	LDA	#.loword(-JUMP_ON_NPC_VELOCITY)
+	STA	player + PES::yVecl
+
+	; ::TODO jump animation::
+
+	RTS
 
 
 .A16
