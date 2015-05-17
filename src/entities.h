@@ -10,7 +10,13 @@
 .include "entity.h"
 
 ; ::SHOULDDO make configurable::
-N_ACTIVE_NPCS = 12
+
+;; NPC active window width, must be > {256 + (max entity width + max entity xvecl) * 2}
+NPC_ACTIVE_WIDTH = 384
+;; NPC active window height, must be > {224 + (max entity hight + max entity yvecl) * 2}
+NPC_ACTIVE_HEIGHT = 384
+
+N_NPCS = 64
 N_PROJECTILES = 6
 
 .define ENTITY_STATE_BANK "BANK1"

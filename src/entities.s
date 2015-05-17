@@ -13,6 +13,30 @@
 
 MODULE Entities
 
+; FUTURE OPTIMISATIONS:
+; =====================
+;
+; One Possible optimisation that could occour is to bucket the inactive
+; list by `xPos / 256`.
+;
+; When an NPC is moved into the inactive list, it is moved into
+; `InactiveNpcBuckets[xPos / 256]`.
+;
+; When the inactive list is checked, only the buckets
+; `InactiveNpcBuckets[activeNpcBoundaryLeft / 256]` to
+; `InactiveNpcBuckets[activeNpcBoundaryRight / 256]` need to be checked
+; easily saving CPU time.
+;
+
+NPC_ACTIVE_LEFT = (NPC_ACTIVE_WIDTH - 256) / 2
+NPC_ACTIVE_TOP = (NPC_ACTIVE_HEIGHT - 224) / 2
+
+;; Mask to compare map x/y pos with
+;; This mask will check the inactive NPC positions eveny { 16 n + 8 } pixels.
+;; This will ensure that NPC reactivations will not occour at the same
+;; time as the tilemap updating (providing x/y movement is not > 8 pixels/frame).
+MAP_NPC_TEST_MASK = $FFE8
+
 ;; ::SHOULDO segment called SHADOW_OBJECTS - starts at $1000
 ;; ::: so I don't loose lots of space by the linker::
 .segment "SHADOW"
@@ -22,7 +46,7 @@ MODULE Entities
 
 	;; Object pool of npcs.
 	;; Must be in shadow, accessed via direct page.
-	BYTE	npcPool, N_ACTIVE_NPCS * ENTITY_MALLOC
+	BYTE	npcPool, N_NPCS * ENTITY_MALLOC
 
 	;; Object pool of player projectiles
 	;; Must be in shadow, accessed via direct page.
@@ -34,6 +58,8 @@ MODULE Entities
 .segment "WRAM7E"
 	;; First npc in the active linked list.
 	ADDR	firstActiveNpc
+	;; First npc in the inactive (offscreen) linked list.
+	ADDR	firstInactiveNpc
 	;; First npc in the free linked list
 	ADDR	firstFreeNpc
 
@@ -41,6 +67,17 @@ MODULE Entities
 	ADDR	firstActiveProjectile
 	;; First prjectile in the free linked list
 	ADDR	firstFreeProjectile
+
+
+	;; The boundaries of the active NPC area.
+	SINT16	activeNpcBoundaryLeft
+	SINT16	activeNpcBoundaryRight
+	SINT16	activeNpcBoundaryTop
+	SINT16	activeNpcBoundaryBottom
+
+	;; map position ANDed with NPC_TEST_MASK.
+	WORD	mapXPosMask
+	WORD	mapYPosMask
 
 	;; Stores projectile variable in CheckNpcProjectileCollisions.
 	ADDR	projectileTmp
@@ -57,15 +94,13 @@ MODULE Entities
 .code
 
 
-.macro _Init_BuildList firstActive, firstFree, pool, nEntities, entitySize
-	; firstActive = NULL
+.macro _Init_BuildFreeList firstFree, pool, nEntities, entitySize
 	; firstFree = projectiles
 	; for dp in pool to pool[nEntities - 2]
 	;	dp->functionsTable = NULL
 	;	dp->nextEntity = &dp + NPC_ENTITY_MALLOC
 	; pool[nEntities - 1] = NULL
 
-	STZ	firstActive
 	LDA	#pool
 	STA	firstFree
 	REPEAT
@@ -83,15 +118,46 @@ MODULE Entities
 .endmacro
 
 
+
 ROUTINE Init
 	PHP
 	PHD
 	REP	#$30
 .A16
 .I16
+	; activeNpcBoundaryLeft = MetaTiles1x16__xPos - NPC_ACTIVE_LEFT
+	; activeNpcBoundaryRight = activeNpcBoundaryLeft + NPC_ACTIVE_WIDTH
+	; activeNpcBoundaryTop = MetaTiles1x16__yPos - NPC_ACTIVE_TOP
+	; activeNpcBoundaryBottom = activeNpcBoundaryTop + NPC_ACTIVE_HEIGHT
+	; mapXPosMask = MetaTiles1x16__xPos & MAP_NPC_TEST_MASK
+	; mapYPosMask = MetaTiles1x16__yPos & MAP_NPC_TEST_MASK
 
-	_Init_BuildList firstActiveNpc, firstFreeNpc, npcPool, N_ACTIVE_NPCS, ENTITY_MALLOC
-	_Init_BuildList firstActiveProjectile, firstFreeProjectile, projectilePool, N_PROJECTILES, ENTITY_MALLOC
+	LDA	MetaTiles1x16__xPos
+	SUB	#NPC_ACTIVE_LEFT
+	STA	activeNpcBoundaryLeft
+	ADD	#NPC_ACTIVE_WIDTH
+	STA	activeNpcBoundaryRight
+
+	LDA	MetaTiles1x16__yPos
+	SUB	#NPC_ACTIVE_TOP
+	STA	activeNpcBoundaryTop
+	ADD	#NPC_ACTIVE_HEIGHT
+	STA	activeNpcBoundaryBottom
+
+	LDA	MetaTiles1x16__xPos
+	AND	#MAP_NPC_TEST_MASK
+	STA	mapXPosMask
+
+	LDA	MetaTiles1x16__yPos
+	AND	#MAP_NPC_TEST_MASK
+	STA	mapYPosMask
+
+	STZ	firstActiveNpc
+	STZ	firstInactiveNpc
+	STZ	firstActiveProjectile
+
+	_Init_BuildFreeList firstFreeNpc, npcPool, N_NPCS, ENTITY_MALLOC
+	_Init_BuildFreeList firstFreeProjectile, projectilePool, N_PROJECTILES, ENTITY_MALLOC
 
 	PLD
 	PLP
@@ -216,10 +282,33 @@ ROUTINE NewPlayer
 .endmacro
 
 
+; IN: X = xPos, Y = yPos
 .A16
 .I16
 ROUTINE NewNpc
+	; if x >= activeNpcBoundaryLeft && x < activeNpcBoundaryRight &&
+	;    y >= activeNpcBoundaryLeft && y < activeNpcBoundaryBottom
+	;	_NewEntity(firstFreeNpc, firstActiveNpc, NpcEntityFunctionsTable::Init)
+	; else
+	;	_NewEntity(firstFreeNpc, firstInactiveNpc, NpcEntityFunctionsTable::Init)
+
+	CPX	activeNpcBoundaryLeft
+	BSLT	_NewInactiveNpc
+	CPX	activeNpcBoundaryRight
+	BSGE	_NewInactiveNpc
+
+	CPY	activeNpcBoundaryTop
+	BSLT	_NewInactiveNpc
+	CPY	activeNpcBoundaryBottom
+	BSGE	_NewInactiveNpc
+
+
+	; ::TODO add NpcEntityFunctionsTable::Activate to _NewEntity::
 	_NewEntity firstFreeNpc, firstActiveNpc, NpcEntityFunctionsTable::Init
+
+_NewInactiveNpc:
+	_NewEntity firstFreeNpc, firstInactiveNpc, NpcEntityFunctionsTable::Init
+
 
 
 .A16
@@ -340,6 +429,124 @@ NoNpcPlayerCollision:
 
 
 
+;; Check the inactive NPC list for NPCs within the active window and
+;; move them into the active list as necessary.
+;; REQUIRE: 16 bit A, 16 bit Index, DB = $7E
+.macro Process_CheckInactiveNpcList
+	; activeNpcBoundaryLeft = MetaTiles1x16__xPos - NPC_ACTIVE_LEFT
+	; activeNpcBoundaryRight = activeNpcBoundaryLeft + NPC_ACTIVE_WIDTH
+	; activeNpcBoundaryTop = MetaTiles1x16__yPos - NPC_ACTIVE_TOP
+	; activeNpcBoundaryBottom = activeNpcBoundaryTop + NPC_ACTIVE_HEIGHT
+	;
+	; if MetaTiles1x16__xPos & MAP_NPC_TEST_MASK != mapXPosMask || MetaTiles1x16__yPos & MAP_NPC_TEST_MASK != mapYPosMask
+	;
+	;	previousEntity = NULL
+	;	npc = firstInactiveNpc
+	;
+	;	while npc != 0:
+	;		if npc->xPos >= activeNpcBoundaryLeft && npc->xPos < activeNpcBoundaryRight &&
+	;		   npc->yPos >= activeNpcBoundaryTop && npc->xPos  < activeNpcBoundaryBottom
+	;		 	// ::TODO call npc->Activated()
+	;
+	;			tmp = npc->nextEntity
+	;			move NPC from inactive list to ative list
+	;			npc = tmp
+	;		else
+	;			previousEntity = npc
+	;			npc = npc->nextEntity
+	;
+	; 	mapXPosMask = MetaTiles1x16__xPos & MAP_NPC_TEST_MASK
+	; 	mapYPosMask = MetaTiles1x16__yPos & MAP_NPC_TEST_MASK
+
+	.local CheckInactiveList, ContinueList
+
+	LDA	MetaTiles1x16__xPos
+	SUB	#NPC_ACTIVE_LEFT
+	STA	activeNpcBoundaryLeft
+	ADD	#NPC_ACTIVE_WIDTH
+	STA	activeNpcBoundaryRight
+
+	LDA	MetaTiles1x16__yPos
+	SUB	#NPC_ACTIVE_TOP
+	STA	activeNpcBoundaryTop
+	ADD	#NPC_ACTIVE_HEIGHT
+	STA	activeNpcBoundaryBottom
+
+
+
+	LDA	MetaTiles1x16__xPos
+	AND	#MAP_NPC_TEST_MASK
+	CMP	mapXPosMask
+	BNE	CheckInactiveList
+
+	LDA	MetaTiles1x16__yPos
+	AND	#MAP_NPC_TEST_MASK
+	CMP	mapYPosMask
+	IF_NE
+CheckInactiveList:
+		STZ	previousEntity
+		LDA	firstInactiveNpc
+		IF_NOT_ZERO
+			REPEAT
+				TCD
+
+				LDA	z:EntityStruct::xPos + 1
+				CMP	activeNpcBoundaryLeft
+				IF_SGE
+					CMP	activeNpcBoundaryRight
+					IF_SLT
+						LDA	z:EntityStruct::yPos + 1
+						CMP	activeNpcBoundaryTop
+						IF_SGE
+							CMP	activeNpcBoundaryBottom
+							IF_SLT
+								; NPC is now active
+								; move from the inacive list into the active one.
+
+								LDX	z:EntityStruct::functionsTable
+								; ::TODO call Actiavted::
+
+								LDA	z:EntityStruct::nextEntity
+								TAY
+
+								LDX	previousEntity
+								IF_ZERO
+									STA	firstInactiveNpc
+								ELSE
+									STA	a:EntityStruct::nextEntity, X
+								ENDIF
+
+								LDA	firstActiveNpc
+								STA	z:EntityStruct::nextEntity
+								TDC
+								STA	firstActiveNpc
+
+								TYA
+								BNE	CONTINUE_LABEL
+								BRA	BREAK_LABEL
+							ENDIF
+						ENDIF
+					ENDIF
+				ENDIF
+
+				TDC
+				STA	previousEntity
+				LDA	z:EntityStruct::nextEntity
+			UNTIL_ZERO
+		ENDIF
+
+		LDA	MetaTiles1x16__xPos
+		AND	#MAP_NPC_TEST_MASK
+		STA	mapXPosMask
+
+		LDA	MetaTiles1x16__yPos
+		AND	#MAP_NPC_TEST_MASK
+		STA	mapYPosMask
+	ENDIF
+
+.endmacro
+
+
 
 .A16
 .I16
@@ -401,52 +608,92 @@ _ProjectileDead:		; Projectile is dead.
 	STZ	previousEntity
 
 	LDA	firstActiveNpc
-	IF_ZERO
-		RTS
-	ENDIF
+	IFL_NOT_ZERO
+		REPEAT
+			TCD
 
-	REPEAT
-		TCD
+			LDX	z:EntityStruct::functionsTable
+			JSR	(NpcEntityFunctionsTable::Process, X)
+			IF_C_CLEAR
+	_NpcDead:		; NPC is dead.
+				; Calls NPC->Destructor
+				; Remove the entity from the list
+				; Move memory into free list.
+				; Resume NPC loop if there are more entities to process.
 
-		LDX	z:EntityStruct::functionsTable
-		JSR	(NpcEntityFunctionsTable::Process, X)
-		IF_C_CLEAR
-_NpcDead:		; NPC is dead.
-			; Calls NPC->Destructor
-			; Remove the entity from the list
-			; Move memory into free list.
-			; Resume NPC loop if there are more entities to process.
+				LDA	z:EntityStruct::nextEntity
+				TAY
 
-			LDA	z:EntityStruct::nextEntity
-			TAY
+				LDX	previousEntity
+				IF_ZERO
+					STA	firstActiveNpc
+				ELSE
+					STA	a:EntityStruct::nextEntity, X
+				ENDIF
 
-			LDX	previousEntity
-			IF_ZERO
-				STA	firstActiveNpc
-			ELSE
-				STA	a:EntityStruct::nextEntity, X
+				LDA	firstFreeNpc
+				STA	z:EntityStruct::nextEntity
+				TDC
+				STA	firstFreeNpc
+
+				TYA
+				BNE	CONTINUE_LABEL
+				JMP	BREAK_LABEL
 			ENDIF
 
-			LDA	firstFreeNpc
-			STA	z:EntityStruct::nextEntity
+			Process_CheckNpcPlayerCollision
+
+			; ::TODO projectile collision tests::
+
+			; Check is NPC is outside the NPC active window.
+			LDA	z:EntityStruct::xPos + 1
+			CMP	activeNpcBoundaryLeft
+			BSLT	_MoveNpcToInactiveList
+			CMP	activeNpcBoundaryRight
+			BSGE	_MoveNpcToInactiveList
+
+			LDA	z:EntityStruct::yPos + 1
+			CMP	activeNpcBoundaryTop
+			BSLT	_MoveNpcToInactiveList
+			CMP	activeNpcBoundaryBottom
+			IF_SGE
+		_MoveNpcToInactiveList:
+				; NPC outside active window, move to inactive list
+				; Calls NPC->Inactive
+				; Move the entity from the active list into the inactive list
+				; Resume NPC loop if there are more entities to process.
+
+				LDX	z:EntityStruct::functionsTable
+				; ::TODO call Inactive::
+
+				LDA	z:EntityStruct::nextEntity
+				TAY
+
+				LDX	previousEntity
+				IF_ZERO
+					STA	firstActiveNpc
+				ELSE
+					STA	a:EntityStruct::nextEntity, X
+				ENDIF
+
+				LDA	firstInactiveNpc
+				STA	z:EntityStruct::nextEntity
+				TDC
+				STA	firstInactiveNpc
+
+				TYA
+				; continue if non-zero
+				BEQ	BREAK_LABEL
+				JMP	CONTINUE_LABEL
+			ENDIF
+
 			TDC
-			STA	firstFreeNpc
+			STA	previousEntity
+			LDA	z:EntityStruct::nextEntity
+		UNTIL_ZERO
+	ENDIF
 
-			TYA
-			BNE	CONTINUE_LABEL
-
-			; branch is too far
-			BRA	BREAK_LABEL
-		ENDIF
-
-		Process_CheckNpcPlayerCollision
-
-		; ::TODO projectile collision tests::
-
-		TDC
-		STA	previousEntity
-		LDA	z:EntityStruct::nextEntity
-	UNTIL_ZERO
+	Process_CheckInactiveNpcList
 
 	RTS
 
