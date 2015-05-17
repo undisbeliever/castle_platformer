@@ -148,29 +148,13 @@ ROUTINE Process
 .A16
 .I16
 ROUTINE	CollisionPlayer
-	; if player.yVecl >= 0 AND player.bottom < npc->yPos
-	;	Player__JumpOnNpc()
-	; else
-	;	GameLoop__state = GameState::DEAD
-
-	LDA	player + PlayerEntityStruct::yVecl
-	IF_PLUS
-		LDA	player + PlayerEntityStruct::yPos + 1
-		SUB	player + PlayerEntityStruct::size_yOffset
-		ADD	player + PlayerEntityStruct::size_height
-
-		CMP	z:WES::yPos + 1
-		IF_LT
-			JSR	Player__JumpOnNpc
-			CLC
-			RTS
-		ENDIF
+	JSR	Player__TestCollisionIsJumpingOnANpc
+	IF_C_SET
+		; Entity not squished, kill player
+		LDA	#GameState::DEAD
+		STA	GameLoop__state
 	ENDIF
 
-	LDA	#GameState::DEAD
-	STA	GameLoop__state
-
-	SEC
 	RTS
 
 

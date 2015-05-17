@@ -20,7 +20,7 @@ SCREEN_UP_DOWN_SPACING = 65
 
 ; ::TODO move somewhere else
 
-JUMP_ON_NPC_VELOCITY = $0200
+JUMP_ON_NPC_VELOCITY = $0250
 
 ENTITY_WIDTH = 16
 ENTITY_HEIGHT = 24
@@ -33,16 +33,22 @@ ENTITY_YOFFSET = 16
 MODULE Player
 	SAME_VARIABLE player, Entities__player
 
+.segment "WRAM7E"
+
 .rodata
 LABEL	FunctionsTable
 	.addr	.loword(Init)
 	.addr	.loword(Process)
 
+.code
 
-; dp = entity
+
+; DP = entity
 .A8
 .I16
 ROUTINE Init
+	STZ	z:PES::nEnemysJumpedOnBeforeTouchingGround
+
 	; ::TODO dynamicaly load player tiles and palette::
 	SEP	#$20
 .A8
@@ -58,7 +64,7 @@ ROUTINE Init
 	RTS
 
 
-; DP = entity
+; DP = player entity
 .A16
 .I16
 ROUTINE Process
@@ -73,6 +79,12 @@ ROUTINE Process
 		JSR	(MetaTileFunctionsTable::PlayerTouch, X)
 	ENDIF
 
+	; reset enmies jumped on counter if on ground 
+	.assert EntityPhysicsStatusBits::STANDING = $80, error, "Bad Value"
+	LDA	EntityPhysics__status - 1
+	IF_N_SET
+		STZ	z:PES::nEnemysJumpedOnBeforeTouchingGround
+	ENDIF
 
 	LDY	z:PES::standingTile
 	IF_NOT_ZERO
@@ -92,14 +104,47 @@ ROUTINE Process
 ; INTERACTION ROUTINES
 ; ====================
 
+; IN: dp - NPC
+; OUT: Carry set if NPC is NOT jumped on, Carry clear if enemy jumped on.
 .A16
 .I16
-ROUTINE JumpOnNpc
-	LDA	#.loword(-JUMP_ON_NPC_VELOCITY)
-	STA	player + PES::yVecl
+ROUTINE TestCollisionIsJumpingOnANpc
+	; if player.yVecl >= 0 OR player.nEnemysJumpedOnBeforeTouchingGround >= 0
+	;	if player.bottom < npc->yPos
+	;		Player.yVecl = - JUMP_ON_NPC_VELOCITY
+	;		player.nEnemysJumpedOnBeforeTouchingGround++
+	;		return false
+	; 
+	; GameLoop__state = GameState::DEAD
+	; return true
 
-	; ::TODO jump animation::
+	; It's possibly to jump on two NPCs in a single frame.
+	; Test to see if the jump is from the ground or not.
+	LDA	player + PES::nEnemysJumpedOnBeforeTouchingGround
+	BNE	_ContinueJumpingOnNPC
 
+	; Testing y Velocity to ensure that player is not jumping
+	; sideway into the hitbox.
+	LDA	player + PES::yVecl
+	IF_PLUS
+_ContinueJumpingOnNPC:
+		LDA	player + PES::yPos + 1
+		SUB	player + PES::size_yOffset
+		ADD	player + PES::size_height
+
+		CMP	z:EntityStruct::yPos + 1
+		IF_LT
+			LDA	#.loword(-JUMP_ON_NPC_VELOCITY)
+			STA	player + PES::yVecl
+
+			INC	player + PES::nEnemysJumpedOnBeforeTouchingGround
+
+			CLC
+			RTS
+		ENDIF
+	ENDIF
+
+	SEC
 	RTS
 
 
