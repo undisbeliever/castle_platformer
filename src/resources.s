@@ -7,6 +7,7 @@
 .include "includes/structure.inc"
 
 .include "maploader.h"
+.include "entity-animation.h"
 .include "metatileproperties.h"
 .include "interactive-metatiles/standing-event-tile.h"
 
@@ -45,6 +46,11 @@ MetaTilesTable:
 	.faraddr	CastlePlatformer_MetaTilePropertyTable
 	.word		PALETTE_CASTLE_PLATFORMER
 	.word		TILES_CASTLE_PLATFORMER
+
+
+; Entity Tables/Data
+	.include "resources/entities/spiked-walker.inc"
+	.include "resources/entities/walker.inc"
 
 
 ; Interactive tile tables for the levels

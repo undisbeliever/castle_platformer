@@ -133,7 +133,9 @@ ROUTINE LoadEntities
 	PLB
 	PLB
 
+	PHX
 	JSR	Entities__Init
+	PLX
 
 	LDA	f:MapPropertiesBank << 16 + MapPropertiesStruct::mapEntitiesTableCount, X
 	STA	a:count

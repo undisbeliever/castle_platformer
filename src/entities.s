@@ -6,6 +6,7 @@
 .include "includes/structure.inc"
 
 .include "entity.h"
+.include "entity-animation.h"
 .include "entities/player.h"
 
 .include "routines/metasprite.h"
@@ -125,6 +126,8 @@ ROUTINE Init
 	REP	#$30
 .A16
 .I16
+	JSR	EntityAnimation__Init
+
 	; activeNpcBoundaryLeft = MetaTiles1x16__xPos - NPC_ACTIVE_LEFT
 	; activeNpcBoundaryRight = activeNpcBoundaryLeft + NPC_ACTIVE_WIDTH
 	; activeNpcBoundaryTop = MetaTiles1x16__yPos - NPC_ACTIVE_TOP
@@ -194,6 +197,10 @@ ROUTINE NewPlayer
 	LDA	parameter
 	JSR	(PlayerEntityFunctionsTable::Init, X)
 
+; ::TODO::
+;	LDX	z:EntityStruct::functionsTable
+;	JSR	(PlayerEntityFunctionsTable::Activated, X)
+
 	PLD
 	RTS
 
@@ -205,8 +212,9 @@ ROUTINE NewPlayer
 ; OUT: A/Y = entity created address. NULL if no entity created.
 ;	z flag clear if entity created, otherwise set.
 ; PARAM: firstFiree/firstActive = free/active linked list head.
-;	InitRoutine the routine in the functions table to call
-.macro _NewEntity firstFree, firstActive, InitRoutine
+;	InitRoutine = the routine in the functions table to call.
+;	ActivatedRoutine = (optional) the routine to call after init
+.macro _NewEntity firstFree, firstActive, InitRoutine, AfterInitRoutine
 	; tmp = A
 	; if firstFree != 0
 	;	dp = firstFree
@@ -226,6 +234,9 @@ ROUTINE NewPlayer
 	;	firstActive = dp
 	;
 	;	dp->InitRoutine(parameter)
+	;
+	;	if AfterInitRoutine
+	;		dp->AfterInitRoutine
 
 	STA	tmp
 
@@ -270,6 +281,11 @@ ROUTINE NewPlayer
 		LDX	z:EntityStruct::functionsTable
 		JSR	(InitRoutine, X)
 
+		.ifnblank AfterInitRoutine
+			LDX	z:EntityStruct::functionsTable
+			JSR	(AfterInitRoutine, X)
+		.endif
+
 		TDC
 		PLD
 
@@ -304,7 +320,7 @@ ROUTINE NewNpc
 
 
 	; ::TODO add NpcEntityFunctionsTable::Activate to _NewEntity::
-	_NewEntity firstFreeNpc, firstActiveNpc, NpcEntityFunctionsTable::Init
+	_NewEntity firstFreeNpc, firstActiveNpc, NpcEntityFunctionsTable::Init, NpcEntityFunctionsTable::Activated
 
 _NewInactiveNpc:
 	_NewEntity firstFreeNpc, firstInactiveNpc, NpcEntityFunctionsTable::Init
@@ -446,7 +462,7 @@ NoNpcPlayerCollision:
 	;	while npc != 0:
 	;		if npc->xPos >= activeNpcBoundaryLeft && npc->xPos < activeNpcBoundaryRight &&
 	;		   npc->yPos >= activeNpcBoundaryTop && npc->xPos  < activeNpcBoundaryBottom
-	;		 	// ::TODO call npc->Activated()
+	;		 	npc->Activated()
 	;
 	;			tmp = npc->nextEntity
 	;			move NPC from inactive list to ative list
@@ -504,7 +520,7 @@ CheckInactiveList:
 								; move from the inacive list into the active one.
 
 								LDX	z:EntityStruct::functionsTable
-								; ::TODO call Actiavted::
+								JSR	(NpcEntityFunctionsTable::Activated, X)
 
 								LDA	z:EntityStruct::nextEntity
 								TAY
@@ -616,10 +632,13 @@ _ProjectileDead:		; Projectile is dead.
 			JSR	(NpcEntityFunctionsTable::Process, X)
 			IF_C_CLEAR
 	_NpcDead:		; NPC is dead.
-				; Calls NPC->Destructor
+				; Calls NPC->Inactivated
 				; Remove the entity from the list
 				; Move memory into free list.
 				; Resume NPC loop if there are more entities to process.
+
+				LDX	z:EntityStruct::functionsTable
+				JSR	(NpcEntityFunctionsTable::Inactivated, X)
 
 				LDA	z:EntityStruct::nextEntity
 				TAY
@@ -659,12 +678,12 @@ _ProjectileDead:		; Projectile is dead.
 			IF_SGE
 		_MoveNpcToInactiveList:
 				; NPC outside active window, move to inactive list
-				; Calls NPC->Inactive
+				; Calls NPC->Inactivated
 				; Move the entity from the active list into the inactive list
 				; Resume NPC loop if there are more entities to process.
 
 				LDX	z:EntityStruct::functionsTable
-				; ::TODO call Inactive::
+				JSR	(NpcEntityFunctionsTable::Inactivated, X)
 
 				LDA	z:EntityStruct::nextEntity
 				TAY
@@ -708,6 +727,8 @@ ROUTINE Render
 	REP	#$30
 .A16
 .I16
+	JSR	EntityAnimation__Process
+
 	LDA	#player
 	TCD
 

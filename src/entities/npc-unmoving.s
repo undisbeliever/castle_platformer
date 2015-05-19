@@ -27,9 +27,11 @@ MODULE Npc_Unmoving
 
 .rodata
 LABEL	FunctionsTable
-	.addr	.loword(Init)
-	.addr	.loword(Process)
-	.addr	.loword(CollisionPlayer)
+	.addr	Init
+	.addr	Activated
+	.addr	Inactive
+	.addr	Process
+	.addr	CollisionPlayer
 
 
 ; DP = entity
@@ -39,6 +41,15 @@ LABEL	FunctionsTable
 .I16
 ROUTINE Init
 	STA	z:UES::backgroundNpc
+	RTS
+
+
+; DP = entity
+; DB = $7E
+.A16
+.I16
+ROUTINE Activated
+ROUTINE Inactive
 	RTS
 
 

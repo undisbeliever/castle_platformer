@@ -9,7 +9,7 @@
 .include "routines/metasprite.h"
 
 .include "controller.h"
-
+.include "entity-animation.h"
 
 ;; Blank Handlers
 ROUTINE IrqHandler
@@ -36,8 +36,10 @@ ROUTINE VBlank
 	; Reset NMI Flag.
 	LDA	RDNMI
 
+	EntityAnimation_VBlank
 	MetaSprite_VBlank
 	MetaTiles1x16_VBlank
+
 	Screen_VBlank
 
 	JSR	Controller__Update

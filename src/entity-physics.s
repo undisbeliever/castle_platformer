@@ -11,7 +11,6 @@
 
 .include "routines/block.h"
 .include "routines/math.h"
-.include "routines/metasprite.h"
 .include "routines/metatiles/metatiles-1x16.h"
 
 METATILES_SIZE = 16

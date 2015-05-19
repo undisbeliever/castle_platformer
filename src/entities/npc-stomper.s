@@ -27,38 +27,17 @@ ENTITY_YOFFSET = 16
 .endenum
 
 .define SES StomperEntityStruct
-ENTITY_PHYSICS_STRUCT StomperEntityStruct
-	;; The number of pixels from the entity to the player before stomping.
-	threashold		.word
-
-	;; The number of frames to wait before raising.
-	stompDelay		.word
-
-	;; The speed in which the entity raises
-	;; 1:7:8 signed fixed point. (1/256 pixels/frame)
-	raiseSpeed		.word
-
-	;  The fields below do not need to be set initialized.
-	; -----------------------------------------------------
-
-	;; Origional starting height
-	startingYpos		.word
-
-	;; Entity state.
-	state			.word
-
-	;; Current counter for the wait state
-	frameWait		.word
-END_ENTITY_PHYSICS_STRUCT
 
 
 MODULE Npc_Stomper
 
 .rodata
 LABEL	FunctionsTable
-	.addr	.loword(Init)
-	.addr	.loword(Process)
-	.addr	.loword(CollisionPlayer)
+	.addr	Init
+	.addr	EntityAnimation__Activated
+	.addr	EntityAnimation__Inactivated
+	.addr	Process
+	.addr	CollisionPlayer
 
 
 .code
@@ -204,6 +183,11 @@ LABEL	InitState
 	.word	ENTITY_YOFFSET			; size_yOffset
 	.addr	.loword(ExampleMetaSpriteFrame)	; metaSpriteFrame
 	.word	0				; metaSpriteCharAttr
+	.addr	0				; animationTable
+	.addr	0				; animationPC
+	.word	0				; tileVramLocation
+	.byte	0				; animationFrameDelay
+	.byte	$FF				; animationId
 	.word	0				; xVecl
 	.word	0				; yVecl
 	.addr	0				; standingTile

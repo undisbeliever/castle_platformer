@@ -20,6 +20,16 @@ ENTITY_MALLOC = 64
 	;;	A = parameter
 	Init			.addr
 
+	;; Called when the entity is activated
+	;; REQUIRES: 16 bit A, 16 bit Index
+	;; INPUT: dp = EntityStruct address
+	Activated		.addr
+
+	;; Called when the entity is inactivated or dead.
+	;; REQUIRES: 16 bit A, 16 bit Index
+	;; INPUT: dp = EntityStruct address
+	Inactivated		.addr
+
 	;; Called once per frame.
 	;; May set the Entity's `functionsTable` to NULL to delete the entity.
 	;; REQUIRES: 16 bit A, 16 bit Index
@@ -37,6 +47,16 @@ ENTITY_MALLOC = 64
 	;;	dp = EntityStruct address
 	;;	A = parameter
 	Init			.addr
+
+	;; Called when the entity is activated
+	;; REQUIRES: 16 bit A, 16 bit Index
+	;; INPUT: dp = EntityStruct address
+	Activated		.addr
+
+	;; Called when the entity is inactivated or dead.
+	;; REQUIRES: 16 bit A, 16 bit Index
+	;; INPUT: dp = EntityStruct address
+	Inactivated		.addr
 
 	;; Called once per frame.
 	;; May set the Entity's `functionsTable` to NULL to delete the entity.

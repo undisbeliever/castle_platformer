@@ -9,7 +9,7 @@ PALETTES =  $(patsubst %.2bpp,%.clr,$(patsubst %.4bpp,%.clr,$(TILES))) $(patsubs
 
 .PHONY: ALL
 
-ALL: metatilesets metatilemaps $(TILES) $(MAPS) $(MODE7TILES) $(MODE7MAPS) $(META) $(PALETTES)
+ALL: metatilesets metatilemaps entities $(TILES) $(MAPS) $(MODE7TILES) $(MODE7MAPS) $(META) $(PALETTES)
 
 %.2bpp %.clr: %.pcx
 	pcx2snes -n -s8 -c4 -o4 $*
@@ -35,12 +35,17 @@ metatilesets:
 metatilemaps:
 	cd metatilemaps/ && $(MAKE)
 
+.PHONY: entities
+metatilemaps:
+	cd entities/ && $(MAKE)
+
 
 .PHONY: clean
 clean:
 	$(RM)  $(TILES) $(MAPS) $(MODE7TILES) $(MODE7MAPS) $(META) $(PALETTES)
 	cd metatilesets/ && $(MAKE) clean
 	cd metatilemaps/ && $(MAKE) clean
+	cd entities/ && $(MAKE) clean
 
 
 .PRECIOUS: $(PALETTES)

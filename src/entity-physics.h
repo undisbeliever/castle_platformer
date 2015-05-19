@@ -8,6 +8,7 @@
 .include "includes/registers.inc"
 
 .include "entity.h"
+.include "entity-animation.h"
 
 .include "routines/metatiles/metatiles-1x16.h"
 
@@ -69,14 +70,14 @@
 .global MetaTilePropertyBank:zp
 
 
-;; Entity class that supports physics and tile collisions.
+;; Animated Entity class that supports physics and tile collisions.
 ;;
 ;; This class adds:
 ;;	* Velocity
 ;;	* Collisions with tile map
 ;;	* Varying physics constants (friction, acceleration) depending on the tile its standing on or in front of.
 .macro ENTITY_PHYSICS_STRUCT name
-	ENTITY_STRUCT name
+	ENTITY_ANIMATION_STRUCT name
 		;; xVecl - 1:7:8 signed fixed point
 		xVecl			.res 2
 		;; xVecl - 1:7:8 signed fixed point
@@ -91,7 +92,7 @@
 		;; If the entity is not standing, it is entity's top-left tile. 
 		currentTileProperty	.addr
 .endmacro
-.define END_ENTITY_PHYSICS_STRUCT END_ENTITY_STRUCT
+.define END_ENTITY_PHYSICS_STRUCT END_ENTITY_ANIMATION_STRUCT
 
 ENTITY_PHYSICS_STRUCT EntityPhysicsStruct
 END_ENTITY_PHYSICS_STRUCT

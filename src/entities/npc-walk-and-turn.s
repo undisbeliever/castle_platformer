@@ -1,5 +1,5 @@
 
-.include "npc-unmoving.h"
+.include "npc-walk-and-turn.h"
 .include "includes/import_export.inc"
 .include "includes/synthetic.inc"
 .include "includes/registers.inc"
@@ -8,34 +8,26 @@
 .include "player.h"
 .include "../entities.h"
 .include "../entity.h"
+.include "../entity-animation.h"
 .include "../entity-physics.h"
 .include "../gameloop.h"
 
 .include "routines/metasprite.h"
 
-ENTITY_WIDTH = 16
-ENTITY_HEIGHT = 16
-ENTITY_XOFFSET = 8
-ENTITY_YOFFSET = 8
-
-.define player Entities__player
 .define WES WalkAndTurnEntityStruct
-ENTITY_PHYSICS_STRUCT WalkAndTurnEntityStruct
-	;; If zero moving left, else right
-	walkLeftOnZero		.word
+.define player Entities__player
 
-	;; Number of pixels ahead of the entity to check before ledge
-	ledgeCheckOffset	.word
-END_ENTITY_PHYSICS_STRUCT
 
 
 MODULE Npc_WalkAndTurn
 
 .rodata
 LABEL	FunctionsTable
-	.addr	.loword(Init)
-	.addr	.loword(Process)
-	.addr	.loword(CollisionPlayer)
+	.addr	Init
+	.addr	EntityAnimation__Activated
+	.addr	EntityAnimation__Inactivated
+	.addr	Process
+	.addr	CollisionPlayer
 
 
 .code
@@ -148,70 +140,22 @@ ROUTINE Process
 .A16
 .I16
 ROUTINE	CollisionPlayer
+	LDA	z:WES::invincible
+	AND	#$00FF
+	IF_NOT_ZERO
+		SEC
+		BRA	_CollisionPlayerDead
+	ENDIF
+
 	JSR	Player__TestCollisionIsJumpingOnANpc
 	IF_C_SET
+_CollisionPlayerDead:
 		; Entity not squished, kill player
 		LDA	#GameState::DEAD
 		STA	GameLoop__state
 	ENDIF
 
 	RTS
-
-
-.segment ENTITY_STATE_BANK
-
-	; WalkAndTurnEntityStruct
-LABEL	WalkLeft
-	.word	WalkLeft_End - WalkLeft		; size
-	.addr	.loword(FunctionsTable)		; functionsTable
-	.byte	0, 0, 0				; xPos
-	.byte	0, 0, 0				; yPos
-	.word	ENTITY_WIDTH			; size_width
-	.word	ENTITY_HEIGHT			; size_height
-	.word	ENTITY_XOFFSET			; size_xOffset
-	.word	ENTITY_YOFFSET			; size_yOffset
-	.addr	.loword(ExampleMetaSpriteFrame)	; metaSpriteFrame
-	.word	0				; metaSpriteCharAttr
-	.word	0				; xVecl
-	.word	0				; yVecl
-	.addr	0				; standingTile
-	.addr	0				; currentTileProperty
-	.word	$0000				; walkLeftOnZero
-	.word	8				; ledgeCheckOffset 
-WalkLeft_End:
-
-
-	; WalkAndTurnEntityStruct
-LABEL	WalkRight
-	.word	WalkRight_End - WalkRight	; size
-	.addr	.loword(FunctionsTable)		; functionsTable
-	.byte	0, 0, 0				; xPos
-	.byte	0, 0, 0				; yPos
-	.word	ENTITY_WIDTH			; size_width
-	.word	ENTITY_HEIGHT			; size_height
-	.word	ENTITY_XOFFSET			; size_xOffset
-	.word	ENTITY_YOFFSET			; size_yOffset
-	.addr	.loword(ExampleMetaSpriteFrame)	; metaSpriteFrame
-	.word	0				; metaSpriteCharAttr
-	.word	0				; xVecl
-	.word	0				; yVecl
-	.addr	0				; standingTile
-	.addr	0				; currentTileProperty
-	.word	$FFFF				; walkLeftOnZero
-	.word	8				; ledgeCheckOffset 
-WalkRight_End:
-
-
-.segment "BANK1"
-
-;; TEST example data::
-
-ExampleMetaSpriteFrame:
-	.byte	1
-	.byte	.lobyte(-8)
-	.byte	.lobyte(-8)
-	.word	2 << OAM_CHARATTR_ORDER_SHIFT
-	.byte	$FF
 
 ENDMODULE
 

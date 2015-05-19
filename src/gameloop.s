@@ -92,15 +92,14 @@ ROUTINE PlayGame
 
 			JSR	BackgroundEvents__Process
 
-			; reset DP
-			LDA	#0
-			TCD
-
 			SEP	#$20
-
 .A8
-		JSR	Entities__Render
-		JSR	MetaTiles1x16__Update
+			JSR	Entities__Render
+			JSR	MetaTiles1x16__Update
+
+		; reset DP
+		LDA	#0
+		TCD
 
 		PLB
 		LDA	state

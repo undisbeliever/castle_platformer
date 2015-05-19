@@ -23,6 +23,7 @@ and are licensed under [CC0](http://creativecommons.org/publicdomain/zero/1.0/).
 
  * [Castle Playformer](http://opengameart.org/content/castle-platformer) by Jetrel, [CC0](http://creativecommons.org/publicdomain/zero/1.0/) license.
  * [Simple SVG ice platformer tiles](http://opengameart.org/content/simple-svg-ice-platformer-tiles-16x16-16x96-96x16) by qubodup, [CC0](http://creativecommons.org/publicdomain/zero/1.0/) license.
+ * [Classic hero and baddies pack](http://opengameart.org/content/classic-hero-and-baddies-pack) by Jason-Em, [CC0](http://creativecommons.org/publicdomain/zero/1.0/) license.
 
 
 Build Requirements

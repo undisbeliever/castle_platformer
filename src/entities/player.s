@@ -6,6 +6,8 @@
 .include "includes/structure.inc"
 
 .include "../entities.h"
+.include "../entity.h"
+.include "../entity-animation.h"
 .include "../entity-physics.h"
 .include "../controller.h"
 .include "../gameloop.h"
@@ -37,8 +39,10 @@ MODULE Player
 
 .rodata
 LABEL	FunctionsTable
-	.addr	.loword(Init)
-	.addr	.loword(Process)
+	.addr	Init
+	.addr	EntityAnimation__Activated
+	.addr	EntityAnimation__Inactivated
+	.addr	Process
 
 .code
 
@@ -56,7 +60,10 @@ ROUTINE Init
 	PHK
 	PLB
 	TransferToVramLocation	ExampleObjectTiles,	GAMELOOP_OAM_TILES
-	TransferToCgramLocation	ExampleObjectPalette,	128
+	TransferToCgramLocation	ExampleObjectPalette,	128 + 7 * 16
+
+	LDX	#7 << OAM_CHARATTR_PALETTE_SHIFT
+	STX	z:PES::metaSpriteCharAttr
 
 	REP	#$20
 .A16
@@ -213,6 +220,11 @@ LABEL	InitState
 	.word	ENTITY_YOFFSET			; size_yOffset
 	.word	.loword(ExampleMetaSpriteFrame)	; metaSpriteFrame 
 	.word	0				; metaSpriteCharAttr
+	.addr	0				; animationTable
+	.addr	0				; animationPC
+	.word	0				; tileVramLocation
+	.byte	0				; animationFrameDelay
+	.byte	$FF				; animationId
 	.word	0				; xVecl
 	.word	0				; yVecl
 	.addr	0				; standingTile

@@ -8,6 +8,7 @@
 .include "includes/registers.inc"
 
 .include "../entities.h"
+.include "../entity-physics.h"
 
 ;; The Walk and Turn NPC will walk in a given direction
 ;; and turn around when it collides with a wall or detects
@@ -21,11 +22,19 @@
 ;; edge. The default (used if param is NULL) is 8.
 
 IMPORT_MODULE Npc_WalkAndTurn
-	;; PARAM: ledgeCheckOffset
-	LABEL	WalkLeft
 
-	;; PARAM: ledgeCheckOffset
-	LABEL	WalkRight
+	ENTITY_PHYSICS_STRUCT WalkAndTurnEntityStruct
+		;; If zero moving left, else right
+		walkLeftOnZero		.word
+
+		;; Number of pixels ahead of the entity to check before ledge
+		ledgeCheckOffset	.word
+
+		;; If non-zero then the NPC cannot be stomped by the player
+		invincible		.byte
+	END_ENTITY_PHYSICS_STRUCT
+
+	LABEL	FunctionsTable
 ENDMODULE
 
 .endif ; ::_ENTITIES_NPC_WALK_AND_TURN_H_
