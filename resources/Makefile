@@ -36,7 +36,7 @@ metatilemaps:
 	cd metatilemaps/ && $(MAKE)
 
 .PHONY: entities
-metatilemaps:
+entities:
 	cd entities/ && $(MAKE)
 
 

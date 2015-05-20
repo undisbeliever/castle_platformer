@@ -35,7 +35,7 @@ LABEL	Entity_SpikedWalkerLeft
 	.addr	.loword(Frame_WalkLeft0)		; metaSpriteFrame
 	.word	0					; metaSpriteCharAttr
 	.addr	AnimationTable				; animationTable
-	.addr	Animation_WalkLeft			; animationPC
+	.addr	0					; animationPC
 	.word	0					; tileVramLocation
 	.byte	Npc_WalkAndTurn_AnimationId::WALK_LEFT	; animationId
 	.byte	0					; animationFrameDelay
@@ -62,7 +62,7 @@ LABEL	Entity_SpikedWalkerRight
 	.addr	.loword(Frame_WalkRight0)		; metaSpriteFrame
 	.word	0					; metaSpriteCharAttr
 	.addr	AnimationTable				; animationTable
-	.addr	Animation_WalkRight			; animationPC
+	.addr	0					; animationPC
 	.word	0					; tileVramLocation
 	.byte	Npc_WalkAndTurn_AnimationId::WALK_RIGHT	; animationId
 	.byte	0					; animationFrameDelay
@@ -81,6 +81,7 @@ _Entity_SpikedWalkerRight_End:
 AnimationTable:
 	.byte	.bankbyte(Tiles)
 	.addr	Tiles
+	.byte	AnimationDmaTransferType::BLOCK
 	.word	Tiles_End - Tiles
 	.addr	Palette
 

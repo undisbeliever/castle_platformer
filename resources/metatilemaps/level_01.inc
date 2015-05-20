@@ -23,7 +23,6 @@ Level01_MapEntitiesTable:
 	; Falling NPC test
 	.word 	200,	60,	0,		.loword(Entity_WalkerLeft)
 
-
 	.word 	336,	216,	0,		.loword(Entity_WalkerLeft)
 	.word 	360,	216,	0,		.loword(Entity_WalkerLeft)
 	.word 	600,	216,	0,		.loword(Entity_WalkerLeft)
@@ -40,8 +39,8 @@ Level01_MapEntitiesTable:
 	.word 	192,	648,	16,		.loword(Entity_SpikedWalkerLeft)
 	.word 	192,	648,	16,		.loword(Entity_SpikedWalkerRight)
 
-	; Stomp
-	.word 	752,	736,	0,		.loword(Npc_Stomper__InitState)
+	; Stomper
+	.word 	752,	736,	0,		.loword(Entity_Stomper)
 
 
 Level01_MapEntitiesTable_Count = (* - Level01_MapEntitiesTable) / .sizeof(MapEntitiesTableStruct)

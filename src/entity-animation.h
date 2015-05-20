@@ -51,6 +51,9 @@ ANIMATION_DMA_TRANSFER_BYTES = 4096
 	;; The address of the initial tiles (with `dataBank`) to load.
 	;; May be NULL (0), if so then no tiles are loaded.
 	tilesPtr		.addr
+	;; The type of DMA transfer to use for the initial tiles to load
+	;; Its value is a `AnimationDmaTransferType`
+	dmaTransferType		.byte
 	;; Number of bytes to transfer for the initial state.
 	;; MUST be less than or equal to 1024.
 	tilesSize		.word
@@ -73,6 +76,19 @@ ANIMATION_DMA_TRANSFER_BYTES = 4096
 	GOTO		= 6
 .endenum
 
+;; DMA transfer type used by the DMA buffer table
+.enum AnimationDmaTransferType
+	;; Simple block transfer to VRAM.
+	BLOCK			= 0
+	;; Transfers two VRAM rows of tiles to VRAM.
+	;; The size paramter is the number of bytes in the top row.
+	;; The location of the second row is `DataPtr + 512` bytes (like a real tileset).
+	TWO_ROWS		= 2
+	;; Transfers two VRAM rows of tiles to VRAM.
+	;; The size paramter is the number of bytes in the top row.
+	;; The location of the second row is `DataPtr + Size` bytes.
+	TWO_ROWS_ADJACENT	= 4
+.endenum
 
 ;; This macro simplifies the creation of the MetaSprite tables
 ;;
@@ -93,7 +109,7 @@ ANIMATION_DMA_TRANSFER_BYTES = 4096
 
 		.byte	.lobyte(xPos)
 		.byte	.lobyte(yPos)
-		.word	char | (priority << OAM_CHARATTR_ORDER_SHIFT) | (oamAttrFlags << 8)
+		.word	char | ((priority) << OAM_CHARATTR_ORDER_SHIFT) | ((oamAttrFlags) << 8)
 
 		.if .xmatch(size, BIG)
 			.byte	$FF
@@ -165,9 +181,10 @@ IMPORT_MODULE EntityAnimation
 	;; Change the currently running animation.
 	;; The animation PC will only change if the current animation Id != A
 	;;
-	;; REQUIRE: 16 bit A, 16 bit Index
+	;; REQUIRE: 16 bit Index
 	;; INPUT: DP = The EntityAnimationStruct address
-	;;         A = Animation ID
+	;;         A = Animation ID ( < 255)
+	;; OUTPUT: 16 bit A
 	ROUTINE SetAnimation
 
 	;; Checks to see if the current animation bytecode is AnimationBytecode::STOP
@@ -184,32 +201,35 @@ IMPORT_MODULE EntityAnimation
 	.macro EntityAnimation_VBlank
 		.export _EntityAnimation_VBlank__Called = 1
 
-
 		.global EntityAnimation__cgramBufferPos
 		.global EntityAnimation__cgramBuffer_DataAddress
 		.global EntityAnimation__cgramBuffer_StartingColor
 		.globalzp EntityAnimation__PaletteDataBank
 
+		REP	#$30
+		SEP	#$10
+.A16
+.I8
 		LDX	EntityAnimation__cgramBufferPos
 		IF_NOT_ZERO
-			LDY	#DMAP_DIRECTION_TO_PPU | DMAP_TRANSFER_WRITE_TWICE | (.lobyte(CGDATA) << 8)
-			STY	DMAP0			; also sets BBAD0
+			LDA	#DMAP_DIRECTION_TO_PPU | DMAP_TRANSFER_WRITE_TWICE | (.lobyte(CGDATA) << 8)
+			STA	DMAP0			; also sets BBAD0
 
-			LDA	#EntityAnimation__PaletteDataBank
-			STA	A1B0
+			LDY	#EntityAnimation__PaletteDataBank
+			STY	A1B0
 
 			REPEAT
-				LDA	EntityAnimation__cgramBuffer_StartingColor - 2, X
-				STA	CGADD
+				LDY	EntityAnimation__cgramBuffer_StartingColor - 2, X
+				STY	CGADD
 
-				LDY	EntityAnimation__cgramBuffer_DataAddress - 2, X
-				STY	A1T0
+				LDA	EntityAnimation__cgramBuffer_DataAddress - 2, X
+				STA	A1T0
 
-				LDY	#15 * 2
-				STY	DAS0
+				LDA	#15 * 2
+				STA	DAS0
 
-				LDA	#MDMAEN_DMA0
-				STA	MDMAEN
+				LDY	#MDMAEN_DMA0
+				STY	MDMAEN
 
 				DEX
 				DEX
@@ -222,37 +242,68 @@ IMPORT_MODULE EntityAnimation
 		.global	EntityAnimation__vramBufferBytesLeft
 		.global	EntityAnimation__vramBuffer_BankAndType
 		.global	EntityAnimation__vramBuffer_DataPtr
+		.global	EntityAnimation__vramBuffer_BottomRowDataPtr
 		.global	EntityAnimation__vramBuffer_Size
 		.global	EntityAnimation__vramBuffer_VramWordAddress
 
+.A16
+.I8
 		LDX	EntityAnimation__vramBufferPos
 		IF_NOT_ZERO
-			LDA	#VMAIN_INCREMENT_HIGH | VMAIN_INCREMENT_1
-			STA	VMAIN
+			LDY	#VMAIN_INCREMENT_HIGH | VMAIN_INCREMENT_1
+			STY	VMAIN
 
-			LDY	#DMAP_DIRECTION_TO_PPU | DMAP_TRANSFER_2REGS | (.lobyte(VMDATA) << 8)
-			STY	DMAP0			; also sets BBAD0
+			LDA	#DMAP_DIRECTION_TO_PPU | DMAP_TRANSFER_2REGS | (.lobyte(VMDATA) << 8)
+			STA	DMAP0			; also sets BBAD0
+			STA	DMAP1			; also sets BBAD1
 
 			REPEAT
-				; get type
-				LDA	EntityAnimation__vramBuffer_BankAndType + 1 - 2, X
+				.assert AnimationDmaTransferType::BLOCK = 0, error, "Bad value"
+				LDY	EntityAnimation__vramBuffer_BankAndType + 1 - 2, X
 				IF_ZERO
-					LDA	EntityAnimation__vramBuffer_BankAndType - 2, X
-					STA	A1B0
+					; Block type
 
-					LDY	EntityAnimation__vramBuffer_DataPtr - 2, X
-					STY	A1T0
+					LDY	EntityAnimation__vramBuffer_BankAndType - 2, X
+					STY	A1B0
 
-					LDY	EntityAnimation__vramBuffer_Size - 2, X
-					STY	DAS0
+					LDA	EntityAnimation__vramBuffer_DataPtr - 2, X
+					STA	A1T0
 
-					LDY	EntityAnimation__vramBuffer_VramWordAddress - 2, X
-					STY	VMADD
+					LDA	EntityAnimation__vramBuffer_Size - 2, X
+					STA	DAS0
 
-					LDA	#MDMAEN_DMA0
-					STA	MDMAEN
+					LDA	EntityAnimation__vramBuffer_VramWordAddress - 2, X
+					STA	VMADD
+
+					LDY	#MDMAEN_DMA0
+					STY	MDMAEN
 				ELSE
-					; ::TODO other formats::
+					; 2 rows type
+
+					LDY	EntityAnimation__vramBuffer_BankAndType - 2, X
+					STY	A1B0
+					STY	A1B1
+
+					LDA	EntityAnimation__vramBuffer_DataPtr - 2, X
+					STA	A1T0
+					LDA	EntityAnimation__vramBuffer_BottomRowDataPtr - 2, X
+					STA	A1T1
+
+					LDA	EntityAnimation__vramBuffer_Size - 2, X
+					STA	DAS0
+					STA	DAS1
+
+					LDA	EntityAnimation__vramBuffer_VramWordAddress - 2, X
+					STA	VMADD
+
+					LDY	#MDMAEN_DMA0
+					STY	MDMAEN
+
+					ORA	#$0100	; VramWordAdress row is always even
+					STA	VMADD
+
+					LDY	#MDMAEN_DMA1
+					STY	MDMAEN
 				ENDIF
 
 				DEX
@@ -261,9 +312,14 @@ IMPORT_MODULE EntityAnimation
 
 			STX	EntityAnimation__vramBufferPos
 
-			LDX	#ANIMATION_DMA_TRANSFER_BYTES
-			STX	EntityAnimation__vramBufferBytesLeft
+			LDA	#ANIMATION_DMA_TRANSFER_BYTES
+			STA	EntityAnimation__vramBufferBytesLeft
 		ENDIF
+
+		REP	#$30
+		SEP	#$20
+.A8
+.I16
 	.endmacro
 ENDMODULE
 

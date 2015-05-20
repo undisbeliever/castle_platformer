@@ -8,22 +8,18 @@
 .include "../entities.h"
 .include "../entity.h"
 .include "../entity-physics.h"
+.include "../entity-animation.h"
 .include "../gameloop.h"
 
 .include "routines/metasprite.h"
 
 ENTITY_MAX_Y_VECL = $0400
 
-ENTITY_WIDTH = 32
-ENTITY_HEIGHT = 32
-ENTITY_XOFFSET = 16
-ENTITY_YOFFSET = 16
-
-.enum States
-	FLOATING = 0
+.enum State
+	WAITING = 0
 	FALLING  = 2
-	WAITING  = 4
-	RAISING  = 6
+	ON_GROUND  = 4
+	RISING  = 6
 .endenum
 
 .define SES StomperEntityStruct
@@ -66,10 +62,10 @@ ROUTINE Process
 
 .rodata
 ProcessTable:
-	.addr	Process_Floating
-	.addr	Process_Falling
 	.addr	Process_Waiting
-	.addr	Process_Raising
+	.addr	Process_Falling
+	.addr	Process_OnGround
+	.addr	Process_Rising
 
 
 .code
@@ -77,7 +73,7 @@ ProcessTable:
 
 .A16
 .I16
-ROUTINE Process_Floating
+ROUTINE Process_Waiting
 	LDA	Entities__player + EntityStruct::xPos + 1
 	SUB	z:SES::xPos + 1
 	IF_MINUS
@@ -86,8 +82,21 @@ ROUTINE Process_Floating
 
 	CMP	z:SES::threashold
 	IF_LT
-		LDX	#States::FALLING
+		LDX	#State::FALLING
 		STX	z:SES::state
+
+		LDA	#Npc_Stomper_AnimationId::FALLING
+		JSR	EntityAnimation__SetAnimation
+	ELSE
+		LSR
+		CMP	z:SES::threashold
+		IF_LT
+			LDA	#Npc_Stomper_AnimationId::NOTICED_PLAYER
+		ELSE
+			LDA	#Npc_Stomper_AnimationId::WAITING
+		ENDIF
+
+		JSR	EntityAnimation__SetAnimation
 	ENDIF
 
 	SEC
@@ -101,15 +110,15 @@ ROUTINE Process_Falling
 
 	LDA	EntityPhysics__status
 	IF_BIT	#EntityPhysicsStatusBits::STANDING
-		LDA	z:SES::stompDelay
-		STA	z:SES::frameWait
-
 		LDA	z:SES::raiseSpeed
 		NEG16
 		STA	z:SES::yVecl
 
-		LDX	#States::WAITING
+		LDX	#State::ON_GROUND
 		STX	z:SES::state
+
+		LDA	#Npc_Stomper_AnimationId::ON_GROUND
+		JSR	EntityAnimation__SetAnimation
 	ENDIF
 
 	SEC
@@ -119,11 +128,14 @@ ROUTINE Process_Falling
 
 .A16
 .I16
-ROUTINE Process_Waiting
-	DEC	z:SES::frameWait
-	IF_ZERO
-		LDX	#States::RAISING
+ROUTINE Process_OnGround
+	JSR	EntityAnimation__IsAnimationStopped
+	IF_Z_SET
+		LDX	#State::RISING
 		STX	z:SES::state
+
+		LDA	#Npc_Stomper_AnimationId::RISING
+		JSR	EntityAnimation__SetAnimation
 	ENDIF
 
 	SEC
@@ -133,22 +145,24 @@ ROUTINE Process_Waiting
 
 .A16
 .I16
-ROUTINE Process_Raising
+ROUTINE Process_Rising
 	JSR	EntityPhysics__EntityPhysicsWithCollisionsNoGravity
 
 	LDA	EntityPhysics__status
-	IF_BIT	#EntityPhysicsStatusBits::HEAD_COLLISION
-		LDX	#States::FLOATING
-		STX	z:SES::state
-	ELSE
-		LDA	z:SES::startingYpos
-		CMP	z:SES::yPos + 1
-		IF_GE
-			STA	z:SES::yPos + 1
+	BIT	#EntityPhysicsStatusBits::HEAD_COLLISION
+	BNE	Process_Rising_Waiting
 
-			LDX	#States::FLOATING
-			STX	z:SES::state
-		ENDIF
+	LDA	z:SES::startingYpos
+	CMP	z:SES::yPos + 1
+	IF_GE
+		STA	z:SES::yPos + 1
+
+Process_Rising_Waiting:
+		LDX	#State::WAITING
+		STX	z:SES::state
+
+		LDA	#Npc_Stomper_AnimationId::WAITING
+		JSR	EntityAnimation__SetAnimation
 	ENDIF
 
 	SEC
@@ -165,61 +179,11 @@ ROUTINE	CollisionPlayer
 	LDA	#GameState::DEAD
 	STA	GameLoop__state
 
+	LDA	#Npc_Stomper_AnimationId::COLLISION_PLAYER
+	JSR	EntityAnimation__SetAnimation
+
 	SEC
 	RTS
-
-
-.segment ENTITY_STATE_BANK
-
-	; StomperEntityStruct
-LABEL	InitState
-	.word	InitState_End - InitState	; size
-	.addr	.loword(FunctionsTable)		; functionsTable
-	.byte	0, 0, 0				; xPos
-	.byte	0, 0, 0				; yPos
-	.word	ENTITY_WIDTH			; size_width
-	.word	ENTITY_HEIGHT			; size_height
-	.word	ENTITY_XOFFSET			; size_xOffset
-	.word	ENTITY_YOFFSET			; size_yOffset
-	.addr	.loword(ExampleMetaSpriteFrame)	; metaSpriteFrame
-	.word	0				; metaSpriteCharAttr
-	.addr	0				; animationTable
-	.addr	0				; animationPC
-	.word	0				; tileVramLocation
-	.byte	$FF				; animationId
-	.byte	0				; animationFrameDelay
-	.word	0				; xVecl
-	.word	0				; yVecl
-	.addr	0				; standingTile
-	.addr	0				; currentTileProperty
-	.word	48				; threashold (pixels)
-	.word	20				; stompDelay
-	.word	192				; raiseSpeed (in 1/256 pixels/frame)
-InitState_End:
-
-
-.segment "BANK1"
-
-;; TEST example data::
-
-ExampleMetaSpriteFrame:
-	.byte	4
-	.byte	.lobyte(-16)
-	.byte	.lobyte(-16)
-	.word	2 << OAM_CHARATTR_ORDER_SHIFT
-	.byte	$FF
-	.byte	.lobyte(-16)
-	.byte	.lobyte(0)
-	.word	2 << OAM_CHARATTR_ORDER_SHIFT
-	.byte	$FF
-	.byte	.lobyte(0)
-	.byte	.lobyte(-16)
-	.word	2 << OAM_CHARATTR_ORDER_SHIFT
-	.byte	$FF
-	.byte	.lobyte(0)
-	.byte	.lobyte(0)
-	.word	2 << OAM_CHARATTR_ORDER_SHIFT
-	.byte	$FF
 
 ENDMODULE
 
