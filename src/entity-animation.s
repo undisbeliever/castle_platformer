@@ -105,9 +105,8 @@ ROUTINE Init
 .A16
 .I16
 ROUTINE Activated
-	; Reset Animation Delay and Animation Id
-	LDA	$FFFF
-	STA	z:EntityAnimationStruct::animationFrameDelay
+	; Find VRAM Slot
+	; --------------
 
 	LDX	#(N_VRAM_SLOTS - 1) * 2
 	REPEAT
@@ -147,6 +146,22 @@ ROUTINE Activated
 
 _Activated_FoundEmptyVramSlot:
 
+	; Reset Animation PC
+	; ------------------
+	; entity->animationFrameDelay = $FF
+	; entity->animationPC = AnimationTableBank[entity->animationTable].bytecodePtr[entity->animationId]
+	.assert EntityAnimationStruct::animationId + 1 = EntityAnimationStruct::animationFrameDelay, error, "Bad Order"
+	LDA	z:EntityAnimationStruct::animationId
+	ORA	#$FF00
+	STA	z:EntityAnimationStruct::animationId
+
+	AND	#$00FF
+	ASL
+	ADD	z:EntityAnimationStruct::animationTable
+	TAX
+	LDA	f:AnimationTableBank << 16 + AnimationTableStruct::bytecodePtr, X
+	STA	z:EntityAnimationStruct::animationPC
+
 	; Load Palette
 	; ------------
 	LDX	z:EntityAnimationStruct::animationTable
@@ -173,11 +188,12 @@ ROUTINE InitialTileLoad
 	IF_C_SET
 _Activated_NoLoadTiles:
 		; Tile Load successful.
-		; Set animationFrameDelay to 0, animationId to $FF
-		.assert EntityAnimationStruct::animationFrameDelay + 1 = EntityAnimationStruct::animationId, error, "Bad Order"
-
-		LDA	#$FF00
-		STA	z:EntityAnimationStruct::animationFrameDelay
+		; Set animationFrameDelay to $00
+		SEP	#$20
+.A8
+		STZ	z:EntityAnimationStruct::animationFrameDelay
+		REP	#$20
+.A16
 	ENDIF
 
 	RTS
@@ -240,7 +256,7 @@ ROUTINE Process
 					JSR	InitialTileLoad
 				ELSE
 .A8
-				; Currently waiting.
+					; Currently waiting.
 					DEC
 					STA	z:EntityAnimationStruct::animationFrameDelay
 				ENDIF
@@ -258,9 +274,10 @@ BytecodeNext:
 				TAX
 
 				JMP	(.loword(BytecodeFunctionTable), X)
-BytecodeEnd:
 			ENDIF
 
+; A/I size unknown
+BytecodeEnd:
 			REP	#$30
 .A16
 .I16
@@ -270,6 +287,57 @@ BytecodeEnd:
 		DEX
 		DEX
 	UNTIL_MINUS
+
+	RTS
+
+
+; ENTITY API
+; ==========
+
+; IN:	DP - EntityAnimationStruct address
+; 	A - Animation ID
+.A16
+.I16
+ROUTINE SetAnimation
+	SEP	#$20
+.A8
+	CMP	z:EntityAnimationStruct::animationId
+	REP	#$30
+.A16
+.I16
+	IF_NE
+		; entity->animationFrameDelay = 0
+		; entity->animationPC = AnimationTableBank[entity->animationTable].bytecodePtr[entity->animationId]
+		.assert EntityAnimationStruct::animationId + 1 = EntityAnimationStruct::animationFrameDelay, error, "Bad Order"
+		AND	#$00FF
+		STA	z:EntityAnimationStruct::animationId
+
+		ASL
+		ADD	z:EntityAnimationStruct::animationTable
+		TAX
+
+		LDA	f:AnimationTableBank << 16 + AnimationTableStruct::bytecodePtr, X
+		STA	z:EntityAnimationStruct::animationPC
+	ENDIF
+
+	RTS
+
+
+
+; IN:	DP - EntityAnimationStruct address
+; OUT:	Z set if the current bytecode is stop.
+.A16
+.I16
+ROUTINE IsAnimationStopped
+	LDA	z:EntityAnimationStruct::animationFrameDelay
+	AND	#$00FF
+	IF_EQ
+		LDX	z:EntityAnimationStruct::animationPC
+		LDA	f:AnimationBank << 16, X
+		AND	#$00FE
+	ENDIF
+
+	.assert AnimationBytecode::STOP = 0, error, "Bad Value"
 
 	RTS
 
@@ -357,11 +425,11 @@ ROUTINE BC_Goto
 	BRA	BytecodeEnd
 
 
-; ::TODO SetPalette::
+; ::MAYDO SetPalette::
 ; ::: remember the refence of the old palette::
 
 
-; Common
+; COMMON
 ; ======
 
 

@@ -30,6 +30,13 @@ LABEL	FunctionsTable
 	.addr	CollisionPlayer
 
 
+.enum State
+	WALKING			= 0
+	FALLING 		= 2
+	WAIT_FOR_ANIMATION_END	= 4
+	DEATH_ANIMATION		= 6
+.endenum
+
 .code
 
 ; DP = entity
@@ -41,6 +48,10 @@ ROUTINE Init
 	IF_NOT_ZERO
 		STA	z:WES::ledgeCheckOffset
 	ENDIF
+
+	.assert State::WALKING = 0, error, "Bad code"
+	STZ	z:WES::state
+
 	RTS
 
 
@@ -50,6 +61,23 @@ ROUTINE Init
 .A16
 .I16
 ROUTINE Process
+	LDX	z:WES::state
+	JMP	(.loword(ProcessFunctionTable), X)
+
+.rodata
+ProcessFunctionTable:
+	.addr	Process_Walking
+	.addr	Process_Falling
+	.addr	Process_WaitForAnimationEnd
+	.addr	Process_DeathAnimation
+.code
+
+
+; DP = entity
+; OUT: C set if entity still alive
+.A16
+.I16
+ROUTINE Process_Walking
 	LDA	z:WES::walkLeftOnZero
 	IF_ZERO
 		LDA	#JOY_LEFT
@@ -60,12 +88,39 @@ ROUTINE Process
 	JSR	EntityPhysics__MoveEntityWithController
 	JSR	EntityPhysics__EntityPhysicsWithCollisions
 
-	; Test if collide with wall
-	; -------------------------
+	; Test if now falling
+	; -------------------
 
 	SEP	#$20
 .A8
 	LDA	EntityPhysics__status
+	.assert EntityPhysicsStatusBits::STANDING = $80, error, "Bad Code"
+	IF_N_CLEAR
+		; Entity is falling
+		;  - set state to falling
+		;  - set Animation to falling
+
+		LDX	#State::FALLING
+		STX	z:WES::state
+
+		LDA	#Npc_WalkAndTurn_AnimationId::FALL_LEFT
+
+		LDX	z:WES::walkLeftOnZero
+		IF_NOT_ZERO
+			INC
+		ENDIF
+
+		REP	#$30
+		JSR	EntityAnimation__SetAnimation
+		SEC
+		RTS
+	ENDIF
+
+
+	; Test if collide with wall
+	; -------------------------
+.A8
+	; A = EntityPhysics__status
 	IF_BIT	#EntityPhysicsStatusBits::LEFT_COLLISION
 		; non-zero A
 		STA	z:WES::walkLeftOnZero
@@ -129,8 +184,92 @@ ROUTINE Process
 		ENDIF
 	ENDIF
 
+	; Set Animation
+	; -------------
+	LDA	z:WES::walkLeftOnZero
+	IF_ZERO
+		LDA	z:WES::xVecl
+		IF_MINUS
+			LDA	#Npc_WalkAndTurn_AnimationId::WALK_LEFT
+		ELSE
+			LDA	#Npc_WalkAndTurn_AnimationId::SLIDE_LEFT
+		ENDIF
+	ELSE
+		LDA	z:WES::xVecl
+		IF_PLUS
+			LDA	#Npc_WalkAndTurn_AnimationId::WALK_RIGHT
+		ELSE
+			LDA	#Npc_WalkAndTurn_AnimationId::SLIDE_RIGHT
+		ENDIF
+	ENDIF
+	JSR	EntityAnimation__SetAnimation
+
 	SEC
 	RTS
+
+
+
+; DP = entity
+; OUT: C set if entity still alive
+.A16
+.I16
+ROUTINE Process_Falling
+	JSR	EntityPhysics__EntityPhysicsWithCollisions
+
+	.assert EntityPhysicsStatusBits::STANDING = $80, error, "Bad Code"
+	LDA	EntityPhysics__status - 1
+	IF_N_SET
+		; Landed on ground
+
+		LDX	#State::WAIT_FOR_ANIMATION_END
+		STX	z:WES::state
+
+		LDA	#Npc_WalkAndTurn_AnimationId::LAND_LEFT
+
+		LDX	z:WES::walkLeftOnZero
+		IF_NOT_ZERO
+			INC
+		ENDIF
+		JSR	EntityAnimation__SetAnimation
+	ENDIF
+
+	SEC
+	RTS
+
+
+
+; DP = Entity
+; OUT: C set if entity still alive
+.A16
+.I16
+ROUTINE Process_WaitForAnimationEnd
+	JSR	EntityPhysics__EntityPhysicsWithCollisions
+
+	JSR	EntityAnimation__IsAnimationStopped
+	IF_Z_SET
+		LDX	#State::WALKING
+		STX	z:WES::state
+	ENDIF
+
+	SEC
+	RTS
+
+
+
+; DP = Entity
+; OUT: C clear if entity dead
+.A16
+.I16
+ROUTINE Process_DeathAnimation
+	JSR	EntityAnimation__IsAnimationStopped
+	IF_Z_SET
+		CLC
+	ELSE
+		SEC
+	ENDIF
+
+	RTS
+
 
 
 
@@ -140,22 +279,52 @@ ROUTINE Process
 .A16
 .I16
 ROUTINE	CollisionPlayer
-	LDA	z:WES::invincible
-	AND	#$00FF
-	IF_NOT_ZERO
-		SEC
-		BRA	_CollisionPlayerDead
-	ENDIF
+	LDX	z:WES::state
+	CPX	#State::DEATH_ANIMATION
+	IF_NE
+		LDA	z:WES::invincible
+		AND	#$00FF
+		IF_NOT_ZERO
+			SEC
+			BRA	_CollisionPlayerDead
+		ENDIF
 
-	JSR	Player__TestCollisionIsJumpingOnANpc
-	IF_C_SET
+		JSR	Player__TestCollisionIsJumpingOnANpc
+		IF_C_SET
 _CollisionPlayerDead:
-		; Entity not squished, kill player
-		LDA	#GameState::DEAD
-		STA	GameLoop__state
+			; Entity not squished, kill player
+			LDA	#GameState::DEAD
+			STA	GameLoop__state
+
+			LDA	#State::WAIT_FOR_ANIMATION_END
+			STA	z:WES::state
+
+			LDA	#Npc_WalkAndTurn_AnimationId::COLLISION_HURT_PLAYER_LEFT
+			LDX	z:WES::walkLeftOnZero
+			IF_NOT_ZERO
+				INC
+			ENDIF
+			JSR	EntityAnimation__SetAnimation
+		ELSE
+			; Entity has been squished
+			; ::TODO find a nicer way to do this::
+			; ::: Moving the entity into a nother list Perhaps?::
+
+			LDX	#State::DEATH_ANIMATION
+			STX	z:WES::state
+
+			LDA	#Npc_WalkAndTurn_AnimationId::DEATH_ANIMATION_LEFT
+			LDX	z:WES::walkLeftOnZero
+			IF_NOT_ZERO
+				INC
+			ENDIF
+			JSR	EntityAnimation__SetAnimation
+		ENDIF
 	ENDIF
 
+	SEC
 	RTS
+
 
 ENDMODULE
 

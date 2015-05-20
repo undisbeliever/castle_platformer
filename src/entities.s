@@ -712,6 +712,8 @@ _ProjectileDead:		; Projectile is dead.
 		UNTIL_ZERO
 	ENDIF
 
+	JSR	EntityAnimation__Process
+
 	Process_CheckInactiveNpcList
 
 	RTS
@@ -727,8 +729,6 @@ ROUTINE Render
 	REP	#$30
 .A16
 .I16
-	JSR	EntityAnimation__Process
-
 	LDA	#player
 	TCD
 

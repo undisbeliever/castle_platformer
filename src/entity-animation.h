@@ -57,11 +57,11 @@ ANIMATION_DMA_TRANSFER_BYTES = 4096
 
 	;; The address of the palette (within `ANIMATION_PALETTE_BANK`) to load
 	;; Copies 15 bytes no matter what
-	palettePtr		.byte
+	palettePtr		.addr
 
 	;; The animation bytecode to process for each `Animation`
 	;; Continues to the end.
-	bytecode		.addr
+	bytecodePtr		.addr
 .endstruct
 
 .enum AnimationBytecode
@@ -120,12 +120,14 @@ ANIMATION_DMA_TRANSFER_BYTES = 4096
 		;; Word address of tiles in VRAM
 		tileVramWordAddress	.word
 
-		;; Number of frames to wait to the next animation ByteCode
+		;; The current animation ID
+		;; Is set to $FF on Activate.
+		animationId		.byte
+
+		;; Number of frames to wait to run the next animation ByteCode
 		;; If $FF, then character is not loaded into VRAM.
 		animationFrameDelay	.byte
 
-		;; The current animation ID
-		animationId		.byte
 .endmacro
 .define END_ENTITY_ANIMATION_STRUCT END_ENTITY_STRUCT
 
@@ -158,6 +160,23 @@ IMPORT_MODULE EntityAnimation
 	;; MUST be called before `Entities__Process` and after `MetaTiles1x16__Update`
 	;; REQUIRE: 16 bit A, 16 bit Index, DB = $7E
 	ROUTINE Process
+
+
+	;; Change the currently running animation.
+	;; The animation PC will only change if the current animation Id != A
+	;;
+	;; REQUIRE: 16 bit A, 16 bit Index
+	;; INPUT: DP = The EntityAnimationStruct address
+	;;         A = Animation ID
+	ROUTINE SetAnimation
+
+	;; Checks to see if the current animation bytecode is AnimationBytecode::STOP
+	;;
+	;; REQUIRE: 16 bit A, 16 bit Index
+	;; INPUT: DP = The EntityAnimationStruct address
+	;; OUTPUT: Z set if the current bytecode is stop.
+	ROUTINE IsAnimationStopped
+
 
 
 	;; Updates the buffers into VRAM/CGRAM.

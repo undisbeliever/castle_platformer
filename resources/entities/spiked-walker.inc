@@ -6,11 +6,11 @@
 .proc SpikedWalker
 
 
-WALK_FRAME_DELAY  =  4
-SLIDE_FRAME_DELAY =  2
-LAND_FRAME_DELAY  = 10
-HURT_PLAYER_DELAY = 90
-DEAD_NPC_DELAY    = 60
+WALK_FRAME_DELAY	=  4
+SLIDE_FRAME_DELAY	=  1
+LAND_FRAME_DELAY	= 10
+HURT_PLAYER_DELAY	= 60
+DEATH_ANIMATION_DELAY	= 45
 
 ENTITY_WIDTH = 12
 ENTITY_HEIGHT = 14
@@ -37,8 +37,8 @@ LABEL	Entity_SpikedWalkerLeft
 	.addr	AnimationTable				; animationTable
 	.addr	Animation_WalkLeft			; animationPC
 	.word	0					; tileVramLocation
+	.byte	Npc_WalkAndTurn_AnimationId::WALK_LEFT	; animationId
 	.byte	0					; animationFrameDelay
-	.byte	$FF					; animationId
 	.word	0					; xVecl
 	.word	0					; yVecl
 	.addr	0					; standingTile
@@ -64,8 +64,8 @@ LABEL	Entity_SpikedWalkerRight
 	.addr	AnimationTable				; animationTable
 	.addr	Animation_WalkRight			; animationPC
 	.word	0					; tileVramLocation
+	.byte	Npc_WalkAndTurn_AnimationId::WALK_RIGHT	; animationId
 	.byte	0					; animationFrameDelay
-	.byte	$FF					; animationId
 	.word	0					; xVecl
 	.word	0					; yVecl
 	.addr	0					; standingTile
@@ -94,8 +94,8 @@ AnimationTable:
 	.addr	Animation_LandRight
 	.addr	Animation_CollisionHurtPlayerLeft
 	.addr	Animation_CollisionHurtPlayerRight
-	.addr	Animation_CollisionKillNpcLeft
-	.addr	Animation_CollisionKillNpcRight
+	.addr	Animation_DeathAnimationLeft
+	.addr	Animation_DeathAnimationRight
 
 
 .segment ANIMATION_PALETTE_BANK
@@ -272,19 +272,19 @@ Animation_CollisionHurtPlayerRight:
 
 
 
-Animation_CollisionKillNpcLeft:
+Animation_DeathAnimationLeft:
 	.byte	AnimationBytecode::SET_FRAME
-		.addr	Frame_KillNpcLeft
+		.addr	Frame_DeadLeft
 	.byte	AnimationBytecode::WAIT_FRAMES
-		.byte	DEAD_NPC_DELAY
+		.byte	DEATH_ANIMATION_DELAY
 	.byte	AnimationBytecode::STOP
 
 
-Animation_CollisionKillNpcRight:
+Animation_DeathAnimationRight:
 	.byte	AnimationBytecode::SET_FRAME
-		.addr	Frame_KillNpcRight
+		.addr	Frame_DeadRight
 	.byte	AnimationBytecode::WAIT_FRAMES
-		.byte	DEAD_NPC_DELAY
+		.byte	DEATH_ANIMATION_DELAY
 	.byte	AnimationBytecode::STOP
 
 
@@ -353,14 +353,14 @@ Frame_FallRight:
 
 Frame_LandLeft:
 Frame_HurtPlayerLeft:
-Frame_KillNpcLeft:
+Frame_DeadLeft:
 	.byte	1
 		MetaSprite	-8, -8, 14, BIG, ENTTY_PRIORITY
 
 
 Frame_LandRight:
 Frame_HurtPlayerRight:
-Frame_KillNpcRight:
+Frame_DeadRight:
 	.byte	1
 		MetaSprite	-8, -8, 14, BIG, ENTTY_PRIORITY, MS_HFLIP
 

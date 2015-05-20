@@ -223,8 +223,8 @@ LABEL	InitState
 	.addr	0				; animationTable
 	.addr	0				; animationPC
 	.word	0				; tileVramLocation
-	.byte	0				; animationFrameDelay
 	.byte	$FF				; animationId
+	.byte	0				; animationFrameDelay
 	.word	0				; xVecl
 	.word	0				; yVecl
 	.addr	0				; standingTile

@@ -23,6 +23,24 @@
 
 IMPORT_MODULE Npc_WalkAndTurn
 
+	.enum Npc_WalkAndTurn_AnimationId
+		WALK_LEFT
+		WALK_RIGHT
+		SLIDE_LEFT
+		SLIDE_RIGHT
+		FALL_LEFT
+		FALL_RIGHT
+
+		; All animations below must end in `AnimationBytecode::STOP`
+		; they pause the entity until the animaion is complete.
+		LAND_LEFT
+		LAND_RIGHT
+		COLLISION_HURT_PLAYER_LEFT
+		COLlISION_HURT_PLAYER_RIGHT
+		DEATH_ANIMATION_LEFT
+		DEATH_ANIMATION_RIGHT
+	.endenum
+
 	ENTITY_PHYSICS_STRUCT WalkAndTurnEntityStruct
 		;; If zero moving left, else right
 		walkLeftOnZero		.word
@@ -32,6 +50,9 @@ IMPORT_MODULE Npc_WalkAndTurn
 
 		;; If non-zero then the NPC cannot be stomped by the player
 		invincible		.byte
+
+		;; Entity State
+		state			.addr
 	END_ENTITY_PHYSICS_STRUCT
 
 	LABEL	FunctionsTable

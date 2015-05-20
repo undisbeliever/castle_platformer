@@ -20,6 +20,10 @@ Level01_MapEntitiesTable:
 	.word 	80,	216,	0,		.loword(Player__InitState)
 	; rest are NPCs
 
+	; Falling NPC test
+	.word 	200,	60,	0,		.loword(Entity_WalkerLeft)
+
+
 	.word 	336,	216,	0,		.loword(Entity_WalkerLeft)
 	.word 	360,	216,	0,		.loword(Entity_WalkerLeft)
 	.word 	600,	216,	0,		.loword(Entity_WalkerLeft)
