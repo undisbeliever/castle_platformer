@@ -48,7 +48,7 @@ Entity_Stomper_End:
 AnimationTable:
 	.byte	.bankbyte(Tiles)
 	.addr	Tiles
-	.byte	AnimationDmaTransferType::TWO_ROWS_ADJACENT
+	.byte	AnimationDmaTransferType::TWO_ROWS_LEFT
 	.word	(Tiles_End - Tiles) / 2
 	.addr	Palette
 

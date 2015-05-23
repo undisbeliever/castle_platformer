@@ -18,6 +18,10 @@
 ; each vram slot is 2 8x8 rows in size
 VRAM_SLOT_SIZE = 16 * 2
 
+; ::SHOULDO Prevent duplicate transfers to VRAM ::
+; ::: Have a 2 tables containing the addr of the left/right halves of the entity loaded into VRAM ::
+; ::: may have to change `tileVramWordAddress` from {pos + GAMELOOP_OAM_TILES} to just {pos}::
+; ::: (and add GAMELOOP_OAM_TILES to `tileVramWordAddress` in LoadTiles* code) ::
 
 ; Ensure VBlank macros are used
 .forceimport _EntityAnimation_VBlank__Called:zp
@@ -209,8 +213,8 @@ _Activated_NoLoadTiles:
 .rodata
 LoadTilesTable:
 	.addr	LoadTiles_Block
-	.addr	LoadTiles_TwoRows
-	.addr	LoadTiles_TwoRowsAdjacent
+	.addr	LoadTiles_TwoRowsLeft
+	.addr	LoadTiles_TwoRowsRight
 
 .code
 
@@ -381,11 +385,15 @@ LABEL BytecodeFunctionTable
 	.addr	BC_SetFrame
 	.addr	BC_WaitFrames
 	.addr	BC_Goto
+	.addr	BC_LoadTilesBlock
+	.addr	BC_LoadTiles16LeftHalf
+	.addr	BC_LoadTiles16RightHalf
 
 .code
 
 ; DP = EntityAnimationStruct address
 ; Y = animationPC + 1
+; no parameter
 .A16
 .I16
 ROUTINE BC_Stop
@@ -395,6 +403,7 @@ ROUTINE BC_Stop
 
 ; DP = EntityAnimationStruct address
 ; Y = animationPC + 1
+; parameter - word - metaSpriteFrame address
 .A16
 .I16
 ROUTINE BC_SetFrame
@@ -412,6 +421,7 @@ ROUTINE BC_SetFrame
 
 ; DP = EntityAnimationStruct address
 ; Y = animationPC + 1
+; parameter - byte - number of frames to wait.
 .A16
 .I16
 ROUTINE BC_WaitFrames
@@ -430,6 +440,7 @@ ROUTINE BC_WaitFrames
 
 ; DP = EntityAnimationStruct address
 ; Y = animationPC + 1
+; parameter - word - new animationPC
 .A16
 .I16
 ROUTINE BC_Goto
@@ -438,6 +449,67 @@ ROUTINE BC_Goto
 	STA	z:EntityAnimationStruct::animationPC
 
 	BRA	BytecodeEnd
+
+
+; DP = EntityAnimationStruct address
+; Y = animationPC + 1
+; parameter - word - address of block
+; parameter - word - size of block
+ROUTINE BC_LoadTilesBlock
+	TYX
+	LDA	f:AnimationBank << 16 + 0, X	; paremeter 1 - position
+	TAY
+	LDA	f:AnimationBank << 16 + 2, X	; parameter 2 - size
+
+	JSR	LoadTiles_Block
+	IF_C_SET
+		LDA	z:EntityAnimationStruct::animationPC
+		ADD	#5
+		STA	z:EntityAnimationStruct::animationPC
+		JMP	BytecodeNext
+	ENDIF
+
+	JMP	BytecodeEnd
+
+
+; DP = EntityAnimationStruct address
+; Y = animationPC + 1
+; parameter word - address of half row of 16x16 tiles
+ROUTINE BC_LoadTiles16LeftHalf
+	TYX
+	LDA	f:AnimationBank << 16, X	; paremeter 1 - ptr
+	TAY
+	LDA	#8 * 32
+
+	JSR	LoadTiles_TwoRowsLeft
+	IF_C_SET
+		LDA	z:EntityAnimationStruct::animationPC
+		ADD	#3
+		STA	z:EntityAnimationStruct::animationPC
+		JMP	BytecodeNext
+	ENDIF
+
+	JMP	BytecodeEnd
+
+
+; DP = EntityAnimationStruct address
+; Y = animationPC + 1
+; parameter word - address of half row of 16x16 tiles
+ROUTINE BC_LoadTiles16RightHalf
+	TYX
+	LDA	f:AnimationBank << 16, X	; paremeter 1 - ptr
+	TAY
+	LDA	#8 * 32
+
+	JSR	LoadTiles_TwoRowsRight
+	IF_C_SET
+		LDA	z:EntityAnimationStruct::animationPC
+		ADD	#3
+		STA	z:EntityAnimationStruct::animationPC
+		JMP	BytecodeNext
+	ENDIF
+
+	JMP	BytecodeEnd
 
 
 ; ::MAYDO SetPalette::
@@ -494,7 +566,7 @@ ROUTINE LoadTiles_Block
 	RTS
 
 
-;; Preps a 2 row ransfer of the tiles to VRAM
+;; Preps a 2 row ransfer of the tiles to the left half of VRAM
 ;; INPUT:
 ;;	A - tile size
 ;;	Y - tile ptr
@@ -502,57 +574,7 @@ ROUTINE LoadTiles_Block
 ;;	C set if successful, C clear is not enough DMA time
 .A16
 .I16
-ROUTINE LoadTiles_TwoRows
-	ASL
-	CMP	vramBufferBytesLeft
-	IF_LT
-		LDX	vramBufferPos
-		CPX	#N_VRAM_TRANSFERS * 2
-		IF_LT
-			LSR
-			STA	vramBuffer_Size, X
-
-			TYA
-			TXY
-			STA	vramBuffer_DataPtr, Y
-			ADD	#16 * 32
-			STA	vramBuffer_BottomRowDataPtr, Y
-
-			LDA	z:EntityAnimationStruct::tileVramWordAddress
-			STA	vramBuffer_VramWordAddress, Y
-
-			LDX	z:EntityAnimationStruct::animationTable
-
-			LDA	f:AnimationTableBank << 16 + AnimationTableStruct::dataBank, X
-			ORA	#$FF00				; set type 2 rows (non-zero)
-			STA	vramBuffer_BankAndType, Y
-
-			LDA	vramBufferBytesLeft
-			SBC	vramBuffer_Size, Y		; don't worry about carry, this is approximate.
-			STA	vramBufferBytesLeft
-
-			INY
-			INY
-			STY	vramBufferPos
-
-			SEC
-			RTS
-		ENDIF
-	ENDIF
-
-	CLC
-	RTS
-
-
-;; Preps a 2 row ransfer of the tiles to VRAM
-;; INPUT:
-;;	A - tile size
-;;	Y - tile ptr
-;; OUT:
-;;	C set if successful, C clear is not enough DMA time
-.A16
-.I16
-ROUTINE LoadTiles_TwoRowsAdjacent
+ROUTINE LoadTiles_TwoRowsLeft
 	ASL
 	CMP	vramBufferBytesLeft
 	IF_LT
@@ -578,6 +600,59 @@ ROUTINE LoadTiles_TwoRowsAdjacent
 			STA	vramBuffer_BankAndType, Y
 
 			LDA	vramBufferBytesLeft
+			SBC	vramBuffer_Size, Y
+			SBC	vramBuffer_Size, Y		; don't worry about carry, this is approximate.
+			STA	vramBufferBytesLeft
+
+			INY
+			INY
+			STY	vramBufferPos
+
+			SEC
+			RTS
+		ENDIF
+	ENDIF
+
+	CLC
+	RTS
+
+
+;; Preps a 2 row ransfer of the tiles to the right half of VRAM
+;; INPUT:
+;;	A - tile size
+;;	Y - tile ptr
+;; OUT:
+;;	C set if successful, C clear is not enough DMA time
+.A16
+.I16
+ROUTINE LoadTiles_TwoRowsRight
+	ASL
+	CMP	vramBufferBytesLeft
+	IF_LT
+		LDX	vramBufferPos
+		CPX	#N_VRAM_TRANSFERS * 2
+		IF_LT
+			LSR
+			STA	vramBuffer_Size, X
+
+			TYA
+			TXY
+			STA	vramBuffer_DataPtr, Y
+			ADD	vramBuffer_Size, Y
+			STA	vramBuffer_BottomRowDataPtr, Y
+
+			LDA	z:EntityAnimationStruct::tileVramWordAddress
+			ADD	#8 * 16
+			STA	vramBuffer_VramWordAddress, Y
+
+			LDX	z:EntityAnimationStruct::animationTable
+
+			LDA	f:AnimationTableBank << 16 + AnimationTableStruct::dataBank, X
+			ORA	#$FF00				; set type 2 rows (non-zero)
+			STA	vramBuffer_BankAndType, Y
+
+			LDA	vramBufferBytesLeft
+			SBC	vramBuffer_Size, Y
 			SBC	vramBuffer_Size, Y		; don't worry about carry, this is approximate.
 			STA	vramBufferBytesLeft
 

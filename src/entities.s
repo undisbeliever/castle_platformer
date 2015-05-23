@@ -155,6 +155,7 @@ ROUTINE Init
 	AND	#MAP_NPC_TEST_MASK
 	STA	mapYPosMask
 
+	STZ	player + EntityStruct::functionsTable
 	STZ	firstActiveNpc
 	STZ	firstInactiveNpc
 	STZ	firstActiveProjectile
@@ -174,8 +175,17 @@ ROUTINE NewPlayer
 	PHD
 	PHY
 	PHX
+	PHA
 
-	TAX
+	LDA	#player
+	TCD
+
+	LDX	z:EntityStruct::functionsTable
+	IF_NOT_ZERO
+		JSR	(PlayerEntityFunctionsTable::Inactivated, X)
+	ENDIF
+
+	PLX
 	LDA	f:EntityStateBank << 16, X
 	DEC
 	LDY	#player + 2
@@ -184,22 +194,17 @@ ROUTINE NewPlayer
 
 	MVN	$7E, EntityStateBank
 
-	LDA	#player
-	TCD
-
 	PLA
 	STA	z:EntityStruct::xPos + 1
 	PLA
 	STA	z:EntityStruct::yPos + 1
 
 	LDX	z:EntityStruct::functionsTable
-
 	LDA	parameter
 	JSR	(PlayerEntityFunctionsTable::Init, X)
 
-; ::TODO::
-;	LDX	z:EntityStruct::functionsTable
-;	JSR	(PlayerEntityFunctionsTable::Activated, X)
+	LDX	z:EntityStruct::functionsTable
+	JSR	(PlayerEntityFunctionsTable::Activated, X)
 
 	PLD
 	RTS
@@ -319,7 +324,6 @@ ROUTINE NewNpc
 	BSGE	_NewInactiveNpc
 
 
-	; ::TODO add NpcEntityFunctionsTable::Activate to _NewEntity::
 	_NewEntity firstFreeNpc, firstActiveNpc, NpcEntityFunctionsTable::Init, NpcEntityFunctionsTable::Activated
 
 _NewInactiveNpc:

@@ -12,6 +12,7 @@
 .include "interactive-metatiles/standing-event-tile.h"
 
 .include "routines/resourceloader.h"
+.include "routines/metasprite.h"
 
 ; ::TODO better thing::
 .include "entities/player.h"
@@ -49,6 +50,7 @@ MetaTilesTable:
 
 
 ; Entity Tables/Data
+	.include "resources/entities/player.inc"
 	.include "resources/entities/spiked-walker.inc"
 	.include "resources/entities/stomper.inc"
 	.include "resources/entities/walker.inc"
@@ -83,4 +85,8 @@ CastlePlatformer_MetaTiles_End:
 
 
 	.include "resources/metatilesets/castle_platformer.inc"
+
+
+.segment METASPRITE_FRAME_BANK
+	MetaSpriteLayoutBank = .bankbyte(*)
 

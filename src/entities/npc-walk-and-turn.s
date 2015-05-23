@@ -293,8 +293,7 @@ ROUTINE	CollisionPlayer
 		IF_C_SET
 _CollisionPlayerDead:
 			; Entity not squished, kill player
-			LDA	#GameState::DEAD
-			STA	GameLoop__state
+			JSR	Player__Kill
 
 			LDA	#State::WAIT_FOR_ANIMATION_END
 			STA	z:WES::state

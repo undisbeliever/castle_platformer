@@ -13,8 +13,6 @@
 .include "../gameloop.h"
 
 .include "routines/block.h"
-.include "routines/metasprite.h"
-.include "routines/metatiles/metatiles-1x16.h"
 
 ; ::TODO move somewhere else
 SCREEN_LEFT_RIGHT_SPACING = 95
@@ -53,21 +51,6 @@ LABEL	FunctionsTable
 ROUTINE Init
 	STZ	z:PES::nEnemysJumpedOnBeforeTouchingGround
 
-	; ::TODO dynamicaly load player tiles and palette::
-	SEP	#$20
-.A8
-	PHB
-	PHK
-	PLB
-	TransferToVramLocation	ExampleObjectTiles,	GAMELOOP_OAM_TILES
-	TransferToCgramLocation	ExampleObjectPalette,	128 + 7 * 16
-
-	LDX	#7 << OAM_CHARATTR_PALETTE_SHIFT
-	STX	z:PES::metaSpriteCharAttr
-
-	REP	#$20
-.A16
-	PLB
 	RTS
 
 
@@ -76,6 +59,12 @@ ROUTINE Init
 .I16
 ROUTINE Process
 	LDA	Controller__current
+	IF_BIT	#JOY_LEFT
+		STZ	z:PES::facingLeftOnZero
+	ELSE_BIT #JOY_RIGHT
+		STA	z:PES::facingLeftOnZero
+	ENDIF
+
 	JSR	EntityPhysics__MoveEntityWithController
 
 	JSR	EntityPhysics__EntityPhysicsWithCollisions
@@ -86,13 +75,67 @@ ROUTINE Process
 		JSR	(MetaTileFunctionsTable::PlayerTouch, X)
 	ENDIF
 
-	; reset enmies jumped on counter if on ground 
+	; reset enemies jumped on counter if on ground 
 	.assert EntityPhysicsStatusBits::STANDING = $80, error, "Bad Value"
 	LDA	EntityPhysics__status - 1
 	IF_N_SET
 		STZ	z:PES::nEnemysJumpedOnBeforeTouchingGround
 	ENDIF
 
+	; Animation
+	; ---------
+	.assert EntityPhysicsStatusBits::STANDING = $80, error, "Bad Value"
+	LDA	EntityPhysics__status - 1
+	IF_N_SET
+		LDA	z:PES::facingLeftOnZero
+		IF_ZERO
+			; facing left
+			LDA	z:PES::xVecl
+			IF_ZERO
+				LDA	#Player_AnimationId::STAND_LEFT
+			ELSE
+				IF_MINUS
+					LDA	#Player_AnimationId::WALK_LEFT
+				ELSE
+					LDA	#Player_AnimationId::SLIDE_LEFT
+				ENDIF
+			ENDIF
+		ELSE
+			LDA	z:PES::xVecl
+			IF_ZERO
+				LDA	#Player_AnimationId::STAND_RIGHT
+			ELSE
+				IF_PLUS
+					LDA	#Player_AnimationId::WALK_RIGHT
+				ELSE
+					LDA	#Player_AnimationId::SLIDE_RIGHT
+				ENDIF
+			ENDIF
+		ENDIF
+	ELSE
+		LDA	z:PES::yVecl
+		IF_MINUS
+			; jumping
+			LDA	#Player_AnimationId::JUMP_LEFT
+			LDX	z:PES::facingLeftOnZero
+			IF_NOT_ZERO
+				INC
+			ENDIF
+		ELSE
+			; falling
+			LDA	#Player_AnimationId::FALL_LEFT
+			LDX	z:PES::facingLeftOnZero
+			IF_NOT_ZERO
+				INC
+			ENDIF
+		ENDIF
+	ENDIF
+
+	JSR	EntityAnimation__SetAnimation
+
+
+	; Interactive MetaTiles
+	; ---------------------
 	LDY	z:PES::standingTile
 	IF_NOT_ZERO
 		LDX	z:PES::currentTileProperty
@@ -155,6 +198,26 @@ _ContinueJumpingOnNPC:
 	RTS
 
 
+
+; IN: DP - NPC
+.A16
+.I16
+ROUTINE Kill
+	PHD
+
+	LDA	#player
+	TCD
+
+	LDA	#Player_AnimationId::DEAD
+	JSR	EntityAnimation__SetAnimation
+
+	LDA	#GameState::DEAD
+	STA	GameLoop__state
+
+	PLD
+	RTS
+
+
 .A16
 .I16
 ROUTINE	SetScreenPosition
@@ -205,66 +268,6 @@ ROUTINE	SetScreenPosition
 	ENDIF
 
 	RTS
-
-
-.segment ENTITY_STATE_BANK
-
-LABEL	InitState
-	.word	InitState_End - InitState	; size
-	.addr	.loword(FunctionsTable)		; functionsTable
-	.byte	0, 0, 0				; xPos
-	.byte	0, 0, 0				; yPos
-	.word	ENTITY_WIDTH			; size_width
-	.word	ENTITY_HEIGHT			; size_height
-	.word	ENTITY_XOFFSET			; size_xOffset
-	.word	ENTITY_YOFFSET			; size_yOffset
-	.word	.loword(ExampleMetaSpriteFrame)	; metaSpriteFrame 
-	.word	0				; metaSpriteCharAttr
-	.addr	0				; animationTable
-	.addr	0				; animationPC
-	.word	0				; tileVramLocation
-	.byte	$FF				; animationId
-	.byte	0				; animationFrameDelay
-	.word	0				; xVecl
-	.word	0				; yVecl
-	.addr	0				; standingTile
-	.addr	0				; currentTileProperty
-InitState_End:
-
-
-.segment "BANK1"
-
-;; TEST example data::
-
-.export MetaSpriteLayoutBank = .bankbyte(*)
-
-ExampleMetaSpriteFrame:
-	.byte	3
-	.byte	.lobyte(-8)
-	.byte	.lobyte(-8)
-	.word	3 << OAM_CHARATTR_ORDER_SHIFT
-	.byte	$FF
-	.byte	.lobyte(-8)
-	.byte	.lobyte(-16)
-	.word	3 << OAM_CHARATTR_ORDER_SHIFT
-	.byte	$00
-	.byte	.lobyte(0)
-	.byte	.lobyte(-16)
-	.word	3 << OAM_CHARATTR_ORDER_SHIFT
-	.byte	$00
-
-
-ExampleObjectTiles:
-	.repeat 32 * 32
-		.byte	$FF
-	.endrepeat
-ExampleObjectTiles_End:
-
-ExampleObjectPalette:
-	.repeat	16
-		.word	$FFFF
-	.endrepeat
-ExampleObjectPalette_End:
 
 ENDMODULE
 

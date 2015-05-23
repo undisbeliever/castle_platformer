@@ -5,6 +5,7 @@
 .include "includes/registers.inc"
 .include "includes/structure.inc"
 
+.include "player.h"
 .include "../entities.h"
 .include "../entity.h"
 .include "../entity-physics.h"
@@ -176,11 +177,10 @@ Process_Rising_Waiting:
 .A16
 .I16
 ROUTINE	CollisionPlayer
-	LDA	#GameState::DEAD
-	STA	GameLoop__state
-
 	LDA	#Npc_Stomper_AnimationId::COLLISION_PLAYER
 	JSR	EntityAnimation__SetAnimation
+
+	JSR	Player__Kill
 
 	SEC
 	RTS

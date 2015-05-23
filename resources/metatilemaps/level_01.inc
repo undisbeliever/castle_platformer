@@ -17,7 +17,7 @@ Level01_MapPropertiesStruct:
 Level01_MapEntitiesTable:
 	;	xPos,	yPos,	parameter,	entityState
 	; first Entity is player
-	.word 	80,	216,	0,		.loword(Player__InitState)
+	.word 	80,	216,	0,		.loword(Entity_Player)
 	; rest are NPCs
 
 	; Falling NPC test

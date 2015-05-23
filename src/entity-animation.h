@@ -68,26 +68,54 @@ ANIMATION_DMA_TRANSFER_BYTES = 4096
 .endstruct
 
 .enum AnimationBytecode
-	STOP		= 0
-	SET_FRAME	= 2
-	WAIT_FRAMES	= 4
+	;; Stops execting bytecode
+	;;	no parameter
+	STOP			=  0
+
+	;; Sets the current metaSpriteFrame
+	;;	- parameter - word - address of metaSpriteFrame
+	SET_FRAME		=  2
+
+	;; Waits x frames
+	;;	- parameter - byte - number of frames to pause
+	WAIT_FRAMES		=  4
+
 	; ::SHOULDO add WAIT_SPEED_FRAMES::
 	; :::Waits {argument - abs(xVecl)} frames (like sonic does)::
-	GOTO		= 6
+
+	;; Moves the `animationPC` to the parameter
+	;;	- parameter - word - new animationPC
+	GOTO			=  6
+
+	;; Copies a block of tiles into VRAM
+	;;  	- parameter 1 - word - ptr
+	;;	- parameter 2 - word - size in bytes
+	LOAD_TILES_BLOCK	=  8
+
+	;; Copies a 16x16px half a row of tiles to the left half of VRAM
+	;; 4 16x16 tiles are copied. Second half must be 512 bytes after `ptr`
+	;;  	- parameter - word - ptr
+	LOAD_TILES16_LEFT_HALF	= 10
+
+	;; Copies a 16x16px half a row of tiles to the right half of VRAM
+	;; 4 16x16 tiles are copied. Second half must be 512 bytes after `ptr`
+	;;  	- parameter - word - ptr
+	LOAD_TILES16_RIGHT_HALF = 12
+
 .endenum
 
 ;; DMA transfer type used by the DMA buffer table
 .enum AnimationDmaTransferType
 	;; Simple block transfer to VRAM.
 	BLOCK			= 0
-	;; Transfers two VRAM rows of tiles to VRAM.
+	;; Transfers two VRAM rows of tiles to the left half of VRAM.
 	;; The size paramter is the number of bytes in the top row.
-	;; The location of the second row is `DataPtr + 512` bytes (like a real tileset).
-	TWO_ROWS		= 2
-	;; Transfers two VRAM rows of tiles to VRAM.
+	;; The location of the second row is `DataPtr + size` bytes
+	TWO_ROWS_LEFT		= 2
+	;; Transfers two VRAM rows of tiles to the right half of VRAM.
 	;; The size paramter is the number of bytes in the top row.
-	;; The location of the second row is `DataPtr + Size` bytes.
-	TWO_ROWS_ADJACENT	= 4
+	;; The location of the second row is `DataPtr + size` bytes
+	TWO_ROWS_RIGHT	= 4
 .endenum
 
 ;; This macro simplifies the creation of the MetaSprite tables

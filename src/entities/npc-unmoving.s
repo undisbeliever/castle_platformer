@@ -5,6 +5,7 @@
 .include "includes/registers.inc"
 .include "includes/structure.inc"
 
+.include "player.h"
 .include "../entities.h"
 .include "../entity.h"
 .include "../gameloop.h"
@@ -71,8 +72,7 @@ ROUTINE Process
 ROUTINE	CollisionPlayer
 	LDA	z:UES::backgroundNpc
 	IF_ZERO
-		LDA	#GameState::DEAD
-		STA	GameLoop__state
+		JSR	Player__Kill
 	ENDIF
 
 	SEC
