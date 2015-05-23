@@ -15,9 +15,6 @@
 
 METATILES_SIZE = 16
 
-;; Maximum Y velocity (prevents fall through walls)
-MAX_Y_VECLOCITY = 10 * 256
-
 
 MODULE EntityPhysics
 
@@ -83,16 +80,43 @@ ROUTINE MoveEntityWithController
 
 	PLA
 
-	; Jump only if standing.
 	LDY	z:EntityPhysicsStruct::standingTile
-	IF_NOT_ZERO
+	IF_ZERO
+		; not on ground
+		; Gravity is lessened if holding jump button.
 		IF_BIT	#JOY_JUMP
-			LDX	z:EntityPhysicsStruct::currentTileProperty
-			LDA	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::jumpingVelocity, X
-			IF_NOT_ZERO
-				STA	z:EntityPhysicsStruct::yVecl
-			ENDIF
+			LDA	z:EntityPhysicsStruct::yVecl
+			SUB	#GRAVITY_JUMP_HOLD
+			STA	z:EntityPhysicsStruct::yVecl
 		ENDIF
+	ENDIF
+
+	RTS
+
+
+; ZP = Entity
+.A16
+.I16
+ROUTINE Jump
+	; if MetaTileProperty[entity->currentTileProperty].jumpingVelocity != 0
+	;	entity->yVecl = MetaTileProperty[entity->currentTileProperty].jumpingVelocity
+	;	entity->yVecl -= abs(entity->xVecl) / JUMP_XVECL_FRACTIONAL
+
+	LDA	z:EntityPhysicsStruct::currentTileProperty
+	LDA	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::jumpingVelocity, X
+	IF_NOT_ZERO
+		STA	z:EntityPhysicsStruct::yVecl
+
+		LDA	z:EntityPhysicsStruct::xVecl
+		IF_MINUS
+			NEG16
+		ENDIF
+
+		.assert JUMP_XVECL_FRACTIONAL = 4, error, "Bad Code"
+		LSR
+		LSR
+		RSB16	z:EntityPhysicsStruct::yVecl
+		STA	z:EntityPhysicsStruct::yVecl
 	ENDIF
 
 	RTS

@@ -20,8 +20,6 @@
 METATILES_BG1_MAP   = GAMELOOP_BG1_MAP
 METATILES_BG1_TILES = GAMELOOP_BG1_TILES
 
-DEFAULT_GRAVITY = 35		; Acceleration due to gravity in 1/256 pixels per frame per frame
-
 
 MODULE MapLoader
 

@@ -58,15 +58,25 @@ ROUTINE Init
 .A16
 .I16
 ROUTINE Process
+	; Move
 	LDA	Controller__current
 	IF_BIT	#JOY_LEFT
 		STZ	z:PES::facingLeftOnZero
 	ELSE_BIT #JOY_RIGHT
 		STA	z:PES::facingLeftOnZero
 	ENDIF
-
 	JSR	EntityPhysics__MoveEntityWithController
 
+	; Jump
+	LDA	Controller__pressed
+	IF_BIT	#JOY_JUMP
+		LDA	z:PES::standingTile
+		IF_NOT_ZERO
+			JSR	EntityPhysics__Jump
+		ENDIF
+	ENDIF
+
+	; Physics
 	JSR	EntityPhysics__EntityPhysicsWithCollisions
 
 	; Player/tile interactions

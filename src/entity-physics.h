@@ -12,6 +12,16 @@
 
 .include "routines/metatiles/metatiles-1x16.h"
 
+;; Maximum Y velocity (prevents fall through walls)
+MAX_Y_VECLOCITY = 10 * 256
+
+DEFAULT_GRAVITY = 40		; Acceleration due to gravity in 1/256 pixels per frame per frame
+;; How much less gravity the entity experiences when holding the jump button
+GRAVITY_JUMP_HOLD = 20
+;; Fraction of Xvecl is added to the jump.
+;; (`yVecl -= xVecl / JUMP_XVECL_FRACTIONAL`)
+JUMP_XVECL_FRACTIONAL = 4
+
 
 .struct MetaTileFunctionsTable
 	;; Called when the player is standing on a tile
@@ -157,12 +167,29 @@ IMPORT_MODULE EntityPhysics
 	;; INPUT: DP - entity address (must be a subclass of EntityPhysicsStruct)
 	ROUTINE EntitySimplePhysics
 
-	;; Move the entity depending on joypad
+
+
+	;; Move the entity depending on joypad.
+	;;
+	;; Will decrement the player's yVecl if the JOY_JUMP button is
+	;; depressed and player is not standing on ground.
+	;;
+	;; This function would not work if Gravity is removed from the player.
+	;;
 	;; REQUIRE: 16 bit A, 16 bit Index, DB = $7E
 	;; INPUT:
 	;;      DP - entity address (must be a subclass of EntityPhysicsStruct)
 	;;	A - Joypad data. (16 bit)
 	ROUTINE MoveEntityWithController
+
+	;; Sets the player's yVeclity to their jumping velocity.
+	;;
+	;; The jumping velocity is combined with the `currentTileProperty`'s
+	;; `jumpingVelocity` and the delta of the entitie's xVecl.
+	;;
+	;; REQUIRE: 16 bit A, 16 bit Index, DB = $7E
+	;; INPUT: DP - entity adress (must be a subclass of EntityPhysicsStruct)
+	ROUTINE Jump
 ENDMODULE
 
 .endif ; ::_ENTITY_PHYSICS_H_
