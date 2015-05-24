@@ -14,6 +14,7 @@ The engine features:
  * A Super Mario Bros-like 'death' animation.
  * Static platforms.
  * A *basic* background code system.
+ * Animated Sprites with dynamically loaded tiles
 
 
 Graphics
