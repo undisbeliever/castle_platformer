@@ -14,7 +14,7 @@ ENTTY_PRIORITY = 2
 STAND_FRAME_DELAY = 190
 BLINK_FRAME_DELAY = 3
 
-WALK_FRAME_DELAY = 4
+WALK_FRAME_DELAY = 6
 SLIDE_FRAME_DELAY = 2
 
 
@@ -128,15 +128,15 @@ Animation_WalkLeft:
 
 	.byte	AnimationBytecode::SET_FRAME
 		.addr	Frame_WalkLeft0
-	.byte	AnimationBytecode::WAIT_FRAMES
+	.byte	AnimationBytecode::WAIT_FRAMES_XVECL2
 		.byte	WALK_FRAME_DELAY
 	.byte	AnimationBytecode::SET_FRAME
 		.addr	Frame_WalkLeft1
-	.byte	AnimationBytecode::WAIT_FRAMES
+	.byte	AnimationBytecode::WAIT_FRAMES_XVECL2
 		.byte	WALK_FRAME_DELAY
 	.byte	AnimationBytecode::SET_FRAME
 		.addr	Frame_WalkLeft2
-	.byte	AnimationBytecode::WAIT_FRAMES
+	.byte	AnimationBytecode::WAIT_FRAMES_XVECL2
 		.byte	WALK_FRAME_DELAY
 
 	.byte	AnimationBytecode::LOAD_TILES16_RIGHT_HALF
@@ -144,15 +144,15 @@ Animation_WalkLeft:
 
 	.byte	AnimationBytecode::SET_FRAME
 		.addr	Frame_WalkLeft3
-	.byte	AnimationBytecode::WAIT_FRAMES
+	.byte	AnimationBytecode::WAIT_FRAMES_XVECL2
 		.byte	WALK_FRAME_DELAY
 	.byte	AnimationBytecode::SET_FRAME
 		.addr	Frame_WalkLeft4
-	.byte	AnimationBytecode::WAIT_FRAMES
+	.byte	AnimationBytecode::WAIT_FRAMES_XVECL2
 		.byte	WALK_FRAME_DELAY
 	.byte	AnimationBytecode::SET_FRAME
 		.addr	Frame_WalkLeft5
-	.byte	AnimationBytecode::WAIT_FRAMES
+	.byte	AnimationBytecode::WAIT_FRAMES_XVECL2
 		.byte	WALK_FRAME_DELAY
 
 	.byte	AnimationBytecode::GOTO
@@ -165,15 +165,15 @@ Animation_WalkRight:
 
 	.byte	AnimationBytecode::SET_FRAME
 		.addr	Frame_WalkRight0
-	.byte	AnimationBytecode::WAIT_FRAMES
+	.byte	AnimationBytecode::WAIT_FRAMES_XVECL2
 		.byte	WALK_FRAME_DELAY
 	.byte	AnimationBytecode::SET_FRAME
 		.addr	Frame_WalkRight1
-	.byte	AnimationBytecode::WAIT_FRAMES
+	.byte	AnimationBytecode::WAIT_FRAMES_XVECL2
 		.byte	WALK_FRAME_DELAY
 	.byte	AnimationBytecode::SET_FRAME
 		.addr	Frame_WalkRight2
-	.byte	AnimationBytecode::WAIT_FRAMES
+	.byte	AnimationBytecode::WAIT_FRAMES_XVECL2
 		.byte	WALK_FRAME_DELAY
 
 	.byte	AnimationBytecode::LOAD_TILES16_RIGHT_HALF
@@ -181,15 +181,15 @@ Animation_WalkRight:
 
 	.byte	AnimationBytecode::SET_FRAME
 		.addr	Frame_WalkRight3
-	.byte	AnimationBytecode::WAIT_FRAMES
+	.byte	AnimationBytecode::WAIT_FRAMES_XVECL2
 		.byte	WALK_FRAME_DELAY
 	.byte	AnimationBytecode::SET_FRAME
 		.addr	Frame_WalkRight4
-	.byte	AnimationBytecode::WAIT_FRAMES
+	.byte	AnimationBytecode::WAIT_FRAMES_XVECL2
 		.byte	WALK_FRAME_DELAY
 	.byte	AnimationBytecode::SET_FRAME
 		.addr	Frame_WalkRight5
-	.byte	AnimationBytecode::WAIT_FRAMES
+	.byte	AnimationBytecode::WAIT_FRAMES_XVECL2
 		.byte	WALK_FRAME_DELAY
 
 	.byte	AnimationBytecode::GOTO

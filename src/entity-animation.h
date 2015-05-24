@@ -80,27 +80,42 @@ ANIMATION_DMA_TRANSFER_BYTES = 4096
 	;;	- parameter - byte - number of frames to pause
 	WAIT_FRAMES		=  4
 
+	;; Waits `(x - abs(int(xVecl))` frames
+	;;	- parameter - byte - number of frames to pause
+	;; MUST ensure this bytecode is only used on Physics Entities.
+	WAIT_FRAMES_XVECL	= 6
+
+	;; Waits `(x - abs(int(xVecl * 2))` frames
+	;;	- parameter - byte - number of frames to pause
+	;; MUST ensure this bytecode is only used on Physics Entities.
+	WAIT_FRAMES_XVECL2	= 8
+
+	;; Waits `(x - abs(int(xVecl * 3))` frames
+	;;	- parameter - byte - number of frames to pause
+	;; MUST ensure this bytecode is only used on Physics Entities.
+	WAIT_FRAMES_XVECL3	= 10
+
 	; ::SHOULDO add WAIT_SPEED_FRAMES::
 	; :::Waits {argument - abs(xVecl)} frames (like sonic does)::
 
 	;; Moves the `animationPC` to the parameter
 	;;	- parameter - word - new animationPC
-	GOTO			=  6
+	GOTO			= 12
 
 	;; Copies a block of tiles into VRAM
 	;;  	- parameter 1 - word - ptr
 	;;	- parameter 2 - word - size in bytes
-	LOAD_TILES_BLOCK	=  8
+	LOAD_TILES_BLOCK	= 14
 
 	;; Copies a 16x16px half a row of tiles to the left half of VRAM
 	;; 4 16x16 tiles are copied. Second half must be 512 bytes after `ptr`
 	;;  	- parameter - word - ptr
-	LOAD_TILES16_LEFT_HALF	= 10
+	LOAD_TILES16_LEFT_HALF	= 16
 
 	;; Copies a 16x16px half a row of tiles to the right half of VRAM
 	;; 4 16x16 tiles are copied. Second half must be 512 bytes after `ptr`
 	;;  	- parameter - word - ptr
-	LOAD_TILES16_RIGHT_HALF = 12
+	LOAD_TILES16_RIGHT_HALF = 18
 
 .endenum
 

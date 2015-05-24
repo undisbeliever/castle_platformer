@@ -7,6 +7,7 @@
 
 .include "gameloop.h"
 .include "entity.h"
+.include "entity-physics.h"
 
 .include "routines/metasprite.h"
 
@@ -384,6 +385,9 @@ LABEL BytecodeFunctionTable
 	.addr	BC_Stop
 	.addr	BC_SetFrame
 	.addr	BC_WaitFrames
+	.addr	BC_WaitFramesXVecl
+	.addr	BC_WaitFramesXVecl2
+	.addr	BC_WaitFramesXVecl3
 	.addr	BC_Goto
 	.addr	BC_LoadTilesBlock
 	.addr	BC_LoadTiles16LeftHalf
@@ -437,6 +441,95 @@ ROUTINE BC_WaitFrames
 	BRA	BytecodeEnd
 
 
+; DP = EntityAnimationStruct address
+; Y = animationPC + 1
+; parameter - byte - number of frames to wait.
+.A16
+.I16
+ROUTINE BC_WaitFramesXVecl
+	TYX
+
+	SEP	#$20
+.A8
+	; entity->animationFrameDelay = animationBank[pc + 1] - abs(int(entity->xVecl))
+	LDA	f:EntityPhysicsStruct::xVecl + 1
+	IF_MINUS
+		NEG8
+	ENDIF
+	RSB8	f:AnimationBank << 16, X
+	IF_MINUS
+		LDA	#0
+	ENDIF
+	STA	z:EntityAnimationStruct::animationFrameDelay
+
+	INX
+	STX	z:EntityAnimationStruct::animationPC
+
+	BRA	BytecodeEnd
+
+
+; DP = EntityAnimationStruct address
+; Y = animationPC + 1
+; parameter - byte - number of frames to wait.
+.A16
+.I16
+ROUTINE BC_WaitFramesXVecl2
+	TYX
+
+	; entity->animationFrameDelay = animationBank[pc + 1] - abs(int(entity->xVecl * 2))
+	LDA	f:EntityPhysicsStruct::xVecl
+	ASL
+	XBA
+
+	SEP	#$20
+.A8
+	IF_MINUS
+		NEG8
+	ENDIF
+
+	RSB8	f:AnimationBank << 16, X
+	IF_MINUS
+		LDA	#0
+	ENDIF
+	STA	z:EntityAnimationStruct::animationFrameDelay
+
+	INX
+	STX	z:EntityAnimationStruct::animationPC
+
+	JMP	BytecodeEnd
+
+
+; DP = EntityAnimationStruct address
+; Y = animationPC + 1
+; parameter - byte - number of frames to wait.
+.A16
+.I16
+ROUTINE BC_WaitFramesXVecl3
+	TYX
+
+	; entity->animationFrameDelay = animationBank[pc + 1] - abs(int(entity->xVecl * 3))
+	LDA	f:EntityPhysicsStruct::xVecl
+	ASL
+	ADD	f:EntityPhysicsStruct::xVecl
+	XBA
+
+	SEP	#$20
+.A8
+	IF_MINUS
+		NEG8
+	ENDIF
+
+	RSB8	f:AnimationBank << 16, X
+	IF_MINUS
+		LDA	#0
+	ENDIF
+	STA	z:EntityAnimationStruct::animationFrameDelay
+
+	INX
+	STX	z:EntityAnimationStruct::animationPC
+
+	JMP	BytecodeEnd
+
 
 ; DP = EntityAnimationStruct address
 ; Y = animationPC + 1
@@ -448,7 +541,7 @@ ROUTINE BC_Goto
 	LDA	f:AnimationBank << 16, X
 	STA	z:EntityAnimationStruct::animationPC
 
-	BRA	BytecodeEnd
+	JMP	BytecodeNext
 
 
 ; DP = EntityAnimationStruct address
