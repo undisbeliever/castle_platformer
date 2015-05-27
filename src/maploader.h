@@ -88,14 +88,22 @@
 
 IMPORT_MODULE MapLoader
 	;; Loads a map into the MetaTile1x16 module.
-	;; REQUIRES: 8 bit A, 16 bit Index, DP = 0, Force Blank
+	;;
+	;; This routine will force blank the screen, f-blank is not
+	;; required (useful for processing fade out routine in NMI)
+	;;
+	;; REQUIRES: 8 bit A, 16 bit Index, DP = 0
 	;; INPUT: A - the map number to load.
 	ROUTINE	LoadMap
 
 	;; Loads a map's tileset into the MetaTile1x16 module and VRAM.
-	;; REQUIRES: 8 bit A, 16 bit Index, DP = 0, Force Blank
-	;; INPUT: A - the tilemap number to load.
-	ROUTINE	LoadTileset
+	;;
+	;; This routine will force blank the screen, f-blank is not
+	;; required (useful for processing fade out routine in NMI)
+	;;
+	;; REQUIRES: 8 bit A, 16 bit Index, DP = 0
+	;; INPUT: A - the tileset number to load.
+	ROUTINE	LoadMetaTiles
 ENDMODULE
 
 .endif ; ::_MAPLOADER_H_

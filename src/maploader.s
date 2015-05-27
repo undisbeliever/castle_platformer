@@ -216,6 +216,11 @@ ROUTINE LoadMetaTiles
 	LDY	#.loword(EntityPhysics__metaTilePropertyTable)
 	JSR	ResourceLoader__LoadDataToWram7E
 
+	; ::TODO support fade-out processing via NMI::
+	; Ensure in force-blank
+	LDA	#INIDISP_FORCE
+	STA	INIDISP
+
 	PLA
 	STZ	CGADD
 	JSR	ResourceLoader__LoadPalette_8A
