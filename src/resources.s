@@ -21,16 +21,18 @@
 .include "entities/npc-walk-and-turn.h"
 
 
-; ::TODO enum::
-TILESET_CASTLE_PLATFORMER = 0
+.enum MetatileSetId
+    CASTLE_PLATFORMER
+.endenum
+
 PALETTE_CASTLE_PLATFORMER = 0
 TILES_CASTLE_PLATFORMER   = 0
 
 .segment "BANK1"
 
 MapsTable:
-	.faraddr	Level01
-	.addr		Level01_MapPropertiesStruct
+	.faraddr	Map_level_01
+	.addr		MapProperties_level_01
 
 
 PalettesTable:
@@ -62,7 +64,7 @@ MetaTilesTable:
 
 .segment "BANK2"
 
-Level01:
+Map_level_01:
 	.incbin "resources/metatilemaps/level_01.metamap1x16"
 
 

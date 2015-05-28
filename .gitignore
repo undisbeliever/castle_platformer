@@ -15,4 +15,5 @@ tables/*.inc
 *.metamap1x16
 *.metatile1x16
 resources/metatilesets/*.png
+resources/metatilemaps/*.inc
 

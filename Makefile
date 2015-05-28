@@ -21,9 +21,10 @@ $(BINARY): $(API_OBJECTS) $(OBJECTS)
 	cd bin/ && ucon64 --snes --nhd --chk $(notdir $@)
 
 
-obj/%.o: src/%.s $(HEADERS) $(CONFIG_FILE) $(API_OBJECTS) $(RESOURCES) $(TABLES)
+obj/%.o: src/%.s $(HEADERS) $(CONFIG_FILE) $(API_OBJECTS)
 	ca65 -I . -I $(API_DIR) -o $@ $<
 
+obj/resources.o: $(RESOURCES) $(TABLES)
 
 .PHONY: dirs
 dirs: bin/ obj/
