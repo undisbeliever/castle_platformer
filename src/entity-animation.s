@@ -14,7 +14,7 @@
 ; last 2 rows ae free for other things
 .define N_VRAM_SLOTS 15
 .define N_PALETTE_SLOTS 7
-.define N_VRAM_TRANSFERS 5
+.define N_VRAM_TRANSFERS 6
 
 ; each vram slot is 2 8x8 rows in size
 VRAM_SLOT_SIZE = 16 * 2
@@ -319,26 +319,40 @@ BytecodeEnd:
 .A16
 .I16
 ROUTINE SetAnimation
-	SEP	#$20
+	SEP	#$30
 .A8
+.I8
 	CMP	z:EntityAnimationStruct::animationId
+	IF_NE
+		; entity->animationId = A
+		; if entity->animationFrameDelay != $FF
+		;	entity->animationFrameDelay = 0
+		; entity->animationPC = AnimationTableBank[entity->animationTable].bytecodePtr[entity->animationId]
+
+		STA	z:EntityAnimationStruct::animationId
+
+		LDY	z:EntityAnimationStruct::animationFrameDelay
+		INY
+		IF_NOT_ZERO
+			STZ	z:EntityAnimationStruct::animationFrameDelay
+		ENDIF
+
+		REP	#$30
+.A16
+.I16
+			AND	#$00FF
+
+			ASL
+			ADD	z:EntityAnimationStruct::animationTable
+			TAX
+
+			LDA	f:AnimationTableBank << 16 + AnimationTableStruct::bytecodePtr, X
+			STA	z:EntityAnimationStruct::animationPC
+	ENDIF
+
 	REP	#$30
 .A16
 .I16
-	IF_NE
-		; entity->animationFrameDelay = 0
-		; entity->animationPC = AnimationTableBank[entity->animationTable].bytecodePtr[entity->animationId]
-		.assert EntityAnimationStruct::animationId + 1 = EntityAnimationStruct::animationFrameDelay, error, "Bad Order"
-		AND	#$00FF
-		STA	z:EntityAnimationStruct::animationId
-
-		ASL
-		ADD	z:EntityAnimationStruct::animationTable
-		TAX
-
-		LDA	f:AnimationTableBank << 16 + AnimationTableStruct::bytecodePtr, X
-		STA	z:EntityAnimationStruct::animationPC
-	ENDIF
 
 	RTS
 
