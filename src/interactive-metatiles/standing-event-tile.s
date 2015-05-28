@@ -9,6 +9,7 @@
 .include "../standing-events/removechain.h"
 .include "../standing-events/removebridge.h"
 .include "../standing-events/gameover.h"
+.include "../standing-events/load_map.h"
 
 .include "routines/metatiles/metatiles-1x16.h"
 
@@ -20,6 +21,7 @@ LABEL StandingEventCommandsTable
 	.addr StandingEvents_RemoveChain__RemoveChain
 	.addr StandingEvents_RemoveBridge__RemoveBridge
 	.addr StandingEvents_GameOver__GameOver
+	.addr StandingEvents_LoadMap__LoadMap
 
 
 .code

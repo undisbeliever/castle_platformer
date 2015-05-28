@@ -39,6 +39,9 @@
 
 	;; Sets the game loop state to GAME_OVER
 	GAME_OVER = 4
+
+	;; Stops the game loop and loads a new map
+	LOAD_MAP = 6
 .endenum
 
 IMPORT_MODULE StandingEventTile

@@ -45,7 +45,7 @@ MODULE MapLoader
 ROUTINE LoadMap
 	REP	#$30
 .A16
-	.assert .sizeof(MapTableFormat) = 5, error, "MapTableFormat must be 6 bytes"
+	.assert .sizeof(MapTableFormat) = 5, error, "MapTableFormat must be 5 bytes"
 	AND	#$00FF
 	STA	dataPtr
 	ASL

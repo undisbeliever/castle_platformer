@@ -11,6 +11,7 @@
 	NOT_PLAYING
 	DEAD
 	GAME_OVER
+	LOAD_NEW_MAP
 .endenum
 
 
@@ -25,8 +26,8 @@ GAMELOOP_OAM_NAME	= 0
 
 
 IMPORT_MODULE GameLoop
-	;; The current level being played.
-	BYTE	level
+	;; The current map being played.
+	BYTE	map
 
 	;; The curret game state. Possible values are of `GameState`
 	;; Can be set by any of the process functions, checked at the start of

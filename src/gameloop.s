@@ -20,7 +20,7 @@
 MODULE GameLoop
 
 .segment "SHADOW"
-	BYTE	level
+	BYTE	map
 	BYTE	state
 
 	WORD	tmp
@@ -35,7 +35,7 @@ LABEL	GameStateTable
 	.addr	NotPlaying
 	.addr	Dead
 	.addr	GameOver
-
+	.addr	LoadNewMap
 
 .A8
 .I16
@@ -48,12 +48,12 @@ ROUTINE Init
 	LDA	#GAMELOOP_SCREEN_MODE
 	STA	BGMODE
 
-	MetaSprite_Init
 	Screen_SetVramBaseAndSize GAMELOOP
+	MetaSprite_Init
 
 	JSR	BackgroundEvents__Init
 
-	LDA	level
+	LDA	map
 	JSR	MapLoader__LoadMap
 
 	LDA	#TM_BG1 | TM_OBJ
@@ -200,6 +200,14 @@ ROUTINE Dead
 ROUTINE GameOver
 	RTS
 
+
+
+;; Loads a new map
+.A8
+.I16
+ROUTINE LoadNewMap
+	JSR	Init
+	JMP	PlayGame
 
 
 ENDMODULE
