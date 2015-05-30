@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="130" height="49" tilewidth="16" tileheight="16" nextobjectid="65">
+ <properties>
+  <property name="xpos" value="0"/>
+  <property name="ypos" value="0"/>
+ </properties>
+ <tileset firstgid="1" name="castle_platformer" tilewidth="16" tileheight="16">
+  <image source="../metatilesets/castle_platformer.png" width="256" height="256"/>
+ </tileset>
+ <layer name="Tiles" width="130" height="49">
+  <data encoding="base64" compression="zlib">
+   eJztm79SFjEQwIOgjFoJNsITiBVIJdX3YYOdQgO9zqi1UOObqM/me7g7fpkJN/l3ySaXbLb4FdwtWe7yu+yxd7dWSq2Bc+BFJKvN73BlzrnoiV/Abwt/Jse+FckIHsSei54QD8QD8SDM1uRn8WA8D8zjWsKDR8BT4BnwHPjrIScOt7XugW0uKMeNybuUB8gr4AA4LBiH26g9+Ah8IsI2/rrA2DF5ddxlpfnXvAaOgDeZcY+BXUccbqP2APM9IcCXg3r8uXlreoC8qxBH7YFAz9nMOH3tzxlPPGifuR6kxIkH7eObX/PaFw940+t6cArsAfsbXm62LX0+eyWn7i/lwTFw5+BtA+e0R3pcD1bK3Zu5V+25gD277QXzm/29HWM7Vd1v0QPtwkmAkCvHEWO4uFpwzm3E9AE5ehADuuJyAR34mTl+Sy7E9At79ICqr+zq31KN35ILoT5gjx5gvTVr3raHUJxt/JRxbHEteRCavx49QKifkZXM14IPHzL3U8SV8IDqGVmNfOZzMd//5iW5ydxPEVfCA4T6GVlr+aj4CnwDvifup4or5QF1TauZr9YaYbuXMt8dSr33mRtX4n0kDh7UJHRv0+v7SFw9KLVGhO5tqO+1ar2PxNWDkoTuWXp+H2kED1J7JTtq3t/Ua/9gFA8QivrNtX8wkgcU9Ztz/2AUD5Ccuiz9Az4epOae2z+g/p5J+ge05NRl6R/w8SCnLkv/gIcHFPVb+gfte+B7z1r6B2N4gA68V34XpH/A2wPtgMYVJ/0Dvh6cqocehL7Bkf4BPw+m8x9aD3Jy2+4vpr/Te/+AoqZNr0PfdUlVQ2PmhjI39/5Bbk3T16K5zbdGp+TzXedHlY6Vc/8gt1a51mNXvU7JF1rvp7Xc9V7zSP2De5X+HVkONg8ox3aN9xm4AL4Y266Ij838XquX/sFS2DygGhvn9c6x74f6v4bfGttcsanoa8t0zvUtXyv9A44e+OYVPcA1/JYwny+Xdm5af/FbTvTkWj1cm1xrWE7cqB6EOKmUx3Ru6sFKxTuZGyceLI92zuaBuT92nJQ48aAdXB7UQDxoh1Y9+Ac1u+9Q
+  </data>
+ </layer>
+ <objectgroup color="#ff0000" name="Entities">
+  <object id="3" type="WalkerLeft" x="368" y="656" width="16" height="16"/>
+  <object id="4" type="WalkerLeft" x="304" y="656" width="16" height="16"/>
+  <object id="5" type="WalkerLeft" x="336" y="656" width="16" height="16"/>
+  <object id="10" name="Player" type="Player" x="80" y="16" width="16" height="32"/>
+  <object id="11" type="WalkerLeft" x="272" y="656" width="16" height="16"/>
+  <object id="14" type="SpikedWalkerRight" x="368" y="224" width="16" height="16"/>
+  <object id="16" type="SpikedWalkerLeft" x="720" y="656" width="16" height="16"/>
+  <object id="17" type="SpikedWalkerLeft" x="816" y="656" width="16" height="16"/>
+  <object id="19" type="Stomper" x="1432" y="488" width="32" height="32"/>
+  <object id="20" type="SpikedWalkerLeft" x="992" y="656" width="16" height="16"/>
+  <object id="21" type="Stomper" x="1432" y="360" width="32" height="32"/>
+  <object id="38" type="SpikedWalkerLeft" x="1680" y="592" width="16" height="16"/>
+  <object id="39" type="SpikedWalkerLeft" x="1680" y="464" width="16" height="16"/>
+  <object id="41" type="WalkerLeft" x="928" y="304" width="16" height="16"/>
+  <object id="42" type="WalkerLeft" x="992" y="336" width="16" height="16"/>
+  <object id="43" type="WalkerLeft" x="1072" y="368" width="16" height="16"/>
+  <object id="45" type="SpikedWalkerRight" x="608" y="224" width="16" height="16"/>
+  <object id="46" type="SpikedWalkerRight" x="656" y="224" width="16" height="16"/>
+  <object id="47" type="SpikedWalkerRight" x="704" y="224" width="16" height="16"/>
+  <object id="49" type="SpikedWalkerRight" x="752" y="224" width="16" height="16"/>
+  <object id="50" type="SpikedWalkerRight" x="400" y="224" width="16" height="16"/>
+  <object id="52" type="Stomper" x="1432" y="232" width="32" height="32"/>
+  <object id="53" type="SpikedWalkerLeft" x="1680" y="336" width="16" height="16"/>
+  <object id="60" type="WalkerLeft" x="1536" y="208" width="16" height="16"/>
+  <object id="61" type="WalkerLeft" x="1616" y="176" width="16" height="16"/>
+  <object id="62" type="WalkerLeft" x="1696" y="144" width="16" height="16"/>
+  <object id="63" type="WalkerLeft" x="1776" y="112" width="16" height="16"/>
+  <object id="64" type="WalkerLeft" x="1856" y="80" width="16" height="16"/>
+ </objectgroup>
+ <objectgroup color="#ffff00" name="StandingEvents">
+  <object id="23" type="REMOVE_BRIDGE" x="1488" y="480" width="48" height="16">
+   <properties>
+    <property name="target" value="bridge3"/>
+   </properties>
+  </object>
+  <object id="30" type="REMOVE_BRIDGE" x="1600" y="608" width="112" height="16">
+   <properties>
+    <property name="target" value="bridge1"/>
+   </properties>
+  </object>
+  <object id="31" type="REMOVE_BRIDGE" x="1600" y="480" width="112" height="16">
+   <properties>
+    <property name="target" value="bridge4"/>
+   </properties>
+  </object>
+  <object id="32" type="REMOVE_BRIDGE" x="1760" y="608" width="112" height="16">
+   <properties>
+    <property name="target" value="bridge2"/>
+   </properties>
+  </object>
+  <object id="33" type="REMOVE_BRIDGE" x="1760" y="480" width="112" height="16">
+   <properties>
+    <property name="target" value="bridge5"/>
+   </properties>
+  </object>
+  <object id="54" type="REMOVE_BRIDGE" x="1488" y="352" width="48" height="16">
+   <properties>
+    <property name="target" value="bridge6"/>
+   </properties>
+  </object>
+  <object id="58" type="EXTEND_BRIDGE" x="256" y="192" width="32" height="16">
+   <properties>
+    <property name="target" value="bridgeToExtend"/>
+   </properties>
+  </object>
+  <object id="59" type="GAME_OVER" x="1536" y="64" width="432" height="16"/>
+ </objectgroup>
+ <objectgroup name="Targets">
+  <object id="24" name="bridge3" x="1488" y="480" width="16" height="16"/>
+  <object id="26" name="bridge1" x="1600" y="608" width="16" height="16"/>
+  <object id="27" name="bridge4" x="1600" y="480" width="16" height="16"/>
+  <object id="36" name="bridge2" x="1760" y="608" width="16" height="16"/>
+  <object id="37" name="bridge5" x="1760" y="480" width="16" height="16"/>
+  <object id="56" name="bridge6" x="1488" y="352" width="16" height="16"/>
+  <object id="57" name="bridgeToExtend" x="928" y="224" width="16" height="16"/>
+ </objectgroup>
+</map>

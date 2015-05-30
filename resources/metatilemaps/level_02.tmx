@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="16" height="50" tilewidth="16" tileheight="16" nextobjectid="13">
+ <properties>
+  <property name="xpos" value="0"/>
+  <property name="ypos" value="0"/>
+ </properties>
+ <tileset firstgid="1" name="castle_platformer" tilewidth="16" tileheight="16">
+  <image source="../metatilesets/castle_platformer.png" width="256" height="256"/>
+ </tileset>
+ <layer name="Tiles" width="16" height="50">
+  <data encoding="base64" compression="zlib">
+   eJzt17ENgDAQQ9FjBEZgBGACYFLCBJAJgMUIkguXdxUocvHLJ7l1MrNU2kqtsxWGe33jTF5eXr4Gf6Ac8Du5C90Bf5L72g9oDPie3IyWgJ/IycvLy9fgO2d/3e/9D+wfjhiMTQ==
+  </data>
+ </layer>
+ <objectgroup color="#ff0000" name="Entities">
+  <object id="12" name="Player" type="Player" x="80" y="16" width="16" height="32"/>
+ </objectgroup>
+ <objectgroup color="#ffff00" name="StandingEvents">
+  <object id="7" name="Goto Level 3" type="LOAD_MAP" x="48" y="736" width="160" height="16">
+   <properties>
+    <property name="parameter" value="Maps::level_03"/>
+   </properties>
+  </object>
+ </objectgroup>
+</map>

@@ -33,15 +33,21 @@
 	;; Removes the chain incrementally (rightwards) while Rumbling the screen
 	;; parameter: the address of the leftmost tile of the bridge.
 	;;
-	;; This command reconizes a bridge tile as the *first* tile removed.
+	;; This command recognizes a bridge tile as the *first* tile removed.
 	;; It will stop when the it reaches a tile that is not a bridge tile.
 	REMOVE_BRIDGE = 2
 
+	;; Extends a bridge left/right wards until it reaches
+	;; parameter: the address of the tile of the bridge to extend.
+	;; one of the tiles left/right wards of the bridge is 0, that is
+	;; the direction of extension.
+	EXTEND_BRIDGE = 4
+
 	;; Sets the game loop state to GAME_OVER
-	GAME_OVER = 4
+	GAME_OVER = 6
 
 	;; Stops the game loop and loads a new map
-	LOAD_MAP = 6
+	LOAD_MAP = 8
 .endenum
 
 IMPORT_MODULE StandingEventTile

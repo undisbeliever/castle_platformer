@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-down" width="112" height="56" tilewidth="16" tileheight="16" nextobjectid="50">
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="112" height="56" tilewidth="16" tileheight="16" nextobjectid="53">
  <properties>
   <property name="xpos" value="0"/>
   <property name="ypos" value="0"/>
@@ -62,11 +62,11 @@
  </tileset>
  <layer name="Tiles" width="112" height="56">
   <data encoding="base64" compression="zlib">
-   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
+   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
   </data>
  </layer>
  <objectgroup color="#ff0000" name="Entities">
-  <object id="24" name="Player" type="Player" x="80" y="192" width="16" height="32"/>
+  <object id="24" name="Player" type="Player" x="48" y="192" width="16" height="32"/>
   <object id="26" type="WalkerLeft" x="320" y="208" width="16" height="16"/>
   <object id="27" type="WalkerLeft" x="352" y="208" width="16" height="16"/>
   <object id="29" type="WalkerLeft" x="592" y="208" width="16" height="16"/>
@@ -94,7 +94,7 @@
     <property name="parameter" value="16"/>
    </properties>
   </object>
-  <object id="38" type="Stomper" x="736" y="720" width="32" height="32"/>
+  <object id="38" type="Stomper" x="736" y="704" width="32" height="32"/>
   <object id="42" type="WalkerLeft" x="384" y="208" width="16" height="16"/>
  </objectgroup>
  <objectgroup color="#ffff00" name="StandingEvents">
@@ -118,7 +118,11 @@
     <property name="target" value="bridge"/>
    </properties>
   </object>
-  <object id="41" type="GAME_OVER" x="1600" y="832" width="160" height="16"/>
+  <object id="41" type="LOAD_MAP" x="1600" y="832" width="160" height="16">
+   <properties>
+    <property name="parameter" value="Maps::level_02"/>
+   </properties>
+  </object>
  </objectgroup>
  <objectgroup name="Targets">
   <object id="19" name="chain1" x="528" y="208" width="16" height="16"/>

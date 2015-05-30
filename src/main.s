@@ -20,6 +20,10 @@ ROUTINE Main
 	SEP	#$20
 .A8
 .I16
+	; start on map 0
+	LDA	#0
+	STA	GameLoop__map
+
 	JSR	GameLoop__Init
 	JSR	GameLoop__PlayGame
 

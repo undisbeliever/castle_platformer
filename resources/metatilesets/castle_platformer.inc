@@ -12,7 +12,11 @@ CastlePlatformer_MetaTilePropertyTable:
 	.repeat 6
 		.addr	TileProperties__Platform
 	.endrepeat
-	.repeat	9
+	.addr	TileProperties__EmptyTile
+	.repeat	3
+		.addr	TileProperties__Platform
+	.endrepeat
+	.repeat	5
 		.addr	TileProperties__EmptyTile
 	.endrepeat
 	; row 1
@@ -37,15 +41,24 @@ CastlePlatformer_MetaTilePropertyTable:
 	.repeat 8
 		.addr	TileProperties__EmptyTile
 	.endrepeat
-	; rows 3 - 6
-	.repeat 4
+	; rows 3 - 5
+	.repeat 3
 		.repeat 7
 			.addr	TileProperties__SolidTile
 		.endrepeat
 		.addr	TileProperties__Spikes
-		.repeat 8
+		.addr	TileProperties__SolidTile
+		.repeat 7
 			.addr	TileProperties__EmptyTile
 		.endrepeat
+	.endrepeat
+	; row 6
+	.repeat 7
+		.addr	TileProperties__SolidTile
+	.endrepeat
+	.addr	TileProperties__Spikes
+	.repeat 8
+		.addr	TileProperties__EmptyTile
 	.endrepeat
 	; row 7
 	.repeat 7

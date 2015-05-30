@@ -25,14 +25,29 @@
     CASTLE_PLATFORMER
 .endenum
 
-PALETTE_CASTLE_PLATFORMER = 0
-TILES_CASTLE_PLATFORMER   = 0
+.enum Maps
+	level_01
+	level_02
+	level_03
+.endenum
+
+.enum PaletteId
+	CASTLE_PLATFORMER
+.endenum
+
+.enum TilesId
+	CASTLE_PLATFORMER
+.endenum
 
 .segment "BANK1"
 
 MapsTable:
 	.faraddr	Map_level_01
 	.addr		MapProperties_level_01
+	.faraddr	Map_level_02
+	.addr		MapProperties_level_02
+	.faraddr	Map_level_03
+	.addr		MapProperties_level_03
 
 
 PalettesTable:
@@ -47,8 +62,8 @@ VramTable:
 MetaTilesTable:
 	.faraddr	CastlePlatformer_MetaTiles
 	.faraddr	CastlePlatformer_MetaTilePropertyTable
-	.word		PALETTE_CASTLE_PLATFORMER
-	.word		TILES_CASTLE_PLATFORMER
+	.word		PaletteId::CASTLE_PLATFORMER
+	.word		TilesId::CASTLE_PLATFORMER
 
 
 ; Entity Tables/Data
@@ -58,14 +73,27 @@ MetaTilesTable:
 	.include "resources/entities/walker.inc"
 
 
-; Interactive tile tables for the levels
+; Map properties
 	.include "resources/metatilemaps/level_01.inc"
+	.include "resources/metatilemaps/level_02.inc"
+	.include "resources/metatilemaps/level_03.inc"
+
+; Metatileset properties
+	.include "resources/metatilesets/castle_platformer.inc"
 
 
-.segment "BANK2"
+.segment "BANK1"
 
 Map_level_01:
 	.incbin "resources/metatilemaps/level_01.metamap1x16"
+
+Map_level_02:
+	.incbin "resources/metatilemaps/level_02.metamap1x16"
+
+.segment "BANK2"
+
+Map_level_03:
+	.incbin "resources/metatilemaps/level_03.metamap1x16"
 
 
 .segment "BANK3"
@@ -84,9 +112,6 @@ CastlePlatformer_MetaTiles:
 	.word	CastlePlatformer_MetaTiles_End - CastlePlatformer_MetaTiles - 3
 	.incbin	"resources/metatilesets/castle_platformer.metatile1x16"
 CastlePlatformer_MetaTiles_End:
-
-
-	.include "resources/metatilesets/castle_platformer.inc"
 
 
 .segment METASPRITE_FRAME_BANK
