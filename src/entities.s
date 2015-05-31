@@ -282,8 +282,8 @@ ROUTINE NewPlayer
 		TDC
 		STA	firstActive
 
-		LDA	parameter
 		LDX	z:EntityStruct::functionsTable
+		LDA	parameter
 		JSR	(InitRoutine, X)
 
 		.ifnblank AfterInitRoutine
