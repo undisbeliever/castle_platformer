@@ -238,7 +238,7 @@ ROUTINE	Inactivated
 	STZ	entityInVramSlots, X
 
 	; Decrement palette counter
-	LDA	z:EntityAnimationStruct::metaSpriteCharAttr, X
+	LDA	z:EntityAnimationStruct::metaSpriteCharAttr
 	AND	#OAM_CHARATTR_PALETTE_MASK
 	XBA
 	TAX
