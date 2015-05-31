@@ -18,6 +18,7 @@ ENTITY_MALLOC = 64
 	;; INPUT:
 	;;	dp = EntityStruct address
 	;;	A = parameter
+	;;	Z set if A = 0
 	Init			.addr
 
 	;; Called when the entity is activated
@@ -46,6 +47,7 @@ ENTITY_MALLOC = 64
 	;; INPUT:
 	;;	dp = EntityStruct address
 	;;	A = parameter
+	;;	Z set if A = 0
 	Init			.addr
 
 	;; Called when the entity is activated
@@ -81,6 +83,7 @@ ENTITY_MALLOC = 64
 	;; INPUT:
 	;;	dp = EntityStruct address
 	;;	A = parameter
+	;;	Z set if A = 0
 	Init			.addr
 
 	;; Called once per frame.

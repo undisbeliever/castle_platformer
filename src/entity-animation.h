@@ -130,7 +130,7 @@ ANIMATION_DMA_TRANSFER_BYTES = 4096
 	;; Transfers two VRAM rows of tiles to the right half of VRAM.
 	;; The size paramter is the number of bytes in the top row.
 	;; The location of the second row is `DataPtr + size` bytes
-	TWO_ROWS_RIGHT	= 4
+	TWO_ROWS_RIGHT		= 4
 .endenum
 
 ;; This macro simplifies the creation of the MetaSprite tables

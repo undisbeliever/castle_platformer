@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-down" width="130" height="49" tilewidth="16" tileheight="16" nextobjectid="65">
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="130" height="49" tilewidth="16" tileheight="16" nextobjectid="71">
  <properties>
   <property name="xpos" value="0"/>
   <property name="ypos" value="0"/>
@@ -36,11 +36,28 @@
   <object id="50" type="SpikedWalkerRight" x="400" y="224" width="16" height="16"/>
   <object id="52" type="Stomper" x="1432" y="232" width="32" height="32"/>
   <object id="53" type="SpikedWalkerLeft" x="1680" y="336" width="16" height="16"/>
-  <object id="60" type="WalkerLeft" x="1536" y="208" width="16" height="16"/>
-  <object id="61" type="WalkerLeft" x="1616" y="176" width="16" height="16"/>
-  <object id="62" type="WalkerLeft" x="1696" y="144" width="16" height="16"/>
-  <object id="63" type="WalkerLeft" x="1776" y="112" width="16" height="16"/>
-  <object id="64" type="WalkerLeft" x="1856" y="80" width="16" height="16"/>
+  <object id="61" type="WalkerLeft" x="1616" y="176" width="16" height="16">
+   <properties>
+    <property name="parameter" value="2"/>
+   </properties>
+  </object>
+  <object id="62" type="WalkerLeft" x="1696" y="144" width="16" height="16">
+   <properties>
+    <property name="parameter" value="2"/>
+   </properties>
+  </object>
+  <object id="63" type="WalkerLeft" x="1776" y="112" width="16" height="16">
+   <properties>
+    <property name="parameter" value="2"/>
+   </properties>
+  </object>
+  <object id="64" type="WalkerLeft" x="1856" y="80" width="16" height="16">
+   <properties>
+    <property name="parameter" value="2"/>
+   </properties>
+  </object>
+  <object id="66" type="Bat" x="1120" y="128" width="16" height="16"/>
+  <object id="67" type="Bat" x="1264" y="128" width="16" height="16"/>
  </objectgroup>
  <objectgroup color="#ffff00" name="StandingEvents">
   <object id="23" type="REMOVE_BRIDGE" x="1488" y="480" width="48" height="16">

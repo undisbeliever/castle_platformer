@@ -16,6 +16,7 @@
 
 ; ::TODO better thing::
 .include "entities/player.h"
+.include "entities/npc-bat.h"
 .include "entities/npc-stomper.h"
 .include "entities/npc-unmoving.h"
 .include "entities/npc-walk-and-turn.h"
@@ -68,6 +69,7 @@ MetaTilesTable:
 
 ; Entity Tables/Data
 	.include "resources/entities/player.inc"
+	.include "resources/entities/bat.inc"
 	.include "resources/entities/spiked-walker.inc"
 	.include "resources/entities/stomper.inc"
 	.include "resources/entities/walker.inc"

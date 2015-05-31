@@ -13,6 +13,7 @@
 
 .include "gameloop.h"
 
+.export StartingMapCheatAddress := _MapLDA + 1
 
 ;; Initialisation Routine
 ROUTINE Main
@@ -21,6 +22,7 @@ ROUTINE Main
 .A8
 .I16
 	; start on map 0
+_MapLDA:
 	LDA	#0
 	STA	GameLoop__map
 
@@ -28,6 +30,7 @@ ROUTINE Main
 	JSR	GameLoop__PlayGame
 
 	JMP	ShowToBeContinued
+
 
 
 .A8
