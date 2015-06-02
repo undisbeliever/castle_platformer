@@ -23,6 +23,7 @@ import os.path
 import struct
 
 METATILES_MAP_TILE_ALLOCATION = 80 * 80
+METATILES_MAX_ROWS = 128
 TILE_MULTIPLIER = 2
 N_METATILES = 512
 N_NPCS = 64
@@ -225,6 +226,7 @@ def main(inName, map_fname, property_fname):
     assert map.renderorder == "right-down", "Map Render Order must be right-down."
     assert len(map.tilesets) == 1, "Only one tileset is accepted"
     assert map.width * map.height <= METATILES_MAP_TILE_ALLOCATION, "Map too large. Must be < {} squares".format(METATILES_MAP_TILE_ALLOCATION)
+    assert map.height <= METATILES_MAX_ROWS, "Map too tall. Must be < {} tiles high".format(METATILES_MAX_ROWS)
 
     for layer in map.layers:
         if type(layer) == tmx.Layer:

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="31" height="100" tilewidth="16" tileheight="16" nextobjectid="37">
+ <properties>
+  <property name="xpos" value="256"/>
+  <property name="ypos" value="1376"/>
+ </properties>
+ <tileset firstgid="1" name="castle_platformer" tilewidth="16" tileheight="16">
+  <image source="../metatilesets/castle_platformer.png" width="256" height="256"/>
+ </tileset>
+ <layer name="Tiles" width="31" height="100">
+  <data encoding="base64" compression="zlib">
+   eJztmDtSwzAQhg3hMYEqZeAEgQ6ooAMql9BxA+A0wAmAG8AJgLNwD9aDNLOj0dqrleXoVXwzkEj+/K+ijZxF0zSLNbGhwH+HxOYpzf2seAF+J+AJOd8U7xPlfkXOFN2bwAzYKiA3ldWlBinmLnm9qZx976WYm5uHOyfm3NR9S9bbfD3G3DPEHNgD9o3XuVDzObmXwAFwKMxHzee4V8ARcCx0U/Mpt9knzz3XVs/H1+V+1i483bb5MbrNmve5t4EdYJfhrjUfx+1S85xy15qHdev92XcutY1JJbdLX3Nxp9bXWs/1bj3cd565bfM57nvgAXgUeqn5lLueFac/K3bvdX1a9+ixzor4mtzPeQz9fCo3rs9Y7lpzfs1t/diF1nJNbu5S+jn+HjT7sf5eNM8X1P+2fs49O5TWzzF9/dystQ3bfK67pN7CdXNqnmPu0O6+fs6peT2fD7vr+Tzufs5hzH5O7Svq9VD7m0PM+/tD8WmMmWJ/fzvy0/z/pmfyJbgWxyXJLb0Xqc/1Xk4Up4Gcph+v96XiijHXdX/bkLrHoLrlbpc1zim3tB655h6qR665c1/v3Pe3NF9Kuc8U63JfB/ZTbu0NmR+7bxS3yo0J7XZ93vYZNzfc+n64z9s+45aEm/u8PTRO/05vG7ci3B3c522fcdj9B7Z7uuk=
+  </data>
+ </layer>
+ <objectgroup color="#ff0000" name="Entities">
+  <object id="1" name="Player" type="Player" x="272" y="1504" width="16" height="32"/>
+  <object id="7" type="Bat" x="288" y="1264" width="16" height="16"/>
+  <object id="9" type="SpikedWalkerLeft" x="320" y="1136" width="16" height="16"/>
+  <object id="10" type="SpikedWalkerRight" x="160" y="1136" width="16" height="16"/>
+  <object id="11" type="Bat" x="304" y="928" width="16" height="16"/>
+  <object id="12" type="Bat" x="176" y="928" width="16" height="16"/>
+  <object id="13" type="Bat" x="176" y="880" width="16" height="16"/>
+  <object id="14" type="Bat" x="304" y="880" width="16" height="16"/>
+  <object id="15" type="Stomper" x="264" y="736" width="32" height="32"/>
+  <object id="16" type="Stomper" x="200" y="736" width="32" height="32"/>
+  <object id="17" type="Bat" x="336" y="752" width="16" height="16"/>
+  <object id="18" type="Bat" x="128" y="752" width="16" height="16"/>
+  <object id="21" type="Bat" x="240" y="224" width="16" height="16"/>
+  <object id="22" type="Bat" x="240" y="192" width="16" height="16"/>
+  <object id="23" type="Bat" x="432" y="160" width="16" height="16"/>
+  <object id="24" type="Bat" x="128" y="704" width="16" height="16"/>
+  <object id="25" type="Bat" x="336" y="704" width="16" height="16"/>
+  <object id="26" type="Bat" x="336" y="656" width="16" height="16"/>
+  <object id="27" type="Bat" x="128" y="656" width="16" height="16"/>
+  <object id="29" type="Stomper" x="160" y="432" width="32" height="32"/>
+  <object id="30" type="Stomper" x="304" y="432" width="32" height="32"/>
+  <object id="31" type="Bat" x="240" y="288" width="16" height="16"/>
+  <object id="32" type="Bat" x="240" y="256" width="16" height="16"/>
+  <object id="33" type="Bat" x="432" y="112" width="16" height="16"/>
+  <object id="34" type="Bat" x="48" y="160" width="16" height="16"/>
+  <object id="35" type="Bat" x="48" y="112" width="16" height="16"/>
+  <object id="36" type="Bat" x="240" y="128" width="16" height="16"/>
+ </objectgroup>
+ <objectgroup color="#ffff00" name="StandingEvents">
+  <object id="20" type="LOAD_MAP" x="48" y="64" width="400" height="16">
+   <properties>
+    <property name="parameter" value="Maps::level_04"/>
+   </properties>
+  </object>
+ </objectgroup>
+</map>

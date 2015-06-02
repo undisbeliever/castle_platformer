@@ -9,7 +9,7 @@
  </tileset>
  <layer name="Tiles" width="130" height="49">
   <data encoding="base64" compression="zlib">
-   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
+   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
   </data>
  </layer>
  <objectgroup color="#ff0000" name="Entities">
@@ -21,9 +21,9 @@
   <object id="14" type="SpikedWalkerRight" x="368" y="224" width="16" height="16"/>
   <object id="16" type="SpikedWalkerLeft" x="720" y="656" width="16" height="16"/>
   <object id="17" type="SpikedWalkerLeft" x="816" y="656" width="16" height="16"/>
-  <object id="19" type="Stomper" x="1432" y="488" width="32" height="32"/>
+  <object id="19" type="Stomper" x="1432" y="496" width="32" height="32"/>
   <object id="20" type="SpikedWalkerLeft" x="992" y="656" width="16" height="16"/>
-  <object id="21" type="Stomper" x="1432" y="360" width="32" height="32"/>
+  <object id="21" type="Stomper" x="1432" y="368" width="32" height="32"/>
   <object id="38" type="SpikedWalkerLeft" x="1680" y="592" width="16" height="16"/>
   <object id="39" type="SpikedWalkerLeft" x="1680" y="464" width="16" height="16"/>
   <object id="41" type="WalkerLeft" x="928" y="304" width="16" height="16"/>
@@ -34,7 +34,7 @@
   <object id="47" type="SpikedWalkerRight" x="704" y="224" width="16" height="16"/>
   <object id="49" type="SpikedWalkerRight" x="752" y="224" width="16" height="16"/>
   <object id="50" type="SpikedWalkerRight" x="400" y="224" width="16" height="16"/>
-  <object id="52" type="Stomper" x="1432" y="232" width="32" height="32"/>
+  <object id="52" type="Stomper" x="1432" y="240" width="32" height="32"/>
   <object id="53" type="SpikedWalkerLeft" x="1680" y="336" width="16" height="16"/>
   <object id="61" type="WalkerLeft" x="1616" y="176" width="16" height="16">
    <properties>
@@ -85,7 +85,7 @@
     <property name="target" value="bridge5"/>
    </properties>
   </object>
-  <object id="54" type="REMOVE_BRIDGE" x="1488" y="352" width="48" height="16">
+  <object id="54" type="REMOVE_BRIDGE" x="1504" y="352" width="32" height="16">
    <properties>
     <property name="target" value="bridge6"/>
    </properties>
@@ -95,7 +95,11 @@
     <property name="target" value="bridgeToExtend"/>
    </properties>
   </object>
-  <object id="59" type="GAME_OVER" x="1536" y="64" width="432" height="16"/>
+  <object id="59" type="LOAD_MAP" x="1504" y="64" width="464" height="16">
+   <properties>
+    <property name="parameter" value="Maps::level_04"/>
+   </properties>
+  </object>
  </objectgroup>
  <objectgroup name="Targets">
   <object id="24" name="bridge3" x="1488" y="480" width="16" height="16"/>
@@ -103,7 +107,7 @@
   <object id="27" name="bridge4" x="1600" y="480" width="16" height="16"/>
   <object id="36" name="bridge2" x="1760" y="608" width="16" height="16"/>
   <object id="37" name="bridge5" x="1760" y="480" width="16" height="16"/>
-  <object id="56" name="bridge6" x="1488" y="352" width="16" height="16"/>
+  <object id="56" name="bridge6" x="1504" y="352" width="16" height="16"/>
   <object id="57" name="bridgeToExtend" x="928" y="224" width="16" height="16"/>
  </objectgroup>
 </map>
