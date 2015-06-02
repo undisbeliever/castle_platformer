@@ -97,21 +97,24 @@ ROUTINE PlayGame
 .A8
 			JSR	Entities__Render
 			JSR	MetaTiles1x16__Update
-
-		; reset DP
-		LDA	#0
-		TCD
-
 		PLB
+
 		LDA	state
 	UNTIL_NOT_ZERO
 
-	LDA	#0
-	XBA
-	LDA	state
+	REP	#$30
+.A16
+
+	AND	#$00FF
 	ASL
 	TAX
 
+	; ::BUGFIX Reset DP::
+	LDA	#0
+	TCD
+
+	SEP	#$20
+.A8
 	JMP	(.loword(GameStateTable), X)
 
 
