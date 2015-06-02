@@ -5,11 +5,11 @@
 .include "includes/registers.inc"
 .include "includes/structure.inc"
 
+.include "../camera.h"
 .include "routines/background-events.h"
 .include "routines/metatiles/metatiles-1x16.h"
 
-REMOVE_CHAIN_FRAME_DELAY = 4
-RATTLE_SCREEN_AMOUNT = 3
+EXTEND_BRIDGE_FRAME_DELAY = 4
 
 BACKGROUND_EVENT_STRUCT EventStruct
 	frameDelay			.word
@@ -93,15 +93,13 @@ _ExtendBridge:
 .A16
 .I16
 ROUTINE ExtendBridgeEvent
+	; Camera__shaking = true
+	;
 	; if event->frameDelay != 0
 	;	event->frameDelay--
-	;	if event->frameDelay & 1
-	;		MetaTiles1x16__yPos += RATTLE_SCREEN_AMOUNT
-	;	else
-	;		MetaTiles1x16__yPos -= RATTLE_SCREEN_AMOUNT
 	;	return true
 	; else
-	; 	event->frameDelay = REMOVE_CHAIN_FRAME_DELAY
+	; 	event->frameDelay = EXTEND_BRIDGE_FRAME_DELAY
 	;	// SOUND - remove chain
 	;	MetaTiles1x16__mapDirty = 1
 	;
@@ -117,35 +115,32 @@ ROUTINE ExtendBridgeEvent
 	;
 	;	return true
 
+
+	SEP	#$20
+.A8
+	LDA	#1
+	STA	Camera__shaking
+
 	LDA	z:EventStruct::frameDelay
 	IF_NOT_ZERO
-		LSR	; c = LSB of frameDelay
 		DEC	z:EventStruct::frameDelay
 
-		; rattle the screen - show something is happening
-		.assert REMOVE_CHAIN_FRAME_DELAY & 1 = 0, error, "REMOVE_CHAIN_FRAME_DELAY must be even to rattle screen properly"
-
-		LDA	MetaTiles1x16__yPos
-		IF_C_CLEAR
-			; a clear
-			ADC	#RATTLE_SCREEN_AMOUNT
-		ELSE
-			; c already set
-			SBC	#RATTLE_SCREEN_AMOUNT
-		ENDIF
-		STA	MetaTiles1x16__yPos
-
+		REP	#$20
+.A16
 		SEC
 		RTS	
 	ENDIF
-
-	LDA	#REMOVE_CHAIN_FRAME_DELAY
-	STA	z:EventStruct::frameDelay
-
+.A8	
 	; ::SOUND extend bridge::
 
-	LDA	#1
+	LDA	#EXTEND_BRIDGE_FRAME_DELAY
+	STA	z:EventStruct::frameDelay
+BREAKPOINT
+	; A = non-zero
 	STA	.loword(MetaTiles1x16__mapDirty)
+
+	REP	#$20
+.A16
 
 	LDX	z:EventStruct::currentBridgePieceToExtend
 	LDA	z:EventStruct::bridgeTile

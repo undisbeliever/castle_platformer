@@ -59,10 +59,6 @@ IMPORT_MODULE Player
 	;; INPUT: dp = npc that killed the player.
 	ROUTINE Kill
 
-	;; Updates the map's position, depending on the players position
-	;; REQUIRE: 16 bit A, 16 bit Index, DB = $7E or access shadow
-	;; INPUT: DP = player
-	ROUTINE	SetScreenPosition
 ENDMODULE
 
 .endif ; ::_ENTITIES_PLAYER_H_

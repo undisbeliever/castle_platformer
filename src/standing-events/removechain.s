@@ -5,14 +5,14 @@
 .include "includes/registers.inc"
 .include "includes/structure.inc"
 
+.include "../camera.h"
 .include "routines/background-events.h"
 .include "routines/metatiles/metatiles-1x16.h"
 
 REMOVE_CHAIN_FRAME_DELAY = 6
-RATTLE_SCREEN_AMOUNT = 3
 
 BACKGROUND_EVENT_STRUCT EventStruct
-	frameDelay			.byte
+	frameDelay			.word
 	currentChainPieceToRemove	.addr
 	chainTile			.word
 	chainBottomTile			.word
@@ -51,7 +51,7 @@ ROUTINE RemoveChain
 			LDA	.loword(MetaTiles1x16__map), Y
 			STA	a:EventStruct::chainBottomTile, X
 
-			; ensure chain is removed immediatly, safe to write in 16 bit mode
+			; ensure chain is removed immediately, safe to write in 16 bit mode
 			STZ	a:EventStruct::frameDelay, X
 
 			TYA
@@ -73,12 +73,10 @@ ROUTINE RemoveChain
 .A16
 .I16
 ROUTINE RemoveChainEvent
+	; camera__shaking = true
+	;
 	; if entity->frameDelay != 0
 	;	entity->frameDelay--
-	;	if entity->frameDelay & 1
-	;		MetaTiles1x16__yPos += RATTLE_SCREEN_AMOUNT
-	;	else
-	;		MetaTiles1x16__yPos -= RATTLE_SCREEN_AMOUNT
 	;	return true
 	; else
 	; 	entity->frameDelay = REMOVE_CHAIN_FRAME_DELAY
@@ -100,38 +98,27 @@ ROUTINE RemoveChainEvent
 
 	SEP	#$20
 .A8
+
+	LDA	#1
+	STA	Camera__shaking
+
 	LDA	z:EventStruct::frameDelay
 	IF_NOT_ZERO
-		LSR	; c = LSB of frameDelay
 		DEC	z:EventStruct::frameDelay
 
 		REP	#$20
 .A16
-
-		; rattle the screen - show something is happening
-		.assert REMOVE_CHAIN_FRAME_DELAY & 1 = 0, error, "REMOVE_CHAIN_FRAME_DELAY must be even to rattle screen properly"
-
-		LDA	MetaTiles1x16__yPos
-		IF_C_CLEAR
-			; a clear
-			ADC	#RATTLE_SCREEN_AMOUNT
-		ELSE
-			; c already set
-			SBC	#RATTLE_SCREEN_AMOUNT
-		ENDIF
-		STA	MetaTiles1x16__yPos
-
 		SEC
 		RTS	
 	ENDIF
 .A8
 
+	; ::SOUND remove chain::
+
 	LDA	#REMOVE_CHAIN_FRAME_DELAY
 	STA	z:EventStruct::frameDelay
 
-	; ::SOUND remove chain::
-
-	LDA	#1
+	; A = non-zero
 	STA	.loword(MetaTiles1x16__mapDirty)
 
 	REP	#$30

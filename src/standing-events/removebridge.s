@@ -5,10 +5,9 @@
 .include "includes/registers.inc"
 .include "includes/structure.inc"
 
+.include "../camera.h"
 .include "routines/background-events.h"
 .include "routines/metatiles/metatiles-1x16.h"
-
-RATTLE_SCREEN_AMOUNT = 3
 
 BACKGROUND_EVENT_STRUCT EventStruct
 	currentBridgePieceToRemove	.addr
@@ -62,12 +61,8 @@ ROUTINE RemoveBridge
 .A16
 .I16
 ROUTINE RemoveBridgeEvent
-	; if event->currentBridgePieceToRemove & 2 != 0
-	;	MetaTiles1x16__yPos += RATTLE_SCREEN_AMOUNT
-	; else
-	;	MetaTiles1x16__yPos -= RATTLE_SCREEN_AMOUNT
-	;
 	; // SOUND - remove bridge
+	; Camera__shaking = 1
 	; MetaTiles1x16__mapDirty = 1
 	;
 	; MetaTiles1x16__map[event->currentBridgePieceToRemove] = 0
@@ -79,23 +74,15 @@ ROUTINE RemoveBridgeEvent
 	;
 	; return true
 
-	; rattle the screen - show something is happening
-	LDA	z:EventStruct::currentBridgePieceToRemove
-	IF_BIT	#2
-		LDA	MetaTiles1x16__yPos
-		ADD	#RATTLE_SCREEN_AMOUNT
-	ELSE
-		LDA	MetaTiles1x16__yPos
-		SBC	#RATTLE_SCREEN_AMOUNT
-	ENDIF
-	STA	MetaTiles1x16__yPos
-
 	; ::SOUND remove bridge::
 
+	SEP	#$20
+.A8
 	LDA	#1
+	STA	Camera__shaking
 	STA	.loword(MetaTiles1x16__mapDirty)
 
-	REP	#$30
+	REP	#$20
 .A16
 
 	LDX	z:EventStruct::currentBridgePieceToRemove

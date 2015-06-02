@@ -6,6 +6,7 @@
 .include "includes/structure.inc"
 .include "routines/screen.h"
 
+.include "camera.h"
 .include "maploader.h"
 .include "controller.h"
 .include "entities.h"
@@ -56,6 +57,8 @@ ROUTINE Init
 	LDA	map
 	JSR	MapLoader__LoadMap
 
+	JSR	Camera__Init
+
 	LDA	#TM_BG1 | TM_OBJ
 	STA	TM
 
@@ -86,9 +89,7 @@ ROUTINE PlayGame
 .A16
 			JSR	Entities__Process
 
-			LDA	#Entities__player
-			TCD
-			JSR	Player__SetScreenPosition
+			JSR	Camera__Update
 
 			JSR	BackgroundEvents__Process
 

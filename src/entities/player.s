@@ -15,17 +15,9 @@
 .include "routines/block.h"
 
 ; ::TODO move somewhere else
-SCREEN_LEFT_RIGHT_SPACING = 95
-SCREEN_UP_DOWN_SPACING = 65
-
-; ::TODO move somewhere else
 
 JUMP_ON_NPC_VELOCITY = $0250
 
-ENTITY_WIDTH = 16
-ENTITY_HEIGHT = 24
-ENTITY_XOFFSET = 8
-ENTITY_YOFFSET = 16
 
 .define PES PlayerEntityStruct
 
@@ -225,58 +217,6 @@ ROUTINE Kill
 	STA	GameLoop__state
 
 	PLD
-	RTS
-
-
-.A16
-.I16
-ROUTINE	SetScreenPosition
-	LDA	z:PES::xPos + 1
-	SUB	MetaTiles1x16__xPos
-	CMP	#256 - SCREEN_LEFT_RIGHT_SPACING
-	IF_SGE
-		LDA	z:PES::xPos + 1
-		SUB	#256 - SCREEN_LEFT_RIGHT_SPACING
-		CMP	MetaTiles1x16__maxXPos
-		IF_GE
-			LDA	MetaTiles1x16__maxXPos
-		ENDIF
-		STA	MetaTiles1x16__xPos
-	ELSE
-		CMP	#SCREEN_LEFT_RIGHT_SPACING
-		IF_SLT
-			LDA	z:PES::xPos + 1
-			SUB	#SCREEN_LEFT_RIGHT_SPACING
-			IF_MINUS
-				LDA	#0
-			ENDIF
-			STA	MetaTiles1x16__xPos
-		ENDIF
-	ENDIF
-
-	LDA	z:PES::yPos + 1
-	SUB	MetaTiles1x16__yPos
-	CMP	#224 - SCREEN_UP_DOWN_SPACING
-	IF_SGE
-		LDA	z:PES::yPos + 1
-		SUB	#224 - SCREEN_UP_DOWN_SPACING
-		CMP	MetaTiles1x16__maxYPos
-		IF_GE
-			LDA	MetaTiles1x16__maxYPos
-		ENDIF
-		STA	MetaTiles1x16__yPos
-	ELSE
-		CMP	#SCREEN_UP_DOWN_SPACING
-		IF_SLT
-			LDA	z:PES::yPos + 1
-			SUB	#SCREEN_UP_DOWN_SPACING
-			IF_MINUS
-				LDA	#0
-			ENDIF
-			STA	MetaTiles1x16__yPos
-		ENDIF
-	ENDIF
-
 	RTS
 
 ENDMODULE
