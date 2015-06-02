@@ -135,7 +135,7 @@ ROUTINE ExtendBridgeEvent
 
 	LDA	#EXTEND_BRIDGE_FRAME_DELAY
 	STA	z:EventStruct::frameDelay
-BREAKPOINT
+
 	; A = non-zero
 	STA	.loword(MetaTiles1x16__mapDirty)
 

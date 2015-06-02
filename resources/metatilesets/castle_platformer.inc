@@ -101,8 +101,9 @@ CastlePlatformer_MetaTilePropertyTable:
 	.repeat 4
 		.addr	TileProperties__SolidTile
 	.endrepeat
-	.addr	TileProperties__StandingEventTile	; ::TODO change to TouchEventTile::
-	.repeat 11
+	.addr	TileProperties__StandingEventTile
+	.addr	TileProperties__Spikes
+	.repeat 10
 		.addr	TileProperties__EmptyTile
 	.endrepeat
 	; row 15	
