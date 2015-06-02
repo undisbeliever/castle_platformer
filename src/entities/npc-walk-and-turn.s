@@ -91,11 +91,9 @@ ROUTINE Process_Walking
 	; Test if now falling
 	; -------------------
 
-	SEP	#$20
-.A8
 	LDA	EntityPhysics__status
-	.assert EntityPhysicsStatusBits::STANDING = $80, error, "Bad Code"
-	IF_N_CLEAR
+
+	IF_NOT_BIT #EntityPhysicsStatusBits::STANDING
 		; Entity is falling
 		;  - set state to falling
 		;  - set Animation to falling
@@ -110,7 +108,6 @@ ROUTINE Process_Walking
 			INC
 		ENDIF
 
-		REP	#$30
 		JSR	EntityAnimation__SetAnimation
 		SEC
 		RTS
@@ -119,7 +116,7 @@ ROUTINE Process_Walking
 
 	; Test if collide with wall
 	; -------------------------
-.A8
+
 	; A = EntityPhysics__status
 	IF_BIT	#EntityPhysicsStatusBits::LEFT_COLLISION
 		; non-zero A
@@ -129,8 +126,6 @@ ROUTINE Process_Walking
 		STZ	z:WES::walkLeftOnZero
 	ENDIF
 
-	REP	#$20
-.A16
 
 	; Test if about to fall off edge
 	; ------------------------------
