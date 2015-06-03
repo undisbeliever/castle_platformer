@@ -1,10 +1,9 @@
-Castle Platformer Demo
-======================
+Castle Platformer
+=================
 
-This repo contains a demo, showing off a moving character within a
-MetaTile1x16 map.
+This repo contains a simple SNES platformer game engine.
 
-<img src="screenshot.png?raw=true" alt="Castle Platformer Demo Screenshot" width="512" height="448">
+<img src="screenshot.png?raw=true" alt="Castle Platformer Screenshot" width="512" height="448">
 
 The engine features:
 
@@ -13,9 +12,9 @@ The engine features:
  * Interactive tiles that are activated when the player stands on them.
  * A Super Mario Bros-like 'death' animation.
  * Static platforms.
- * A *basic* background code system.
+ * A *basic* background event system.
  * Animated Sprites with dynamically loaded tiles
-
+ * A credits screen
 
 Graphics
 ========

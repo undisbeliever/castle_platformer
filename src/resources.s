@@ -92,13 +92,19 @@ MetaTilesTable:
 	.include "resources/metatilesets/castle_platformer.inc"
 
 
+.rodata
+	INCLUDE_BINARY CreditsTiles,	"resources/credits.4bpp"
+	INCLUDE_BINARY CreditsPalette,	"resources/credits.clr"
+
 .segment "BANK1"
+	INCLUDE_BINARY CreditsMap,	"resources/credits.map"
 
 Map_level_01:
 	.incbin "resources/metatilemaps/level_01.metamap1x16"
 
 Map_level_02:
 	.incbin "resources/metatilemaps/level_02.metamap1x16"
+
 
 .segment "BANK2"
 
@@ -108,11 +114,10 @@ Map_level_03:
 Map_level_04:
 	.incbin "resources/metatilemaps/level_04.metamap1x16"
 
+.segment "BANK3"
+
 Map_level_05:
 	.incbin "resources/metatilemaps/level_05.metamap1x16"
-
-
-.segment "BANK3"
 
 CastlePlatformer_Palette:
 	.incbin	"resources/metatilesets/castle_platformer.clr", 0, 256
