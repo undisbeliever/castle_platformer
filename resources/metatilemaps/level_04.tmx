@@ -44,7 +44,7 @@
  <objectgroup color="#ffff00" name="StandingEvents">
   <object id="20" type="LOAD_MAP" x="48" y="64" width="400" height="16">
    <properties>
-    <property name="parameter" value="Maps::level_04"/>
+    <property name="parameter" value="Maps::level_05"/>
    </properties>
   </object>
  </objectgroup>

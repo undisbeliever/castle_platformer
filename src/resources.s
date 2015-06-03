@@ -31,6 +31,7 @@
 	level_02
 	level_03
 	level_04
+	level_05
 .endenum
 
 .enum PaletteId
@@ -52,6 +53,8 @@ MapsTable:
 	.addr		MapProperties_level_03
 	.faraddr	Map_level_04
 	.addr		MapProperties_level_04
+	.faraddr	Map_level_05
+	.addr		MapProperties_level_05
 
 
 PalettesTable:
@@ -83,6 +86,7 @@ MetaTilesTable:
 	.include "resources/metatilemaps/level_02.inc"
 	.include "resources/metatilemaps/level_03.inc"
 	.include "resources/metatilemaps/level_04.inc"
+	.include "resources/metatilemaps/level_05.inc"
 
 ; Metatileset properties
 	.include "resources/metatilesets/castle_platformer.inc"
@@ -103,6 +107,9 @@ Map_level_03:
 
 Map_level_04:
 	.incbin "resources/metatilemaps/level_04.metamap1x16"
+
+Map_level_05:
+	.incbin "resources/metatilemaps/level_05.metamap1x16"
 
 
 .segment "BANK3"

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="120" height="33" tilewidth="16" tileheight="16" nextobjectid="29">
+ <properties>
+  <property name="xPos" value="0"/>
+  <property name="yPos" value="280"/>
+ </properties>
+ <tileset firstgid="1" name="castle_platformer" tilewidth="16" tileheight="16">
+  <image source="../metatilesets/castle_platformer.png" width="256" height="256"/>
+ </tileset>
+ <layer name="Tile Layer 1" width="120" height="33">
+  <data encoding="base64" compression="zlib">
+   eJzt27dOw0AYB/AjoUy0B6ANsFFegPIi8ASUF6CMLBQBAwtFCStFggkJwoxEmZEoAyCKKCNFtH+EUYxlX3wX2znffcNvyJ0+39n/nGP5lDRjLE2UtwK1PqUUmC8Rz7fEJ8o3ftzy7YU+2+ekxZ7vJomFLUe2/TAAgzDEvNfvX9s446/57Tz9JFrDMAKjMBZAvvsKnBPJmYBJmIJpq+3aIpPviQLnRHIWYBGWYNnRJ5LvDdzCHdxzxquEKqiGGon5Ur1Y/SqswTpsFJDvC7zCG7xzxquDemiARonzo3qx+h3YhQzsWW1uz8/58vWrFdqgHTqoPvT6AziEIzh29IWRbyd0QTf0UH3o9adwBudwEUG+JFoP8AhP8Gy18e7P8wrMmfj3AZ/wBd+OPnu+sw5zAmPMuNR7Ha8MyqHCVq9Lm0y7TI2f6511xcTec3pJcY4jczxS+PUOMo845ptgv79RpQrMhfI1O0/KV98sKV/98zQ9X9OYkK9pa9a0fE2mc74mr1sT8iWUr+50zZfuzXrnSyhfE6iY7yX7v1eYjIDXPprI3qeKVMy3GGvZa17Z8ZuhJaYoX/687PeSOOLt24tk0ORT2PkmmNxzcxDfc12F+T/TYq9fE/0AXDZWLQ==
+  </data>
+ </layer>
+ <objectgroup color="#ff0000" name="Entities">
+  <object id="2" type="Bat" x="832" y="480" width="16" height="16"/>
+  <object id="3" type="Bat" x="448" y="480" width="16" height="16"/>
+  <object id="4" name="Player" type="Player" x="640" y="416" width="16" height="32"/>
+  <object id="6" type="WalkerLeft" x="672" y="384" width="16" height="16">
+   <properties>
+    <property name="parameter" value="2"/>
+   </properties>
+  </object>
+  <object id="7" type="WalkerLeft" x="688" y="336" width="16" height="16">
+   <properties>
+    <property name="parameter" value="2"/>
+   </properties>
+  </object>
+  <object id="8" type="WalkerLeft" x="720" y="304" width="16" height="16">
+   <properties>
+    <property name="parameter" value="2"/>
+   </properties>
+  </object>
+  <object id="9" type="WalkerLeft" x="768" y="272" width="16" height="16">
+   <properties>
+    <property name="parameter" value="2"/>
+   </properties>
+  </object>
+  <object id="10" type="WalkerLeft" x="832" y="256" width="16" height="16">
+   <properties>
+    <property name="parameter" value="2"/>
+   </properties>
+  </object>
+  <object id="11" type="WalkerLeft" x="912" y="240" width="16" height="16">
+   <properties>
+    <property name="parameter" value="2"/>
+   </properties>
+  </object>
+  <object id="12" type="WalkerLeft" x="976" y="224" width="16" height="16">
+   <properties>
+    <property name="parameter" value="2"/>
+   </properties>
+  </object>
+  <object id="13" type="Bat" x="1120" y="176" width="16" height="16"/>
+  <object id="14" type="Bat" x="1232" y="160" width="16" height="16"/>
+  <object id="15" type="Bat" x="1296" y="176" width="16" height="16"/>
+  <object id="16" type="Bat" x="1344" y="144" width="16" height="16"/>
+  <object id="17" type="Bat" x="1472" y="160" width="16" height="16"/>
+  <object id="18" type="Bat" x="1616" y="176" width="16" height="16"/>
+  <object id="19" type="Bat" x="1760" y="144" width="16" height="16"/>
+  <object id="20" type="Bat" x="1728" y="176" width="16" height="16"/>
+  <object id="21" type="Bat" x="1808" y="160" width="16" height="16"/>
+  <object id="22" type="Bat" x="1520" y="144" width="16" height="16"/>
+  <object id="23" type="Bat" x="1424" y="176" width="16" height="16"/>
+  <object id="24" type="Bat" x="1648" y="128" width="16" height="16"/>
+  <object id="25" type="Bat" x="1696" y="144" width="16" height="16"/>
+  <object id="26" type="Bat" x="1568" y="160" width="16" height="16"/>
+  <object id="27" type="Bat" x="1392" y="128" width="16" height="16"/>
+ </objectgroup>
+ <objectgroup color="#ffff00" name="StandingEvents">
+  <object id="5" type="LOAD_MAP" x="80" y="496" width="160" height="16">
+   <properties>
+    <property name="parameter" value="Maps::level_02"/>
+   </properties>
+  </object>
+  <object id="28" type="GAME_OVER" x="1840" y="80" width="32" height="16"/>
+ </objectgroup>
+</map>
