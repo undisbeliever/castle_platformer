@@ -19,7 +19,7 @@ METATILES_SIZE = 16
 MODULE EntityPhysics
 
 .segment "WRAM7E"
-	ADDR	metaTilePropertyTable, N_METATILES
+	ADDR	metaTilePropertyTable, METATILES_N_METATILES
 	WORD	gravity
 
 	ADDR	entityTouchTileFunctionPtr

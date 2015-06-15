@@ -7,17 +7,22 @@
 ::_ENTITIES_H_ = 1
 
 .setcpu "65816"
+
+; Common includes
+.include "includes/import_export.inc"
+.include "includes/registers.inc"
+.include "includes/config.inc"
+
 .include "entity.h"
 
-; ::SHOULDDO make configurable::
-
 ;; NPC active window width, must be > {256 + (max entity width + max entity xvecl) * 2}
-NPC_ACTIVE_WIDTH = 512
+CONFIG NPC_ACTIVE_WIDTH, 512
 ;; NPC active window height, must be > {224 + (max entity hight + max entity yvecl) * 2}
-NPC_ACTIVE_HEIGHT = 384
+CONFIG NPC_ACTIVE_HEIGHT, 384
 
-N_NPCS = 64
-N_PROJECTILES = 6
+;; Number of NPCs to allocate in memory
+CONFIG N_NPCS, 64
+CONFIG N_PROJECTILES, 6
 
 .define ENTITY_STATE_BANK "BANK1"
 

@@ -30,19 +30,18 @@
 ; Common includes
 .include "includes/import_export.inc"
 .include "includes/registers.inc"
+.include "includes/config.inc"
 
 .include "entity.h"
 
 ;; Bank in which the animation table resides
-; ::TODO make configurable::
-.define ANIMATION_TABLE_BANK "BANK1"
-.define ANIMATION_BANK "BANK1"
-.define METASPRITE_FRAME_BANK "BANK1"
-.define ANIMATION_PALETTE_BANK "BANK2"
+CONFIG_DEFINE ANIMATION_TABLE_BANK, "BANK1"
+CONFIG_DEFINE ANIMATION_BANK, "BANK1"
+CONFIG_DEFINE METASPRITE_FRAME_BANK, "BANK1"
+CONFIG_DEFINE ANIMATION_PALETTE_BANK, "BANK2"
 
 ;; Number of bytes to transfer during DMA::
-; ::TODO make configurable::
-ANIMATION_DMA_TRANSFER_BYTES = 4096
+CONFIG ANIMATION_DMA_TRANSFER_BYTES, 4096
 
 
 .struct AnimationTableStruct

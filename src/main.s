@@ -1,10 +1,5 @@
 ; Initialisation code
 
-.define VERSION 2
-.define REGION NTSC
-.define ROM_NAME "CASTLE PLATFORMER"
-
-.include "includes/sfc_header.inc"
 .include "includes/import_export.inc"
 .include "includes/registers.inc"
 .include "includes/structure.inc"

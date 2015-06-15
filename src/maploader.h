@@ -5,10 +5,12 @@
 .setcpu "65816"
 .include "includes/import_export.inc"
 .include "includes/registers.inc"
+.include "includes/config.inc"
 
-;; ::TODO make configurable::
-.define MAP_PROPERTIES_BANK "BANK1"
-.define MAP_ENTITIES_TABLE_BANK "BANK1"
+;; The segment name the map properties are in
+CONFIG_DEFINE MAP_PROPERTIES_BANK, "BANK1"
+;; The segment name the map entities table is in
+CONFIG_DEFINE MAP_ENTITIES_TABLE_BANK, "BANK1"
 
 
 .enum	MapDataFormat

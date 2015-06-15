@@ -114,7 +114,7 @@ IMPORT_MODULE EntityPhysics
 	;; Must be set before calling  `EntityPhysicsWithCollisions` or
 	;; `EntityPhysicsWithCollisionsNoGravity`
 	;; ACCESSED: DB = $7E
-	ADDR	metaTilePropertyTable, N_METATILES
+	ADDR	metaTilePropertyTable, METATILES_N_METATILES
 
 	;; The level's gravity.
 	;; Must be set before using this module.

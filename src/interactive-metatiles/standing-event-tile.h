@@ -6,10 +6,10 @@
 ; Common includes
 .include "includes/import_export.inc"
 .include "includes/registers.inc"
+.include "includes/config.inc"
 
-; ::SHOULDDO make configurable::
 ;; segment that contains the standing event table
-.define STANDING_EVENTS_TABLE_BANK "BANK1"
+CONFIG_DEFINE STANDING_EVENTS_TABLE_BANK, "BANK1"
 
 ; A switchtile only handles a horizontal row of tiles
 .struct StandingEventsTableStruct
@@ -23,7 +23,7 @@
 	;; Removes the chain incrementally (upwards) while Rumbling the screen
 	;; parameter: the address of the lowest tile of the chain.
 	;;
-	;; This command reconizes a chain tile as the tile *above* the parameter.
+	;; This command recognizes a chain tile as the tile *above* the parameter.
 	;; It will stop when the it reaches the top of the map or the next tile
 	;; to remove is not a chain tile.
 	;;

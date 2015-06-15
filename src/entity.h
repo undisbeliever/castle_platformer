@@ -6,9 +6,10 @@
 ; Common includes
 .include "includes/import_export.inc"
 .include "includes/registers.inc"
+.include "includes/config.inc"
 
-; ::SHOULDO make configurable::
-ENTITY_MALLOC = 64
+;; Number of bytes to allocate for each entity
+CONFIG ENTITY_MALLOC, 64
 
 ;; Function table for player entity
 .struct PlayerEntityFunctionsTable
