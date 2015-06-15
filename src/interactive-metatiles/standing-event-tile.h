@@ -52,10 +52,12 @@
 
 IMPORT_MODULE StandingEventTile
 	;; The memory location within `MAP_PROPERTIES_BANK` of the StandingEventTile table
-	.global StandingEventTile__standingEventsTablePtr : far
+	;; ACCESS: WRAM7E
+	ADDR	standingEventsTablePtr
 
 	;; The number of entries in the StandingEventTile table
-	.global StandingEventTile__standingEventsTableCount : far
+	;; ACCESS: WRAM7E
+	WORD	standingEventsTableCount
 
 	;; The MetaTileProperties function table for the switch table.
 	LABEL	functionsTable
