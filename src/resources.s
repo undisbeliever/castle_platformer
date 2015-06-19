@@ -93,11 +93,11 @@ MetaTilesTable:
 
 
 .rodata
-	INCLUDE_BINARY CreditsTiles,	"resources/credits.4bpp"
-	INCLUDE_BINARY CreditsPalette,	"resources/credits.clr"
+	INCLUDE_BINARY CreditsTiles,	"resources/images4bpp/credits.4bpp"
+	INCLUDE_BINARY CreditsPalette,	"resources/images4bpp/credits.clr"
 
 .segment "BANK1"
-	INCLUDE_BINARY CreditsMap,	"resources/credits.map"
+	INCLUDE_BINARY CreditsMap,	"resources/images4bpp/credits.map"
 
 Map_level_01:
 	.incbin "resources/metatilemaps/level_01.metamap1x16"
