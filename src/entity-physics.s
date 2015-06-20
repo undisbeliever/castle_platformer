@@ -107,10 +107,7 @@ ROUTINE Jump
 	IF_NOT_ZERO
 		STA	z:EntityPhysicsStruct::yVecl
 
-		LDA	z:EntityPhysicsStruct::xVecl
-		IF_MINUS
-			NEG16
-		ENDIF
+		LDABS16	z:EntityPhysicsStruct::xVecl
 
 		.assert JUMP_XVECL_FRACTIONAL = 4, error, "Bad Code"
 		LSR

@@ -466,10 +466,7 @@ ROUTINE BC_WaitFramesXVecl
 	SEP	#$20
 .A8
 	; entity->animationFrameDelay = animationBank[pc + 1] - abs(int(entity->xVecl))
-	LDA	f:EntityPhysicsStruct::xVecl + 1
-	IF_MINUS
-		NEG8
-	ENDIF
+	LDABS8	f:EntityPhysicsStruct::xVecl + 1
 	RSB8	f:AnimationBank << 16, X
 	IF_MINUS
 		LDA	#0
