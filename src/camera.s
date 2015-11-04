@@ -51,7 +51,7 @@ ROUTINE	Update
 	LDA	z:EntityStruct::xPos + 1
 	SUB	MetaTiles1x16__xPos
 	CMP	#256 - SCREEN_LEFT_RIGHT_SPACING
-	IF_SGE
+	IF_PLUS
 		LDA	z:EntityStruct::xPos + 1
 		SUB	#256 - SCREEN_LEFT_RIGHT_SPACING
 		CMP	MetaTiles1x16__maxXPos
@@ -61,7 +61,7 @@ ROUTINE	Update
 		STA	MetaTiles1x16__xPos
 	ELSE
 		CMP	#SCREEN_LEFT_RIGHT_SPACING
-		IF_SLT
+		IF_MINUS
 			LDA	z:EntityStruct::xPos + 1
 			SUB	#SCREEN_LEFT_RIGHT_SPACING
 			IF_MINUS
@@ -74,7 +74,7 @@ ROUTINE	Update
 	LDA	z:EntityStruct::yPos + 1
 	SUB	MetaTiles1x16__yPos
 	CMP	#224 - SCREEN_UP_DOWN_SPACING
-	IF_SGE
+	IF_PLUS
 		LDA	z:EntityStruct::yPos + 1
 		SUB	#224 - SCREEN_UP_DOWN_SPACING
 		CMP	MetaTiles1x16__maxYPos
@@ -84,7 +84,7 @@ ROUTINE	Update
 		STA	MetaTiles1x16__yPos
 	ELSE
 		CMP	#SCREEN_UP_DOWN_SPACING
-		IF_SLT
+		IF_MINUS
 			LDA	z:EntityStruct::yPos + 1
 			SUB	#SCREEN_UP_DOWN_SPACING
 			IF_MINUS

@@ -314,14 +314,14 @@ ROUTINE NewNpc
 	;	_NewEntity(firstFreeNpc, firstInactiveNpc, NpcEntityFunctionsTable::Init)
 
 	CPX	activeNpcBoundaryLeft
-	BSLT	_NewInactiveNpc
+	BMI	_NewInactiveNpc
 	CPX	activeNpcBoundaryRight
-	BSGE	_NewInactiveNpc
+	BPL	_NewInactiveNpc
 
 	CPY	activeNpcBoundaryTop
-	BSLT	_NewInactiveNpc
+	BMI	_NewInactiveNpc
 	CPY	activeNpcBoundaryBottom
-	BSGE	_NewInactiveNpc
+	BPL	_NewInactiveNpc
 
 
 	_NewEntity firstFreeNpc, firstActiveNpc, NpcEntityFunctionsTable::Init, NpcEntityFunctionsTable::Activated
@@ -411,12 +411,12 @@ ROUTINE NewProjectile
 		; carry clear, A = npcLeft
 		ADC	z:EntityStruct::size_width
 		CMP	playerLeft
-		BSLT	NoNpcPlayerCollision
+		BMI	NoNpcPlayerCollision
 	ELSE
 		; carry set, A = npcLeft
 		SBC	a:player + EntityStruct::size_width
 		CMP	playerLeft
-		BSGE	NoNpcPlayerCollision
+		BPL	NoNpcPlayerCollision
 	ENDIF
 
 	LDA	a:player + EntityStruct::yPos + 1
@@ -432,12 +432,12 @@ ROUTINE NewProjectile
 		; carry clear, A = npcTop
 		ADC	z:EntityStruct::size_height
 		CMP	playerTop
-		BSLT	NoNpcPlayerCollision
+		BMI	NoNpcPlayerCollision
 	ELSE
 		; carry set, A = npcTop
 		SBC	a:player + EntityStruct::size_height
 		CMP	playerTop
-		BSGE	NoNpcPlayerCollision
+		BPL	NoNpcPlayerCollision
 	ENDIF
 
 	LDX	z:EntityStruct::functionsTable
@@ -512,14 +512,14 @@ CheckInactiveList:
 
 				LDA	z:EntityStruct::xPos + 1
 				CMP	activeNpcBoundaryLeft
-				IF_SGE
+				IF_PLUS
 					CMP	activeNpcBoundaryRight
-					IF_SLT
+					IF_MINUS
 						LDA	z:EntityStruct::yPos + 1
 						CMP	activeNpcBoundaryTop
-						IF_SGE
+						IF_PLUS
 							CMP	activeNpcBoundaryBottom
-							IF_SLT
+							IF_MINUS
 								; NPC is now active
 								; move from the inacive list into the active one.
 
@@ -671,15 +671,15 @@ _ProjectileDead:		; Projectile is dead.
 			; Check is NPC is outside the NPC active window.
 			LDA	z:EntityStruct::xPos + 1
 			CMP	activeNpcBoundaryLeft
-			BSLT	_MoveNpcToInactiveList
+			BMI	_MoveNpcToInactiveList
 			CMP	activeNpcBoundaryRight
-			BSGE	_MoveNpcToInactiveList
+			BPL	_MoveNpcToInactiveList
 
 			LDA	z:EntityStruct::yPos + 1
 			CMP	activeNpcBoundaryTop
-			BSLT	_MoveNpcToInactiveList
+			BMI	_MoveNpcToInactiveList
 			CMP	activeNpcBoundaryBottom
-			IF_SGE
+			IF_PLUS
 		_MoveNpcToInactiveList:
 				; NPC outside active window, move to inactive list
 				; Calls NPC->Inactivated

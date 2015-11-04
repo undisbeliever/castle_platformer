@@ -44,7 +44,7 @@ ROUTINE MoveEntityWithController
 			LDA	z:EntityPhysicsStruct::xVecl
 			SUB	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::walkAcceleration, X
 			CMP	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::minimumXVelocity, X
-			IF_SLT
+			IF_MINUS
 				LDA	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::minimumXVelocity, X
 			ENDIF
 			STA	z:EntityPhysicsStruct::xVecl
@@ -53,7 +53,7 @@ ROUTINE MoveEntityWithController
 			LDA	z:EntityPhysicsStruct::xVecl
 			ADD	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::walkAcceleration, X
 			CMP	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::maximumXVelocity, X
-			IF_SGE
+			IF_PLUS
 				LDA	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::maximumXVelocity, X
 			ENDIF
 			STA	z:EntityPhysicsStruct::xVecl
@@ -63,7 +63,7 @@ ROUTINE MoveEntityWithController
 		IF_BIT	#JOY_LEFT
 			LDA	z:EntityPhysicsStruct::xVecl
 			CMP	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::minimumWalkXVelocity, X
-			IF_SGE
+			IF_PLUS
 				SUB	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::walkAcceleration, X
 				STA	z:EntityPhysicsStruct::xVecl
 			ENDIF
@@ -71,7 +71,7 @@ ROUTINE MoveEntityWithController
 		ELSE_BIT #JOY_RIGHT
 			LDA	z:EntityPhysicsStruct::xVecl
 			CMP	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::maximumWalkXVelocity, X
-			IF_SLT
+			IF_MINUS
 				ADD	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::walkAcceleration, X
 				STA	z:EntityPhysicsStruct::xVecl
 			ENDIF
@@ -129,12 +129,12 @@ ROUTINE EntityPhysicsWithCollisions
 	ADD	gravity
 	IF_MINUS
 		CMP	#.loword(-MAX_Y_VECLOCITY)
-		IF_SLT
+		IF_MINUS
 			LDA	#.loword(-MAX_Y_VECLOCITY)
 		ENDIF
 	ELSE
 		CMP	#MAX_Y_VECLOCITY + 1
-		IF_SGE
+		IF_PLUS
 			LDA	#MAX_Y_VECLOCITY
 		ENDIF
 	ENDIF
