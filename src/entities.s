@@ -356,11 +356,10 @@ ROUTINE NewProjectile
 	; --------
 	; The following is the fastest I can think of.
 	; for simple 1 dimensional ideas (16 bit A, DP.l != 0):
-	;	a.left in range(b.left, b.left + b.width) | b.left in range(a.left, a.left + a.width) = 36 cycles
-	;	abs(a.left - b.left) < (a.width + b.width) / 2 = 43 cycles
-	;	a.left < b.left ? (a.left + a.width >= b.left) : (b.left + b.width >= a.left) = 12-33 cyles
-	;	a.left < b.left ? (a.left + a.width >= b.left) : (a.left - b.width < b.left) = 25-26 cycles
-
+	;       a.left in range(b.left, b.left + b.width) | b.left in range(a.left, a.left + a.width) = 36 cycles
+	;       abs(a.left - b.left) < (a.width + b.width) / 2 = 43 cycles
+	;       a.left < b.left ? (a.left + a.width >= b.left) : (b.left + b.width >= a.left) = 12-40 cyles
+	;       a.left < b.left ? (a.left + a.width >= b.left) : (a.left - b.width < b.left) = 25-33 cycles
 
 	;	playerLeft = player.xPos - player.size_xOffset
 	;	npcLeft = npc->xPos - npc->size_xOffset
@@ -379,14 +378,13 @@ ROUTINE NewProjectile
 	;		if npcTop + npc->size_height < playerTop
 	;			goto NoCollision
 	; 	else
-	;		if npcLeft player.size_height >= playerTop
+	;		if npcLeft - player.size_height >= playerTop
 	;			goto NoCollision
 	;
 	; 	CollisionRoutine(npc)
 	;	npc->functionsTable->CollisionPlayer(npc)
 	;
 
-	;; ::TODO assert .asize = 16::
 	.A16
 	.I16
 
@@ -411,12 +409,18 @@ ROUTINE NewProjectile
 		; carry clear, A = npcLeft
 		ADC	z:EntityStruct::size_width
 		CMP	playerLeft
-		BMI	NoNpcPlayerCollision
+		BLT	NoNpcPlayerCollision
 	ELSE
 		; carry set, A = npcLeft
+		; a signed comparison is necessary as `npcLeft - player.size_width` may be < 0
 		SBC	a:player + EntityStruct::size_width
-		CMP	playerLeft
-		BPL	NoNpcPlayerCollision
+		SEC
+		SBC	playerLeft
+		IF_V_CLEAR
+			BPL	NoNpcPlayerCollision
+		ELSE
+			BMI	NoNpcPlayerCollision
+		ENDIF
 	ENDIF
 
 	LDA	a:player + EntityStruct::yPos + 1
@@ -432,17 +436,23 @@ ROUTINE NewProjectile
 		; carry clear, A = npcTop
 		ADC	z:EntityStruct::size_height
 		CMP	playerTop
-		BMI	NoNpcPlayerCollision
+		BLT	NoNpcPlayerCollision
 	ELSE
 		; carry set, A = npcTop
+		; a signed comparison is necessary as `playerTop - player.size_height` may be < 0
 		SBC	a:player + EntityStruct::size_height
-		CMP	playerTop
-		BPL	NoNpcPlayerCollision
+		SEC
+		SBC	playerTop
+		IF_V_CLEAR
+			BPL	NoNpcPlayerCollision
+		ELSE
+			BMI	NoNpcPlayerCollision
+		ENDIF
 	ENDIF
 
 	LDX	z:EntityStruct::functionsTable
 	JSR	(NpcEntityFunctionsTable::CollisionPlayer, X)
-	BCC	_NpcDead
+	JCC	_NpcDead
 
 NoNpcPlayerCollision:
 .endmacro
@@ -665,8 +675,6 @@ _ProjectileDead:		; Projectile is dead.
 			ENDIF
 
 			Process_CheckNpcPlayerCollision
-
-			; ::TODO projectile collision tests::
 
 			; Check is NPC is outside the NPC active window.
 			LDA	z:EntityStruct::xPos + 1

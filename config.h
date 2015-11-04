@@ -1,5 +1,5 @@
 
-.define VERSION 2
+.define VERSION 3
 .define REGION NTSC
 .define ROM_NAME "CASTLE PLATFORMER"
 
