@@ -28,7 +28,6 @@ and are licensed under [CC0](http://creativecommons.org/publicdomain/zero/1.0/).
 
 Build Requirements
 ===================
- * snesdev-common
  * ca65
  * pcx2snes
  * gnu Make
