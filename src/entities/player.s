@@ -14,8 +14,6 @@
 
 .include "routines/block.h"
 
-; ::TODO move somewhere else
-
 JUMP_ON_NPC_VELOCITY = $0250
 
 

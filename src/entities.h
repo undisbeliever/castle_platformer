@@ -1,7 +1,4 @@
 ;; Entity storage and management.
-;;
-;; ::TODO details::
-;; 	* Uses FILO linked lists.
 
 .ifndef ::_ENTITIES_H_
 ::_ENTITIES_H_ = 1
@@ -79,8 +76,6 @@ IMPORT_MODULE Entities
 	;;		* Calls the NPC->Process routine.
 	;;		* Checks for a collison between the NPC and the player,
 	;;		  if there is one calls NPC->CollisionPlayer
-	;;		* Checks for a collision between the NPC and the player
-	;;		  projectiles. If there is one calls NPC->CollisionProjectle (::TODO this functionality::)
 	;;
 	;; REQUIRE: 16 bit A, 16 bit Index, DB = $7E
 	ROUTINE	Process

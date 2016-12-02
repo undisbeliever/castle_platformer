@@ -16,7 +16,6 @@ CONVERT_MAP_METATILE1X16 = python3 ../../utils/map2metatile1x16.py
 ALL: $(TILES) $(LAYOUTS) $(PALETTES) $(PNGS)
 
 %.metatile1x16 %.4bpp %.clr: %.pcx $(CONVERT_MAP_METATILE1X16_FILE)
-	# ::TODO better conversion program, one that handles tile flipping::
 	pcx2snes -r -s8 -c16 -screen $*
 	$(CONVERT_MAP_METATILE1X16) $*.map $*.metatile1x16
 	$(RM) $*.map

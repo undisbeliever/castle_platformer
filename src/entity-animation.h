@@ -94,9 +94,6 @@ CONFIG ANIMATION_DMA_TRANSFER_BYTES, 4096
 	;; MUST ensure this bytecode is only used on Physics Entities.
 	WAIT_FRAMES_XVECL3	= 10
 
-	; ::SHOULDO add WAIT_SPEED_FRAMES::
-	; :::Waits {argument - abs(xVecl)} frames (like sonic does)::
-
 	;; Moves the `animationPC` to the parameter
 	;;	- parameter - word - new animationPC
 	GOTO			= 12

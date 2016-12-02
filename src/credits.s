@@ -26,8 +26,6 @@ CREDITS_IMG_FRAME_DELAY = 4 * 60
 .A8
 .I16
 ROUTINE ShowCredits
-	; ::TODO create a generic show image routines::
-
 	; Load Credits
 	JSR	Screen__FadeOut
 
@@ -77,7 +75,6 @@ ROUTINE ShowCredits
 		JSR	Screen__WaitFrame
 		JSR	Screen__WaitFrame
 
-		; ::TODO add store BG1VOFS to routines/screen.h
 		; ::HACK in VBlank::
 		LDA	tmp
 		STA	BG1VOFS

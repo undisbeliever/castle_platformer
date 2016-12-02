@@ -138,8 +138,6 @@ ROUTINE Dead
 	PHA
 	PLB
 
-	; ::SHOULDDO set player animation to death::
-
 	; Player 'jumps to bottom of screen'
 
 	REP	#$30

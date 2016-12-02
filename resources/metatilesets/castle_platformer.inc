@@ -1,6 +1,4 @@
 ; Castle Platformer Tileset arrangement.
-;
-; ::SHOULDDO generate with program::
 
 CastlePlatformer_MetaTilePropertyTable:
 	.byte	VramDataFormat::UNCOMPRESSED

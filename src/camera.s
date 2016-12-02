@@ -13,7 +13,6 @@
 
 MODULE Camera
 
-; ::TODO move somewhere else
 SCREEN_LEFT_RIGHT_SPACING = 110
 SCREEN_UP_DOWN_SPACING = 80
 

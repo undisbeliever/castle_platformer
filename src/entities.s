@@ -38,8 +38,6 @@ NPC_ACTIVE_TOP = (NPC_ACTIVE_HEIGHT - 224) / 2
 ;; time as the tilemap updating (providing x/y movement is not > 8 pixels/frame).
 MAP_NPC_TEST_MASK = $FFE8
 
-;; ::SHOULDO segment called SHADOW_OBJECTS - starts at $1000
-;; ::: so I don't loose lots of space by the linker::
 .segment "SHADOW"
 	.align	$100	; optimize DP access
 
@@ -754,8 +752,6 @@ ROUTINE Render
 		SUB	MetaTiles1x16__yPos
 		STA	MetaSprite__yPos
 
-		; ::SHOULDDO use DB = MetaSpriteLayoutBank, saves (n_entities + 4*obj - 7) cycles::
-		; ::: Will require MetaSpriteLayoutBank & $7F <= $3F::
 		LDX	z:EntityStruct::metaSpriteFrame
 		LDY	z:EntityStruct::metaSpriteCharAttr
 
@@ -802,8 +798,6 @@ ROUTINE RenderEntityLinkedList
 		SUB	MetaTiles1x16__yPos
 		STA	MetaSprite__yPos
 
-		; ::SHOULDDO use DB = MetaSpriteLayoutBank, saves (n_entities + 4*obj - 7) cycles::
-		; ::: Will require MetaSpriteLayoutBank & $7F <= $3F::
 		LDX	z:EntityStruct::metaSpriteFrame
 		LDY	z:EntityStruct::metaSpriteCharAttr
 

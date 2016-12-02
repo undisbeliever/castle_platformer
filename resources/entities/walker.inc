@@ -1,4 +1,3 @@
-; ::TODO generate by program::
 
 .global Entity_WalkerLeft
 .global Entity_WalkerRight

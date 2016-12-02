@@ -301,8 +301,6 @@ _CollisionPlayerDead:
 			JSR	EntityAnimation__SetAnimation
 		ELSE
 			; Entity has been squished
-			; ::TODO find a nicer way to do this::
-			; ::: Moving the entity into a nother list Perhaps?::
 
 			LDX	#State::DEATH_ANIMATION
 			STX	z:WES::state

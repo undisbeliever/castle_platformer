@@ -274,7 +274,6 @@ FallingThroughPlatform:
 		STZ	z:EntityPhysicsStruct::standingTile
 
 		; ::HACK system may think currentTileProperty is a platform, but its not, reflect this::
-		; ::MAYDO improve this (extra field for patforms maybe?)::
 		LDX	z:EntityPhysicsStruct::currentTileProperty
 		LDA	f:MetaTilePropertyBank << 16 + MetaTilePropertyStruct::type, X
 		IF_N_SET
@@ -350,8 +349,6 @@ _SkipReleadTableYMinus:
 			IF_NOT_ZERO
 				; Ignore collision if a platform
 				IF_N_CLEAR
-					; ::TODO head collide::
-
 					LDA	z:EntityPhysicsStruct::yVecl + 1
 					ORA	#$FF00
 					ADD	z:EntityPhysicsStruct::yPos + 1

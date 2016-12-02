@@ -1,4 +1,3 @@
-; ::TODO generate by program::
 
 .global Entity_Player
 
@@ -58,7 +57,7 @@ AnimationTable:
 	.addr	Animation_StandLeft
 	.addr	Animation_StandRight
 	.addr	Animation_WalkLeft
-	.addr	Animation_WalkRight	; ::TODO FRAME_DELAY_X_SPEED::
+	.addr	Animation_WalkRight
 	.addr	Animation_SlideLeft
 	.addr	Animation_SlideRight
 	.addr	Animation_JumpLeft

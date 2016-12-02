@@ -19,10 +19,6 @@
 ; each vram slot is 2 8x8 rows in size
 VRAM_SLOT_SIZE = 16 * 2
 
-; ::SHOULDO Prevent duplicate transfers to VRAM ::
-; ::: Have a 2 tables containing the addr of the left/right halves of the entity loaded into VRAM ::
-; ::: may have to change `tileVramWordAddress` from {pos + GAMELOOP_OAM_TILES} to just {pos}::
-; ::: (and add GAMELOOP_OAM_TILES to `tileVramWordAddress` in LoadTiles* code) ::
 
 ; Ensure VBlank macros are used
 .forceimport _EntityAnimation_VBlank__Called:zp
@@ -145,7 +141,6 @@ ROUTINE Activated
 	UNTIL_MINUS
 
 	; No Slots Available
-	; ::TODO error handling::
 
 	LDA	#GAMELOOP_OAM_TILES
 	STA	z:EntityAnimationStruct::tileVramWordAddress
@@ -252,10 +247,6 @@ ROUTINE	Inactivated
 .A16
 .I16
 ROUTINE Process
-	; ::TODO Stagger the processing.::
-	; ::: Currently the first has priority and will update more often then the others. ::
-	; ::: Need to think about this one. ::
-
 	LDX	#(N_VRAM_SLOTS - 1) * 2
 	REPEAT
 		LDA	entityInVramSlots, X
@@ -616,8 +607,6 @@ ROUTINE BC_LoadTiles16RightHalf
 	JMP	BytecodeEnd
 
 
-; ::MAYDO SetPalette::
-; ::: remember the refence of the old palette::
 
 
 ; COMMON
@@ -797,6 +786,8 @@ ROUTINE LoadPalette
 
 	LDX	firstFreeSlot
 	IF_N_CLEAR
+		; Slot is available
+
 		STA	paletteSlotsTable + PaletteSlotsTableStruct::palettePtr, X
 
 		; add to buffer for updating during VBlank
@@ -824,9 +815,6 @@ _FoundExistingPaletteSlot:
 		AND	#OAM_CHARATTR_PALETTE_MASK ^ $FFFF
 		ORA	tmp
 		STA	z:EntityAnimationStruct::metaSpriteCharAttr
-	ELSE
-		; No Slots Available - Just ignore it.
-		; ::SHOULD error handling::
 	ENDIF
 
 	RTS
