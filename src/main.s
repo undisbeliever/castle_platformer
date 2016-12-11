@@ -26,7 +26,7 @@ _MapLDA:
 	JSR	GameLoop__PlayGame
 
 	JMP	Credits__ShowCredits
-	
+
 
 .segment "COPYRIGHT"
 		;1234567890123456789012345678901

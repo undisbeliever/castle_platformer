@@ -92,7 +92,7 @@ ROUTINE ShowCredits
 		WAI
 	FOREVER
 
-; from resources.s 
+; from resources.s
 .import CreditsMap, CreditsMap_End
 .import CreditsTiles, CreditsTiles_End
 .import CreditsPalette, CreditsPalette_End

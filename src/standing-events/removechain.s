@@ -108,7 +108,7 @@ ROUTINE RemoveChainEvent
 		REP	#$20
 .A16
 		SEC
-		RTS	
+		RTS
 	ENDIF
 .A8
 

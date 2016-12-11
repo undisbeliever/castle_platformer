@@ -127,9 +127,9 @@ ROUTINE ExtendBridgeEvent
 		REP	#$20
 .A16
 		SEC
-		RTS	
+		RTS
 	ENDIF
-.A8	
+.A8
 
 	LDA	#EXTEND_BRIDGE_FRAME_DELAY
 	STA	z:EventStruct::frameDelay

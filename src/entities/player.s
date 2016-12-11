@@ -75,7 +75,7 @@ ROUTINE Process
 		JSR	(MetaTileFunctionsTable::PlayerTouch, X)
 	ENDIF
 
-	; reset enemies jumped on counter if on ground 
+	; reset enemies jumped on counter if on ground
 	.assert EntityPhysicsStatusBits::STANDING = $80, error, "Bad Value"
 	LDA	EntityPhysics__status - 1
 	IF_N_SET
@@ -164,7 +164,7 @@ ROUTINE TestCollisionIsJumpingOnANpc
 	;		Player.yVecl = - JUMP_ON_NPC_VELOCITY
 	;		player.nEnemysJumpedOnBeforeTouchingGround++
 	;		return false
-	; 
+	;
 	; GameLoop__state = GameState::DEAD
 	; return true
 
