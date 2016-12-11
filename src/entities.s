@@ -17,7 +17,7 @@ MODULE Entities
 ; FUTURE OPTIMISATIONS:
 ; =====================
 ;
-; One Possible optimisation that could occour is to bucket the inactive
+; One Possible optimisation that could occur is to bucket the inactive
 ; list by `xPos / 256`.
 ;
 ; When an NPC is moved into the inactive list, it is moved into
@@ -33,8 +33,8 @@ NPC_ACTIVE_LEFT = (NPC_ACTIVE_WIDTH - 256) / 2
 NPC_ACTIVE_TOP = (NPC_ACTIVE_HEIGHT - 224) / 2
 
 ;; Mask to compare map x/y pos with
-;; This mask will check the inactive NPC positions eveny { 16 n + 8 } pixels.
-;; This will ensure that NPC reactivations will not occour at the same
+;; This mask will check the inactive NPC positions every { 16 n + 8 } pixels.
+;; This will ensure that NPC reactivations will not occur at the same
 ;; time as the tilemap updating (providing x/y movement is not > 8 pixels/frame).
 MAP_NPC_TEST_MASK = $FFE8
 
@@ -43,7 +43,7 @@ MAP_NPC_TEST_MASK = $FFE8
 
 	BYTE	player, ENTITY_MALLOC
 
-	;; Object pool of npcs.
+	;; Object pool of NPCs.
 	;; Must be in shadow, accessed via direct page.
 	BYTE	npcPool, N_NPCS * ENTITY_MALLOC
 
@@ -55,16 +55,16 @@ MAP_NPC_TEST_MASK = $FFE8
 
 
 .segment "WRAM7E"
-	;; First npc in the active linked list.
+	;; First NPC in the active linked list.
 	ADDR	firstActiveNpc
-	;; First npc in the inactive (offscreen) linked list.
+	;; First NPC in the inactive (off-screen) linked list.
 	ADDR	firstInactiveNpc
-	;; First npc in the free linked list
+	;; First NPC in the free linked list
 	ADDR	firstFreeNpc
 
-	;; First prjectile in the active linked list.
+	;; First projectile in the active linked list.
 	ADDR	firstActiveProjectile
-	;; First prjectile in the free linked list
+	;; First projectile in the free linked list
 	ADDR	firstFreeProjectile
 
 
@@ -81,8 +81,8 @@ MAP_NPC_TEST_MASK = $FFE8
 	;; Stores projectile variable in CheckNpcProjectileCollisions.
 	ADDR	projectileTmp
 
-	;; The prvious item in the linked list.
-	;; Used by the list to free memory in a mark and sweek style list deletion.
+	;; The previous item in the linked list.
+	;; Used by the list to free memory in a mark and sweep style list deletion.
 	WORD	previousEntity
 
 	WORD	tmp
@@ -345,7 +345,7 @@ ROUTINE NewProjectile
 ;; REQUIRES: 16 bit A, 16 bit Index
 ;; PARAM:
 ;;	player: the address of the player's EntityStruct.
-;;	EntityCollisionRoutine: the routine in the Entity's finction table to call if there is a collision
+;;	EntityCollisionRoutine: the routine in the Entity's function table to call if there is a collision
 ;; INPUT:
 ;;	DP: address of npc
 ;; OUTPUT: branches to _NpcDead if NPC is dead.

@@ -68,7 +68,7 @@ CONFIG_DEFINE MAP_ENTITIES_TABLE_BANK, "BANK1"
 	;; Address within `MAP_PROPERTIES_BANK` of the `StandingEventsTableStruct`
 	;; of the level
 	standingEventsTablePtr	.addr
-	;; Number of entries in the switchtile table.
+	;; Number of entries in the standing events table.
 	standingEventsTableCount .word
 .endstruct
 

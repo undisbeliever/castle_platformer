@@ -7,12 +7,12 @@
 ;; `metaSpriteFrame` variables of an entity.
 ;;
 ;; Each entity is allocated 2 VRAM tile rows (32 8x8 tiles) upon Entity
-;; Actiavtion.
+;; Activation.
 ;;
 ;; Palettes can be shared across multiple entities.
-;; The system will automatcally allocate/unallocate the palettes using
+;; The system will automatically allocate/unallocate the palettes using
 ;; reference counting. Palettes with the same `palettePtr` value will use
-;; the the same palette in CGRAM.
+;; the same palette in CGRAM.
 ;;
 ;; When an Entity is activated the tiles stored in `AnimationTable::tilesPtr`
 ;; will be loaded into VRAM. This value can be NULL, in which case it
@@ -67,7 +67,7 @@ CONFIG ANIMATION_DMA_TRANSFER_BYTES, 4096
 .endstruct
 
 .enum AnimationBytecode
-	;; Stops execting bytecode
+	;; Stops executing bytecode
 	;;	no parameter
 	STOP			=  0
 
@@ -120,11 +120,11 @@ CONFIG ANIMATION_DMA_TRANSFER_BYTES, 4096
 	;; Simple block transfer to VRAM.
 	BLOCK			= 0
 	;; Transfers two VRAM rows of tiles to the left half of VRAM.
-	;; The size paramter is the number of bytes in the top row.
+	;; The size parameter is the number of bytes in the top row.
 	;; The location of the second row is `DataPtr + size` bytes
 	TWO_ROWS_LEFT		= 2
 	;; Transfers two VRAM rows of tiles to the right half of VRAM.
-	;; The size paramter is the number of bytes in the top row.
+	;; The size parameter is the number of bytes in the top row.
 	;; The location of the second row is `DataPtr + size` bytes
 	TWO_ROWS_RIGHT		= 4
 .endenum
@@ -169,7 +169,7 @@ CONFIG ANIMATION_DMA_TRANSFER_BYTES, 4096
 		;; Address of the AnimationTableStruct within `ANIMATION_TABLE_BANK`
 		animationTable		.addr
 
-		;; current location (within `ANIMATION_BANK` of the Animation Metatile bank format
+		;; current location (within `ANIMATION_BANK` of the Animation MetaTile bank format
 		animationPC		.addr
 
 		;; Word address of tiles in VRAM
@@ -192,7 +192,7 @@ END_ENTITY_ANIMATION_STRUCT
 
 IMPORT_MODULE EntityAnimation
 	;; Sets up the state tables.
-	;; Called when the map is initiaised.
+	;; Called when the map is initialised.
 	;; REQUIRE: 16 bit A, 16 bit Index, DB = $7E
 	ROUTINE Init
 
@@ -203,7 +203,7 @@ IMPORT_MODULE EntityAnimation
 	;; INPUT: DP = the EntityAnimationStruct address
 	ROUTINE Activated
 
-	;; Deallocates the current titities tiles from VRAM if neccessary
+	;; Deallocates the current entity's tiles from VRAM if necessary
 	;; MUST be called when the entity is removed from the active list
 	;; (offscreen or dead)
 	;;

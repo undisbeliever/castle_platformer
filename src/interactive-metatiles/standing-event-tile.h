@@ -11,7 +11,7 @@
 ;; segment that contains the standing event table
 CONFIG_DEFINE STANDING_EVENTS_TABLE_BANK, "BANK1"
 
-; A switchtile only handles a horizontal row of tiles
+; A switch tile only handles a horizontal row of tiles
 .struct StandingEventsTableStruct
 	minMapLocation	.addr
 	maxMapLocation	.addr

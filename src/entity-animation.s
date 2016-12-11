@@ -11,7 +11,7 @@
 
 .include "routines/metasprite.h"
 
-; last 2 rows ae free for other things
+; last 2 rows are free for other things
 .define N_VRAM_SLOTS 15
 .define N_PALETTE_SLOTS 7
 .define N_VRAM_TRANSFERS 6
@@ -37,7 +37,7 @@ VRAM_SLOT_SIZE = 16 * 2
 MODULE EntityAnimation
 
 .segment "SHADOW"
-	;; Position of the cgram buffer.
+	;; Position of the CGRAM buffer.
 	;; If 0 then no palettes are updated during VBlank
 	WORD	cgramBufferPos
 	;; Address of the data in `ANIMATION_PALETTES_BANK`
@@ -46,7 +46,7 @@ MODULE EntityAnimation
 	ADDR	cgramBuffer_StartingColor, N_PALETTE_SLOTS
 
 
-	;; Position of the vram buffer
+	;; Position of the VRAM buffer
 	;; If 0 then no tiles are updated during VBlank
 	WORD	vramBufferPos
 
@@ -220,7 +220,7 @@ LoadTilesTable:
 .I16
 ROUTINE	Inactivated
 
-	; Remove vram slot
+	; Remove VRAM slot
 	; ----------------
 
 	; Inverted code from incremental.
@@ -659,7 +659,7 @@ ROUTINE LoadTiles_Block
 	RTS
 
 
-;; Preps a 2 row ransfer of the tiles to the left half of VRAM
+;; Preps a 2 row transfer of the tiles to the left half of VRAM
 ;; INPUT:
 ;;	A - tile size
 ;;	Y - tile ptr
@@ -710,7 +710,7 @@ ROUTINE LoadTiles_TwoRowsLeft
 	RTS
 
 
-;; Preps a 2 row ransfer of the tiles to the right half of VRAM
+;; Preps a 2 row transfer of the tiles to the right half of VRAM
 ;; INPUT:
 ;;	A - tile size
 ;;	Y - tile ptr

@@ -1,4 +1,4 @@
-; Inturrupt Handlers
+; Interrupt Handlers
 
 .include "includes/registers.inc"
 .include "includes/structure.inc"

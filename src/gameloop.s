@@ -129,7 +129,7 @@ DEATH_JUMP = 1024
 
 
 ;; Player is dead
-;; Do the 'death' animation, wait for buttonpress, restart map.
+;; Do the 'death' animation, waits for button press, restarts map.
 .A8
 .I16
 ROUTINE Dead
@@ -183,7 +183,7 @@ ROUTINE Dead
 	LDA	#0
 	TCD
 
-	; Wait for buttonpress
+	; Wait for button press
 	REPEAT
 		JSR	Screen__WaitFrame
 

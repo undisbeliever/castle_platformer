@@ -30,7 +30,7 @@ IMPORT_MODULE Npc_Bat
 		;; (unsigned 8:8 fixed point)
 		hoverHeight		.word
 
-		;; The speed that the entity flys at (x Velocity)
+		;; The speed that the entity flies at (x Velocity)
 		flyXVecl		.word
 
 		;; The speed that the entity overs at (y Velocity)
@@ -42,7 +42,7 @@ IMPORT_MODULE Npc_Bat
 		;; Direction of flying
 		flyLeftOnZero		.word
 
-		;; Diection of hover
+		;; Direction of hover
 		hoverUpOnZero		.word
 
 		;; Number of pixels currently flying up/down

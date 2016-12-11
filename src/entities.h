@@ -31,7 +31,7 @@ IMPORT_MODULE Entities
 	;; Player struct allocation
 	BYTE	player, ENTITY_MALLOC
 
-	;; Initilisation parameter passed to entity->Init when creating new entity.
+	;; Initialisation parameter passed to entity->Init when creating new entity.
 	WORD	parameter
 
 	;; Initializes the entity pools to 0
@@ -65,7 +65,7 @@ IMPORT_MODULE Entities
 	;;	Entities__parameter - the parameter to pass to entity->Init
 	ROUTINE	NewProjectile
 
-	;; Proceses all of the entities.
+	;; Processes all of the entities.
 	;;
 	;; First stage of the Entity processing loop.
 	;;
@@ -74,7 +74,7 @@ IMPORT_MODULE Entities
 	;;	* Processes the Projectile's Process routine.
 	;;	* Processes each NPC:
 	;;		* Calls the NPC->Process routine.
-	;;		* Checks for a collison between the NPC and the player,
+	;;		* Checks for a collision between the NPC and the player,
 	;;		  if there is one calls NPC->CollisionPlayer
 	;;
 	;; REQUIRE: 16 bit A, 16 bit Index, DB = $7E
@@ -83,7 +83,7 @@ IMPORT_MODULE Entities
 	;; Renders all of the entities with metasprites.
 	;;
 	;; This routine:
-	;;	* Dislays the player's
+	;;	* Displays the player's
 	;;	* Displays all of the Projectiles.
 	;;	* Displays all of the NPCs
 	;;

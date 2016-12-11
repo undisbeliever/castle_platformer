@@ -18,7 +18,7 @@ MAX_Y_VECLOCITY = 10 * 256
 DEFAULT_GRAVITY = 40		; Acceleration due to gravity in 1/256 pixels per frame per frame
 ;; How much less gravity the entity experiences when holding the jump button
 GRAVITY_JUMP_HOLD = 20
-;; Fraction of Xvecl is added to the jump.
+;; Fraction of xVecl is added to the jump.
 ;; (`yVecl -= xVecl / JUMP_XVECL_FRACTIONAL`)
 JUMP_XVECL_FRACTIONAL = 4
 
@@ -97,7 +97,7 @@ JUMP_XVECL_FRACTIONAL = 4
 		;; 0 (NULL) if floating.
 		standingTile		.addr
 
-		;; The address of the tileproperty that the entity is on.
+		;; The address of the Tile Property that the entity is on.
 		;; If the entity is standing, it set to tile the entity is standing on.
 		;; If the entity is not standing, it is entity's top-left tile. 
 		currentTileProperty	.addr
@@ -110,7 +110,7 @@ END_ENTITY_PHYSICS_STRUCT
 
 IMPORT_MODULE EntityPhysics
 
-	;; Table that points to the MetaTilePropertyStruct for each metatile.
+	;; Table that points to the MetaTilePropertyStruct for each MetaTile.
 	;; Must be set before calling  `EntityPhysicsWithCollisions` or
 	;; `EntityPhysicsWithCollisionsNoGravity`
 	;; ACCESSED: DB = $7E
@@ -141,7 +141,7 @@ IMPORT_MODULE EntityPhysics
 
 	;; Preforms physics and collisions for a given entity.
 	;;	* Adds Gravity
-	;;	* Checks collisisons
+	;;	* Checks collisions
 	;;	* Sets `Entity::currentTile` to the MetaTilePropertyStruct of
 	;;	  the tile the entity is in front of
 	;;	* Sets `Entity::standingTile` to NULL (0) if entity is floating
@@ -150,7 +150,7 @@ IMPORT_MODULE EntityPhysics
 	;;	* Sets `EntityPhysics__entityTouchTileFunctionPtr` to the MetaTileFunctionsTable
 	;;	  location of last tile touched that has a functions table.
 	;;	* Sets the `EntityPhysics__status` `EntityPhysicsStatusBits` bits if a
-	;;	  collision occoured.
+	;;	  collision occurred.
 	;;
 	;; REQUIRE: 16 bit A, 16 bit Index, DB = $7E
 	;; INPUT: DP - entity location (must be a subclass of EntityPhysicsStruct)
@@ -182,13 +182,13 @@ IMPORT_MODULE EntityPhysics
 	;;	A - Joypad data. (16 bit)
 	ROUTINE MoveEntityWithController
 
-	;; Sets the player's yVeclity to their jumping velocity.
+	;; Sets the player's yVelocity to their jumping velocity.
 	;;
 	;; The jumping velocity is combined with the `currentTileProperty`'s
-	;; `jumpingVelocity` and the delta of the entitie's xVecl.
+	;; `jumpingVelocity` and the delta of the entity's xVecl.
 	;;
 	;; REQUIRE: 16 bit A, 16 bit Index, DB = $7E
-	;; INPUT: DP - entity adress (must be a subclass of EntityPhysicsStruct)
+	;; INPUT: DP - entity address (must be a subclass of EntityPhysicsStruct)
 	ROUTINE Jump
 ENDMODULE
 

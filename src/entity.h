@@ -40,7 +40,7 @@ CONFIG ENTITY_MALLOC, 64
 .endstruct
 
 
-;; Function table for NPC enities
+;; Function table for NPC entities
 .struct NpcEntityFunctionsTable
 	;; Called on entity creation, after state is loaded.
 	;; MUST NOT SET the Entity's `functionsTable` to NULL.
@@ -68,7 +68,7 @@ CONFIG ENTITY_MALLOC, 64
 	;; OUTPUT: Carry set if entity still alive
 	Process			.addr
 
-	;; Called when the player collides with the npc
+	;; Called when the player collides with the NPC
 	;; REQUIRES: 16 bit A, 16 bit Index
 	;; INPUT: dp: EntityStruct NPC address
 	;; OUTPUT: Carry set if entity still alive

@@ -61,8 +61,8 @@ ROUTINE LoadMap
 
 	PHX
 
-	; load map propeties
-	; ------------------
+	; load map properties
+	; -------------------
 
 	LDA	f:MapsTable + MapTableFormat::mapProperties, X
 	TAX

@@ -31,7 +31,7 @@ IMPORT_MODULE Player
 		;; if zero then facing left.
 		facingLeftOnZero			.word
 
-		;; Number of enemies jumped ontop of before hitting the ground.
+		;; Number of enemies jumped on-top of before hitting the ground.
 		nEnemysJumpedOnBeforeTouchingGround	.word
 	END_ENTITY_STRUCT
 
@@ -53,7 +53,7 @@ IMPORT_MODULE Player
 
 
 	;; Kills the player.
-	;; Sets the gamestate to DEAD, player animation to DEAD
+	;; Sets the game state to DEAD, player animation to DEAD
 	;;
 	;; REQUIRE: 16 bit A, 16 bit Index, DB = $7E
 	;; INPUT: dp = npc that killed the player.

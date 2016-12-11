@@ -16,7 +16,7 @@
 ;;
 ;; When the player touches the entity, the player will die.
 ;;
-;; The paramter for this entity is the number of pixels
+;; The parameter for this entity is the number of pixels
 ;; from the edge of the AABB to test. This number must
 ;; be large enough that the entity does not slide off the
 ;; edge. The default (used if param is NULL) is 8.
@@ -32,7 +32,7 @@ IMPORT_MODULE Npc_WalkAndTurn
 		FALL_RIGHT
 
 		; All animations below must end in `AnimationBytecode::STOP`
-		; they pause the entity until the animaion is complete.
+		; they pause the entity until the animation is complete.
 		LAND_LEFT
 		LAND_RIGHT
 		COLLISION_HURT_PLAYER_LEFT

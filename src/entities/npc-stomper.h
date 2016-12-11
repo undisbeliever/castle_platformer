@@ -35,7 +35,7 @@ IMPORT_MODULE Npc_Stomper
 		;  The fields below do not need to be set initialized.
 		; -----------------------------------------------------
 
-		;; Origional starting height
+		;; Original starting height
 		startingYpos		.word
 
 		;; Entity state.

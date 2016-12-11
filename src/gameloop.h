@@ -29,7 +29,7 @@ IMPORT_MODULE GameLoop
 	;; The current map being played.
 	BYTE	map
 
-	;; The curret game state. Possible values are of `GameState`
+	;; The current game state. Possible values are of `GameState`
 	;; Can be set by any of the process functions, checked at the start of
 	;; every frame.
 	BYTE	state
