@@ -1,3 +1,3 @@
 [submodule "snesdev-common"]
 	path = snesdev-common
-	url = git@github.com:undisbeliever/1gam-common.git
+	url = https://github.com/undisbeliever/1gam-common.git
