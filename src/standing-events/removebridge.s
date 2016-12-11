@@ -61,7 +61,6 @@ ROUTINE RemoveBridge
 .A16
 .I16
 ROUTINE RemoveBridgeEvent
-	; // SOUND - remove bridge
 	; Camera__shaking = 1
 	; MetaTiles1x16__mapDirty = 1
 	;
@@ -73,8 +72,6 @@ ROUTINE RemoveBridgeEvent
 	; 	return false
 	;
 	; return true
-
-	; ::SOUND remove bridge::
 
 	SEP	#$20
 .A8

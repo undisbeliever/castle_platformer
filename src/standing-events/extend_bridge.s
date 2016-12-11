@@ -100,7 +100,6 @@ ROUTINE ExtendBridgeEvent
 	;	return true
 	; else
 	; 	event->frameDelay = EXTEND_BRIDGE_FRAME_DELAY
-	;	// SOUND - remove chain
 	;	MetaTiles1x16__mapDirty = 1
 	;
 	;	MetaTiles1x16__map[event->currentBridgePieceToExtend] = bridgeTile
@@ -131,7 +130,6 @@ ROUTINE ExtendBridgeEvent
 		RTS	
 	ENDIF
 .A8	
-	; ::SOUND extend bridge::
 
 	LDA	#EXTEND_BRIDGE_FRAME_DELAY
 	STA	z:EventStruct::frameDelay

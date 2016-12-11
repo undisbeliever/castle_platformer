@@ -80,7 +80,6 @@ ROUTINE RemoveChainEvent
 	;	return true
 	; else
 	; 	entity->frameDelay = REMOVE_CHAIN_FRAME_DELAY
-	;	// SOUND - remove chain
 	;	MetaTiles1x16__mapDirty = 1
 	;
 	;	MetaTiles1x16__map[currentChainPieceToRemove] = 0
@@ -112,8 +111,6 @@ ROUTINE RemoveChainEvent
 		RTS	
 	ENDIF
 .A8
-
-	; ::SOUND remove chain::
 
 	LDA	#REMOVE_CHAIN_FRAME_DELAY
 	STA	z:EventStruct::frameDelay
