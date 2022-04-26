@@ -1,6 +1,4 @@
 
-include ../snesdev-common/makefiles/resources.makefile
-
 .PHONY: all
 
 all: metatilesets metatilemaps entities
@@ -13,8 +11,13 @@ metatilesets:
 metatilemaps:
 	$(MAKE) -C metatilemaps
 
+.PHONY: entities
+entities:
+	$(MAKE) -C entities
+
 
 clean::
 	$(MAKE) -C metatilesets clean
 	$(MAKE) -C metatilemaps clean
+	$(MAKE) -C entities clean
 
