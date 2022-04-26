@@ -28,7 +28,7 @@ and are licensed under [CC0](http://creativecommons.org/publicdomain/zero/1.0/).
 
 Build Requirements
 ===================
- * ca65
+ * ca65 v2.18 or higher
  * pcx2snes
  * gnu Make
  * ucon64

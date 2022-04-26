@@ -190,7 +190,10 @@ ROUTINE NewPlayer
 	INX
 	INX
 
-	MVN	$7E, EntityStateBank
+	MVN	#EntityStateBank, #$7E
+
+	; NOTE: MVN changes DB to $7E
+
 
 	PLA
 	STA	z:EntityStruct::xPos + 1
@@ -264,7 +267,10 @@ ROUTINE NewPlayer
 		INY
 		INY
 
-		MVN	$7E, EntityStateBank
+		MVN	#EntityStateBank, #$7E
+
+		; NOTE: MVN changes DB to $7E
+
 
 		PLA
 		STA	z:EntityStruct::xPos + 1
